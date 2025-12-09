@@ -1,8 +1,10 @@
+// assets/css/base.css
+
 :root {
     --color-bg-dark: #000000;
     --color-bg-soft: #060606;
     --color-primary-red: #990f02;
-    --color-specials: #FFC632;
+    --color-specials: #ffc632;
     --color-text-light: #ffffff;
     --color-text-muted: #cccccc;
     --color-text-dark: #111111;
@@ -39,7 +41,7 @@ img {
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 1rem;
+    padding: 0 1.25rem;
 }
 
 .btn {
@@ -72,18 +74,18 @@ img {
 .btn-ghost {
     background: rgba(255, 255, 255, 0.06);
     color: var(--color-text-light);
-    border-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.22);
 }
 
 .btn-ghost:hover,
 .btn-ghost:focus-visible {
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.14);
 }
 
 .btn-outline {
     background: transparent;
     color: var(--color-text-light);
-    border-color: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.35);
 }
 
 .btn-outline:hover,
@@ -148,14 +150,14 @@ main {
     grid-template-columns: auto 1fr auto;
     align-items: center;
     gap: 1rem;
-    padding: 0.85rem 1rem;
+    padding: 0.65rem 0.9rem;
     max-width: 1200px;
     margin: 0 auto;
 }
 
 .ek-burger {
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
     border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.14);
     background: rgba(255, 255, 255, 0.06);
@@ -191,7 +193,7 @@ main {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
     border: 2px solid rgba(255, 255, 255, 0.18);
     color: var(--color-text-light);
-    width: clamp(120px, 28vw, 180px);
+    width: clamp(110px, 24vw, 160px);
     aspect-ratio: 1 / 1;
     border-radius: 50%;
     display: grid;
@@ -218,14 +220,14 @@ main {
 }
 
 .ek-marquee {
-    background: var(--color-bg-soft);
+    background: #050505;
     color: var(--color-text-muted);
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     letter-spacing: 0.01em;
-    padding: 0.5rem 1rem;
+    padding: 0.45rem 1rem;
     backdrop-filter: blur(6px);
     border-top: 1px solid rgba(255, 255, 255, 0.08);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     overflow: hidden;
     white-space: nowrap;
 }
@@ -1010,7 +1012,7 @@ body.drawer-open .ek-drawer-overlay {
 .ek-footer-meta {
     text-align: center;
     font-size: 0.9rem;
-    color: rgba(244, 236, 230, 0.8);
+    color: var(--color-text-muted);
 }
 
 .animate-on-scroll {
@@ -1035,8 +1037,12 @@ body.drawer-open .ek-drawer-overlay {
         padding: 0 0 4rem;
     }
 
+    .container {
+        padding: 0 2rem;
+    }
+
     .ek-header-inner {
-        padding: 1rem 1.5rem;
+        padding: 0.85rem 1.25rem;
     }
 
     .ek-burger {
@@ -1093,7 +1099,7 @@ body.drawer-open .ek-drawer-overlay {
 
 @media (min-width: 1024px) {
     .ek-header-inner {
-        padding: 1rem 2rem;
+        padding: 0.9rem 1.6rem;
     }
 
     .ek-drawer {
