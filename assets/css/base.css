@@ -1,10 +1,11 @@
 :root {
-    --color-bg-dark: #160D08;
+    --color-bg-dark: #000000;
+    --color-bg-soft: #060606;
     --color-primary-red: #990f02;
-    --color-bg-soft: #fff4eb;
     --color-specials: #FFC632;
-    --color-text-light: #f4ece6;
-    --color-text-dark: #1f150f;
+    --color-text-light: #ffffff;
+    --color-text-muted: #cccccc;
+    --color-text-dark: #111111;
 }
 
 *, *::before, *::after {
@@ -14,8 +15,8 @@
 body {
     margin: 0;
     font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: var(--color-bg-soft);
-    color: var(--color-text-dark);
+    background: var(--color-bg-dark);
+    color: var(--color-text-light);
     line-height: 1.6;
     overflow-x: hidden;
 }
@@ -58,8 +59,8 @@ img {
 
 .btn-primary {
     background: var(--color-primary-red);
-    color: #fff;
-    box-shadow: 0 8px 20px rgba(153, 15, 2, 0.28);
+    color: var(--color-text-light);
+    box-shadow: 0 8px 20px rgba(153, 15, 2, 0.38);
 }
 
 .btn-primary:hover,
@@ -69,20 +70,20 @@ img {
 }
 
 .btn-ghost {
-    background: rgba(0, 0, 0, 0.06);
-    color: var(--color-text-dark);
-    border-color: rgba(0, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--color-text-light);
+    border-color: rgba(255, 255, 255, 0.1);
 }
 
 .btn-ghost:hover,
 .btn-ghost:focus-visible {
-    background: rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.12);
 }
 
 .btn-outline {
     background: transparent;
-    color: var(--color-text-dark);
-    border-color: rgba(0, 0, 0, 0.12);
+    color: var(--color-text-light);
+    border-color: rgba(255, 255, 255, 0.18);
 }
 
 .btn-outline:hover,
@@ -114,6 +115,7 @@ main {
 
 .ek-section {
     padding: 3.5rem 0;
+    background: var(--color-bg-dark);
 }
 
 .ek-section-header {
@@ -129,7 +131,7 @@ main {
 
 .ek-section-header p {
     margin: 0;
-    color: rgba(31, 21, 15, 0.82);
+    color: var(--color-text-muted);
 }
 
 .ek-header {
@@ -216,14 +218,14 @@ main {
 }
 
 .ek-marquee {
-    background: rgba(255, 255, 255, 0.08);
-    color: var(--color-text-light);
+    background: var(--color-bg-soft);
+    color: var(--color-text-muted);
     font-size: 0.95rem;
     letter-spacing: 0.01em;
     padding: 0.5rem 1rem;
     backdrop-filter: blur(6px);
     border-top: 1px solid rgba(255, 255, 255, 0.08);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     overflow: hidden;
     white-space: nowrap;
 }
@@ -357,7 +359,7 @@ body.drawer-open .ek-drawer-overlay {
     display: grid;
     align-items: center;
     overflow: hidden;
-    background: #0f0805;
+    background: #000;
 }
 
 .ek-hero-media video {
@@ -438,32 +440,87 @@ body.drawer-open .ek-drawer-overlay {
 }
 
 .ek-specials {
-    background: #fff;
+    background: var(--color-bg-soft);
     margin-top: -2rem;
     border-top-left-radius: 18px;
     border-top-right-radius: 18px;
-    box-shadow: 0 -10px 30px rgba(0,0,0,0.04);
+    box-shadow: 0 -10px 34px rgba(0, 0, 0, 0.4);
 }
 
-.ek-specials-grid {
+.ek-specials-layout {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 1.25rem;
+}
+
+.ek-specials-list {
+    display: grid;
     gap: 1rem;
 }
 
+.ek-specials-media {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    padding: 1rem;
+    display: grid;
+    gap: 0.75rem;
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.4);
+}
+
+.ek-specials-media-frame {
+    background: #0a0a0a;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 1rem;
+    min-height: 260px;
+    display: grid;
+    place-items: center;
+}
+
+.ek-specials-media-slide {
+    width: 100%;
+    display: grid;
+    gap: 0.75rem;
+}
+
+.ek-specials-media-image {
+    width: 100%;
+    min-height: 180px;
+    border-radius: 12px;
+    background: radial-gradient(circle at 20% 20%, rgba(255, 198, 50, 0.35), transparent 45%),
+        radial-gradient(circle at 80% 30%, rgba(153, 15, 2, 0.4), transparent 40%),
+        linear-gradient(135deg, #111111, #070707);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ek-specials-media-caption h3 {
+    margin: 0 0 0.35rem;
+}
+
+.ek-specials-media-caption p {
+    margin: 0;
+    color: var(--color-text-muted);
+}
+
+.ek-specials-media-note {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
+}
+
 .ek-card {
-    background: #fff;
+    background: #111111;
     border-radius: 16px;
-    box-shadow: 0 16px 32px rgba(0,0,0,0.06);
+    box-shadow: 0 16px 32px rgba(0,0,0,0.35);
     overflow: hidden;
-    border: 1px solid rgba(0,0,0,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .ek-card:hover,
 .ek-card:focus-within {
     transform: translateY(-4px);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.45);
 }
 
 .ek-card-body {
@@ -484,17 +541,17 @@ body.drawer-open .ek-drawer-overlay {
 
 .ek-price-strike {
     text-decoration: line-through;
-    color: rgba(31, 21, 15, 0.5);
+    color: rgba(255, 255, 255, 0.6);
     margin-right: 0.35rem;
 }
 
 .ek-card-tagline {
     margin: 0 0 1rem;
-    color: rgba(31, 21, 15, 0.7);
+    color: var(--color-text-muted);
 }
 
 .ek-categories {
-    background: transparent;
+    background: var(--color-bg-dark);
 }
 
 .ek-category-grid {
@@ -511,11 +568,12 @@ body.drawer-open .ek-drawer-overlay {
     color: #fff;
     display: flex;
     align-items: flex-end;
-    background: #0f0805;
+    background: #0b0b0b;
     background-image: var(--ek-category-bg-image);
     background-size: cover;
     background-position: center;
-    box-shadow: 0 16px 32px rgba(0,0,0,0.16);
+    box-shadow: 0 16px 32px rgba(0,0,0,0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -553,12 +611,12 @@ body.drawer-open .ek-drawer-overlay {
 }
 
 .ek-main-order {
-    background: #fff;
+    background: var(--color-bg-dark);
 }
 
 .ek-order-hero {
-    background: #fff;
-    border-bottom: 1px solid rgba(0,0,0,0.04);
+    background: var(--color-bg-soft);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
     padding-bottom: 2.5rem;
 }
 
@@ -576,7 +634,7 @@ body.drawer-open .ek-drawer-overlay {
 
 .ek-order-hero-text p {
     margin: 0 0 0.5rem;
-    color: rgba(31, 21, 15, 0.82);
+    color: var(--color-text-muted);
 }
 
 .ek-order-options {
@@ -585,22 +643,22 @@ body.drawer-open .ek-drawer-overlay {
     margin: 0;
     display: grid;
     gap: 0.35rem;
-    color: rgba(31, 21, 15, 0.85);
+    color: var(--color-text-muted);
 }
 
 .ek-order-hero-badge {
     align-self: flex-start;
     padding: 0.75rem 1rem;
     border-radius: 14px;
-    background: rgba(22, 13, 8, 0.05);
-    border: 1px solid rgba(22, 13, 8, 0.08);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     display: grid;
     gap: 0.1rem;
     font-weight: 700;
 }
 
 .ek-order-hero-badge small {
-    color: rgba(31, 21, 15, 0.7);
+    color: var(--color-text-muted);
     font-weight: 600;
 }
 
@@ -608,9 +666,9 @@ body.drawer-open .ek-drawer-overlay {
     position: sticky;
     top: 68px;
     z-index: 500;
-    background: #fff;
+    background: var(--color-bg-dark);
     padding: 0.65rem 0 0.85rem;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.35);
 }
 
 .ek-order-cat-scroll {
@@ -627,10 +685,10 @@ body.drawer-open .ek-drawer-overlay {
     justify-content: center;
     padding: 0.55rem 0.9rem;
     border-radius: 999px;
-    background: rgba(22, 13, 8, 0.06);
-    border: 1px solid transparent;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     font-weight: 700;
-    color: rgba(31, 21, 15, 0.9);
+    color: var(--color-text-light);
     white-space: nowrap;
     scroll-snap-align: start;
     transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
@@ -638,24 +696,24 @@ body.drawer-open .ek-drawer-overlay {
 
 .ek-order-cat-pill:hover,
 .ek-order-cat-pill:focus-visible {
-    background: rgba(22, 13, 8, 0.1);
+    background: rgba(255, 255, 255, 0.12);
     transform: translateY(-1px);
 }
 
 .ek-order-cat-pill.is-active {
     background: var(--color-primary-red);
-    color: #fff;
+    color: var(--color-text-light);
     border-color: var(--color-primary-red);
     box-shadow: 0 10px 22px rgba(153, 15, 2, 0.18);
 }
 
 .ek-order-body {
-    background: #fff;
+    background: var(--color-bg-dark);
 }
 
 .ek-order-category-section {
     padding: 2.25rem 0;
-    border-bottom: 1px solid rgba(0,0,0,0.05);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 
 .ek-order-category-header h2 {
@@ -665,12 +723,12 @@ body.drawer-open .ek-drawer-overlay {
 
 .ek-order-category-header p {
     margin: 0 0 1rem;
-    color: rgba(31, 21, 15, 0.75);
+    color: var(--color-text-muted);
 }
 
 .ek-order-products-placeholder {
-    background: rgba(153, 15, 2, 0.04);
-    border: 1px dashed rgba(153, 15, 2, 0.3);
+    background: rgba(153, 15, 2, 0.08);
+    border: 1px dashed rgba(153, 15, 2, 0.35);
     border-radius: 16px;
     padding: 1.35rem;
     display: grid;
@@ -678,14 +736,14 @@ body.drawer-open .ek-drawer-overlay {
 }
 
 .ek-order-products-note {
-    color: rgba(31, 21, 15, 0.7);
+    color: var(--color-text-muted);
     margin: 0;
 }
 
 .ek-strip {
     padding: 1.2rem 0;
-    background: rgba(153, 15, 2, 0.08);
-    color: var(--color-text-dark);
+    background: var(--color-bg-soft);
+    color: var(--color-text-muted);
 }
 
 .ek-strip-inline p {
@@ -696,11 +754,11 @@ body.drawer-open .ek-drawer-overlay {
 }
 
 .ek-main-visit {
-    background: #fff;
+    background: var(--color-bg-dark);
 }
 
 .ek-visit-hero {
-    background: #fff;
+    background: var(--color-bg-soft);
     padding-top: 2rem;
     padding-bottom: 2rem;
 }
@@ -718,7 +776,7 @@ body.drawer-open .ek-drawer-overlay {
 
 .ek-visit-hero p {
     margin: 0;
-    color: rgba(31, 21, 15, 0.8);
+    color: var(--color-text-muted);
 }
 
 .ek-visit-hero-actions {
@@ -728,7 +786,7 @@ body.drawer-open .ek-drawer-overlay {
 }
 
 .ek-visit-preview {
-    background: #fff;
+    background: var(--color-bg-dark);
 }
 
 .ek-visit-layout {
@@ -763,7 +821,7 @@ body.drawer-open .ek-drawer-overlay {
 
 .ek-visit-text p {
     margin: 0 0 1rem;
-    color: rgba(31, 21, 15, 0.8);
+    color: var(--color-text-muted);
 }
 
 .ek-visit-hours {
@@ -772,7 +830,7 @@ body.drawer-open .ek-drawer-overlay {
     margin: 0 0 1rem;
     display: grid;
     gap: 0.35rem;
-    color: rgba(31, 21, 15, 0.85);
+    color: var(--color-text-muted);
 }
 
 .ek-visit-actions {
@@ -782,11 +840,11 @@ body.drawer-open .ek-drawer-overlay {
 }
 
 .ek-main-contact {
-    background: #fff;
+    background: var(--color-bg-dark);
 }
 
 .ek-contact-hero {
-    background: #fff;
+    background: var(--color-bg-soft);
     padding-top: 2rem;
     padding-bottom: 1.5rem;
 }
@@ -804,7 +862,7 @@ body.drawer-open .ek-drawer-overlay {
 
 .ek-contact-hero p {
     margin: 0;
-    color: rgba(31, 21, 15, 0.8);
+    color: var(--color-text-muted);
 }
 
 .ek-contact-hero-actions {
@@ -814,7 +872,7 @@ body.drawer-open .ek-drawer-overlay {
 }
 
 .ek-contact-body {
-    background: #fff;
+    background: var(--color-bg-dark);
     padding-top: 1rem;
 }
 
@@ -837,11 +895,11 @@ body.drawer-open .ek-drawer-overlay {
 }
 
 .ek-contact-form-wrapper {
-    background: #fff;
-    border: 1px solid rgba(0,0,0,0.05);
+    background: #0b0b0b;
+    border: 1px solid rgba(255,255,255,0.08);
     border-radius: 16px;
     padding: 1.25rem;
-    box-shadow: 0 12px 26px rgba(0,0,0,0.06);
+    box-shadow: 0 12px 26px rgba(0,0,0,0.45);
     display: grid;
     gap: 1rem;
 }
@@ -865,10 +923,11 @@ body.drawer-open .ek-drawer-overlay {
     width: 100%;
     padding: 0.75rem 0.85rem;
     border-radius: 12px;
-    border: 1px solid rgba(0,0,0,0.12);
+    border: 1px solid rgba(255,255,255,0.16);
     font-size: 1rem;
     font-family: inherit;
-    background: #fff;
+    background: #0f0f0f;
+    color: var(--color-text-light);
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -991,6 +1050,11 @@ body.drawer-open .ek-drawer-overlay {
 
     .ek-specials {
         padding-top: 4.2rem;
+    }
+
+    .ek-specials-layout {
+        grid-template-columns: 1.1fr 0.9fr;
+        align-items: stretch;
     }
 
     .ek-order-hero-inner {

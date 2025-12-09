@@ -94,42 +94,60 @@ include 'includes/header.php';
             <p>Quick combos at wallet-friendly prices.</p>
         </header>
 
-        <div class="ek-specials-grid">
-            <article class="ek-card ek-card-special animate-on-scroll" data-animate="fade-up">
-                <div class="ek-card-body">
-                    <h3>Deluxe Burger</h3>
-                    <p class="ek-card-price">$9.25</p>
-                    <p class="ek-card-tagline">Classic deluxe burger with fries &amp; drink options.</p>
-                    <a href="/order.php?cat=specials" class="btn btn-outline">Order This Deal</a>
-                </div>
-            </article>
+        <div class="ek-specials-layout">
+            <div class="ek-specials-list">
+                <article class="ek-card ek-card-special animate-on-scroll" data-animate="fade-up">
+                    <div class="ek-card-body">
+                        <h3>Deluxe Burger</h3>
+                        <p class="ek-card-price">$9.25</p>
+                        <p class="ek-card-tagline">Classic deluxe burger with fries &amp; drink options.</p>
+                        <a href="/order.php?cat=specials" class="btn btn-outline">Order This Deal</a>
+                    </div>
+                </article>
 
-            <article class="ek-card ek-card-special animate-on-scroll" data-animate="fade-up">
-                <div class="ek-card-body">
-                    <h3>2 Burritos</h3>
-                    <p class="ek-card-price">$9.25</p>
-                    <p class="ek-card-tagline">Stuffed and ready to roll for your lunch break.</p>
-                    <a href="/order.php?cat=specials" class="btn btn-outline">Order This Deal</a>
-                </div>
-            </article>
+                <article class="ek-card ek-card-special animate-on-scroll" data-animate="fade-up">
+                    <div class="ek-card-body">
+                        <h3>2 Burritos</h3>
+                        <p class="ek-card-price">$9.25</p>
+                        <p class="ek-card-tagline">Stuffed and ready to roll for your lunch break.</p>
+                        <a href="/order.php?cat=specials" class="btn btn-outline">Order This Deal</a>
+                    </div>
+                </article>
 
-            <article class="ek-card ek-card-special animate-on-scroll" data-animate="fade-up">
-                <div class="ek-card-body">
-                    <h3>2 Corn Dogs</h3>
-                    <p class="ek-card-price">$9.25</p>
-                    <p class="ek-card-tagline">Golden, crispy classics with dipping sauces.</p>
-                    <a href="/order.php?cat=specials" class="btn btn-outline">Order This Deal</a>
-                </div>
-            </article>
+                <article class="ek-card ek-card-special animate-on-scroll" data-animate="fade-up">
+                    <div class="ek-card-body">
+                        <h3>2 Corn Dogs</h3>
+                        <p class="ek-card-price">$9.25</p>
+                        <p class="ek-card-tagline">Golden, crispy classics with dipping sauces.</p>
+                        <a href="/order.php?cat=specials" class="btn btn-outline">Order This Deal</a>
+                    </div>
+                </article>
 
-            <article class="ek-card ek-card-special animate-on-scroll" data-animate="fade-up">
-                <div class="ek-card-body">
-                    <h3>10pc Chicken Nugget</h3>
-                    <p class="ek-card-price"><span class="ek-price-strike">$9.25</span> $7.75</p>
-                    <p class="ek-card-tagline">Crunchy nuggets with your choice of dipping sauce.</p>
-                    <a href="/order.php?cat=specials" class="btn btn-outline">Order This Deal</a>
+                <article class="ek-card ek-card-special animate-on-scroll" data-animate="fade-up">
+                    <div class="ek-card-body">
+                        <h3>10pc Chicken Nugget</h3>
+                        <p class="ek-card-price"><span class="ek-price-strike">$9.25</span> $7.75</p>
+                        <p class="ek-card-tagline">Crunchy nuggets with your choice of dipping sauce.</p>
+                        <a href="/order.php?cat=specials" class="btn btn-outline">Order This Deal</a>
+                    </div>
+                </article>
+            </div>
+
+            <div class="ek-specials-media animate-on-scroll" data-animate="fade-up">
+                <div class="ek-specials-media-frame">
+                    <div class="ek-specials-media-slide is-active">
+                        <!-- Slider images to be replaced with Supabase media URLs later. -->
+                        <div class="ek-specials-media-image"></div>
+                        <div class="ek-specials-media-caption">
+                            <h3>Daily Specials Preview</h3>
+                            <p>Rotating images of our best deals will appear here.</p>
+                        </div>
+                    </div>
                 </div>
-            </article>
+                <p class="ek-specials-media-note">
+                    Media slider placeholder – later we will load real images from Supabase.
+                </p>
+            </div>
         </div>
     </div>
 </section>
