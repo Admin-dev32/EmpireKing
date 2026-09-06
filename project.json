@@ -2,7 +2,7 @@
   "project": {
     "name": "Empire King Burger",
     "repository": "Admin-dev32/EmpireKing",
-    "phase": "production-oriented WordPress/WooCommerce foundation"
+    "phase": "corporate Home visual-direction prototype"
   },
   "sourcesOfTruth": [
     "README.md",
@@ -18,6 +18,10 @@
     "commerce": "WooCommerce owns product, cart, and checkout behavior on location stores",
     "durableBusinessLogic": "Use a dedicated plugin when non-theme functionality is required",
     "futureCorporateRouting": "Every transactional Order, Menu, product, or deal action must ask for location before routing to a store"
+  },
+  "seo": {
+    "architectureGate": "completed",
+    "home": "Corporate brand and discovery Home; prototype implementation, not approved final design"
   },
   "localRuntime": {
     "siteUrl": "http://localhost:8888",
@@ -38,8 +42,8 @@
   "readOrder": ["package.json", ".wp-env.json", ".gitignore", "README.md", "PROJECT-UPDATES.md"],
   "protectedPaths": ["index.php", "contact.php", "order.php", "visit.php", "includes/", "assets/", "WordPress core", "WooCommerce plugin/core"],
   "scope": {
-    "included": ["minimal shared classic theme", "local wp-env theme mapping", "documentation", "inexpensive validation CI"],
-    "excluded": ["final corporate Home design", "legacy-site migration", "location selector UI", "checkout or payment implementation", "production infrastructure", "Catering"]
+    "included": ["minimal shared classic theme", "corporate Home visual-direction prototype", "local wp-env theme mapping", "documentation", "inexpensive validation CI"],
+    "excluded": ["approved final corporate Home design", "legacy-site migration", "location selector UI", "checkout or payment implementation", "production infrastructure", "Catering"]
   },
   "theme": {
     "location": "wp-content/themes/empire-king",

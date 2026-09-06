@@ -36,5 +36,26 @@ function empire_king_enqueue_styles() {
 		array(),
 		wp_get_theme()->get( 'Version' )
 	);
+
+	if ( is_front_page() ) {
+		wp_enqueue_style(
+			'empire-king-home',
+			get_theme_file_uri( 'assets/css/home.css' ),
+			array( 'empire-king-style' ),
+			wp_get_theme()->get( 'Version' )
+		);
+	}
 }
 add_action( 'wp_enqueue_scripts', 'empire_king_enqueue_styles' );
+
+function empire_king_primary_nav_fallback() {
+	?>
+	<ul class="primary-menu">
+		<li><a href="#favorites"><?php esc_html_e( 'Menu', 'empire-king' ); ?></a></li>
+		<li><a href="#deals"><?php esc_html_e( 'Deals', 'empire-king' ); ?></a></li>
+		<li><a href="#locations"><?php esc_html_e( 'Locations', 'empire-king' ); ?></a></li>
+		<li><a href="#about"><?php esc_html_e( 'About', 'empire-king' ); ?></a></li>
+		<li><a class="header-order-link" href="#locations"><?php esc_html_e( 'Order Now', 'empire-king' ); ?></a></li>
+	</ul>
+	<?php
+}

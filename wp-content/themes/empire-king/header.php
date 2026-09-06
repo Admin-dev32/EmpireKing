@@ -27,7 +27,7 @@
 			array(
 				'theme_location' => 'primary',
 				'menu_class'     => 'primary-menu',
-				'fallback_cb'    => false,
+				'fallback_cb'    => 'empire_king_primary_nav_fallback',
 			)
 		);
 		?>

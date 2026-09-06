@@ -30,4 +30,4 @@ Work on `dev/jorge`; Git Live Sync Watcher manages ordinary checkpoint commits a
 
 The root legacy files (`index.php`, `contact.php`, `order.php`, `visit.php`, `includes/`, and `assets/`) are protected reference code. Catering is explicitly out of scope.
 
-The next development phase is: **corporate Home visual implementation**.
+The current phase is a **corporate Home visual-direction prototype**. It establishes responsive structure and hierarchy only; copy, media, routing, and final design approval remain future work.

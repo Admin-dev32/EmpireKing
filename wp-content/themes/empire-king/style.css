@@ -7,27 +7,40 @@ Text Domain: empire-king
 
 :root {
   color-scheme: light;
-  font-family: system-ui, sans-serif;
+  --ek-color-text: #20201e;
+  --ek-color-surface: #ffffff;
+  --ek-color-muted: #f4f1eb;
+  --ek-color-border: #d9d5cd;
+  --ek-color-action: #20201e;
+  --ek-color-action-text: #ffffff;
+  --ek-space-1: 0.5rem;
+  --ek-space-2: 1rem;
+  --ek-space-3: 1.5rem;
+  --ek-space-4: 2.5rem;
+  --ek-space-5: 4rem;
+  --ek-radius: 0.75rem;
+  --ek-content-width: 75rem;
+  font-family: Arial, Helvetica, sans-serif;
   line-height: 1.5;
 }
 
 body {
   margin: 0;
-  color: #1f1f1f;
-  background: #ffffff;
+  color: var(--ek-color-text);
+  background: var(--ek-color-surface);
 }
 
 .site-header,
 .site-footer,
 .site-content {
-  max-width: 72rem;
+  max-width: var(--ek-content-width);
   margin: 0 auto;
-  padding: 1.5rem;
+  padding: var(--ek-space-3);
 }
 
 .site-header,
 .site-footer {
-  border-color: #e5e5e5;
+  border-color: var(--ek-color-border);
   border-style: solid;
   border-width: 0 0 1px;
 }
@@ -41,4 +54,67 @@ body {
   gap: 1rem;
   padding: 0;
   list-style: none;
+}
+
+a {
+  color: inherit;
+}
+
+a:focus-visible {
+  outline: 3px solid currentColor;
+  outline-offset: 3px;
+}
+
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ek-space-3);
+}
+
+.site-title,
+.footer-brand {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.site-title a,
+.primary-menu a,
+.footer-menu a {
+  text-decoration: none;
+}
+
+.header-order-link {
+  padding: 0.6rem 0.85rem;
+  color: var(--ek-color-action-text);
+  background: var(--ek-color-action);
+  border-radius: 0.35rem;
+}
+
+.site-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--ek-space-2);
+}
+
+.footer-menu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ek-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (max-width: 42rem) {
+  .site-header,
+  .site-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .primary-menu {
+    flex-wrap: wrap;
+  }
 }
