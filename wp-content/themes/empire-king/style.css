@@ -23,6 +23,8 @@ Text Domain: empire-king
   --ek-color-overlay: rgb(23 23 23 / 35%);
   --ek-shadow-header: 0 5px 16px rgb(23 23 23 / 10%);
   --ek-shadow-action: 0 6px 14px rgb(178 31 45 / 24%);
+  --ek-shadow-action-hover: 0 8px 16px rgb(150 26 38 / 28%);
+  --ek-shadow-action-active: 0 2px 5px rgb(150 26 38 / 24%);
   --ek-space-1: 0.5rem;
   --ek-space-2: 1rem;
   --ek-space-3: 1.5rem;
