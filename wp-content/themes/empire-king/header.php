@@ -41,7 +41,7 @@
 			<button class="header-icon-button mobile-navigation__close" type="button" aria-label="<?php esc_attr_e( 'Close navigation menu', 'empire-king' ); ?>">
 				<svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18" /></svg>
 			</button>
-			<p class="site-title mobile-navigation__brand"><a href="<?php echo esc_url( home_url( '/' ) ); ?>">Empire King Burger</a></p>
+			<p class="site-title mobile-navigation__brand"><a href="<?php echo esc_url( home_url( '/' ) ); ?>" aria-label="<?php esc_attr_e( 'Empire King Burger home', 'empire-king' ); ?>"><?php if ( $logo_url ) : ?><img class="site-logo" src="<?php echo esc_url( $logo_url ); ?>" alt="<?php esc_attr_e( 'Empire King Burger', 'empire-king' ); ?>"><?php else : ?><?php esc_html_e( 'Empire King Burger', 'empire-king' ); ?><?php endif; ?></a></p>
 			<a class="header-icon-button" href="<?php echo esc_url( home_url( '/#locations' ) ); ?>" aria-label="<?php esc_attr_e( 'Choose a location', 'empire-king' ); ?>">
 				<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12Z" /><circle cx="12" cy="9" r="2.25" /></svg>
 			</a>

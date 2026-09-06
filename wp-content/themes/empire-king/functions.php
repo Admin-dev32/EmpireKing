@@ -80,14 +80,13 @@ function empire_king_get_logo_url() {
 
 	$logo_directory = get_theme_file_path( 'assets/images/branding/logo' );
 	$extensions     = array( 'svg', 'png', 'webp', 'jpg', 'jpeg' );
-	$files          = array();
-
-	foreach ( $extensions as $extension ) {
-		$matches = glob( $logo_directory . '/*.' . $extension );
-		if ( false !== $matches ) {
-			$files = array_merge( $files, $matches );
+	$files          = glob( $logo_directory . '/*' );
+	$files          = false === $files ? array() : array_filter(
+		$files,
+		static function ( $file ) use ( $extensions ) {
+			return is_file( $file ) && in_array( strtolower( pathinfo( $file, PATHINFO_EXTENSION ) ), $extensions, true );
 		}
-	}
+	);
 
 	natcasesort( $files );
 	$first_file = reset( $files );
