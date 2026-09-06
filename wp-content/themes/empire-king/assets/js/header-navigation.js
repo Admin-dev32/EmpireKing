@@ -8,24 +8,71 @@ document.addEventListener('DOMContentLoaded', () => {
 		return;
 	}
 
-	const closeMenu = () => {
+	let isClosing = false;
+	let closeTimer;
+	let exitAnimationHandler;
+
+	const finishClose = () => {
+		if (!isClosing && !dialog.open) {
+			return;
+		}
+
+		window.clearTimeout(closeTimer);
+		if (exitAnimationHandler) {
+			dialog.removeEventListener('animationend', exitAnimationHandler);
+			exitAnimationHandler = undefined;
+		}
+
+		isClosing = false;
+		dialog.classList.remove('is-closing');
 		if (dialog.open) {
 			dialog.close();
 		}
 	};
 
+	const closeMenu = (immediately = false) => {
+		if (!dialog.open || isClosing) {
+			return;
+		}
+
+		if (immediately || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+			finishClose();
+			return;
+		}
+
+		isClosing = true;
+		dialog.classList.add('is-closing');
+		exitAnimationHandler = (event) => {
+			if (event.target === dialog && event.animationName === 'header-menu-surface-exit') {
+				finishClose();
+			}
+		};
+		dialog.addEventListener('animationend', exitAnimationHandler);
+		closeTimer = window.setTimeout(finishClose, 280);
+	};
+
 	openButton.addEventListener('click', () => {
+		dialog.classList.remove('is-closing');
 		dialog.showModal();
 		openButton.setAttribute('aria-expanded', 'true');
 	});
 
-	closeButton.addEventListener('click', closeMenu);
-	dialog.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeMenu));
-	dialog.addEventListener('close', () => openButton.setAttribute('aria-expanded', 'false'));
+	closeButton.addEventListener('click', () => closeMenu());
+	dialog.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => closeMenu()));
+	dialog.addEventListener('cancel', (event) => {
+		event.preventDefault();
+		closeMenu();
+	});
+	dialog.addEventListener('close', () => {
+		window.clearTimeout(closeTimer);
+		isClosing = false;
+		dialog.classList.remove('is-closing');
+		openButton.setAttribute('aria-expanded', 'false');
+	});
 
 	window.addEventListener('resize', () => {
 		if (window.matchMedia('(min-width: 48rem)').matches) {
-			closeMenu();
+			closeMenu(true);
 		}
 	});
 
