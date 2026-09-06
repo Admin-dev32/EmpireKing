@@ -1,0 +1,19 @@
+{
+    "name":  "empire-king-wordpress",
+    "version":  "1.0.0",
+    "private":  true,
+    "description":  "Local development tooling for the Empire King Burger WordPress and WooCommerce project.",
+    "engines":  {
+                    "node":  "22.19.x"
+                },
+    "scripts":  {
+                    "env:start":  "wp-env start",
+                    "env:stop":  "wp-env stop",
+                    "env:status":  "wp-env status",
+                    "env:destroy":  "wp-env destroy",
+                    "wp":  "wp-env run cli wp"
+                },
+    "devDependencies":  {
+                            "@wordpress/env":  "^11.14.0"
+                        }
+}
