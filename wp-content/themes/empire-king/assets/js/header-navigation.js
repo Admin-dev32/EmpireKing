@@ -12,21 +12,25 @@ document.addEventListener('DOMContentLoaded', () => {
 	let closeTimer;
 	let exitAnimationHandler;
 
-	const finishClose = () => {
-		if (!isClosing && !dialog.open) {
-			return;
-		}
-
+	const clearCloseSequence = () => {
 		window.clearTimeout(closeTimer);
 		if (exitAnimationHandler) {
 			dialog.removeEventListener('animationend', exitAnimationHandler);
 			exitAnimationHandler = undefined;
 		}
-
 		isClosing = false;
 		dialog.classList.remove('is-closing');
+	};
+
+	const finishClose = () => {
+		if (!isClosing && !dialog.open) {
+			return;
+		}
+
 		if (dialog.open) {
 			dialog.close();
+		} else {
+			clearCloseSequence();
 		}
 	};
 
@@ -52,7 +56,11 @@ document.addEventListener('DOMContentLoaded', () => {
 	};
 
 	openButton.addEventListener('click', () => {
-		dialog.classList.remove('is-closing');
+		if (dialog.open) {
+			return;
+		}
+
+		clearCloseSequence();
 		dialog.showModal();
 		openButton.setAttribute('aria-expanded', 'true');
 	});
@@ -64,9 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		closeMenu();
 	});
 	dialog.addEventListener('close', () => {
-		window.clearTimeout(closeTimer);
-		isClosing = false;
-		dialog.classList.remove('is-closing');
+		clearCloseSequence();
 		openButton.setAttribute('aria-expanded', 'false');
 	});
 
