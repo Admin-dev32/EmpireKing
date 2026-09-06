@@ -7,12 +7,22 @@ Text Domain: empire-king
 
 :root {
   color-scheme: light;
-  --ek-color-text: #20201e;
-  --ek-color-surface: #ffffff;
+  --ek-color-red: #b21f2d;
+  --ek-color-yellow: #f4c842;
+  --ek-color-black: #171717;
+  --ek-color-white: #ffffff;
+  --ek-color-text: var(--ek-color-black);
+  --ek-color-surface: var(--ek-color-white);
   --ek-color-muted: #f4f1eb;
   --ek-color-border: #d9d5cd;
-  --ek-color-action: #20201e;
-  --ek-color-action-text: #ffffff;
+  --ek-color-action: var(--ek-color-red);
+  --ek-color-action-hover: #961a26;
+  --ek-color-action-text: var(--ek-color-white);
+  --ek-color-focus: #7d1520;
+  --ek-color-accent-surface: #fff4c9;
+  --ek-color-overlay: rgb(23 23 23 / 35%);
+  --ek-shadow-header: 0 5px 16px rgb(23 23 23 / 10%);
+  --ek-shadow-action: 0 6px 14px rgb(178 31 45 / 24%);
   --ek-space-1: 0.5rem;
   --ek-space-2: 1rem;
   --ek-space-3: 1.5rem;
@@ -52,7 +62,7 @@ a {
 }
 
 a:focus-visible {
-  outline: 3px solid currentColor;
+  outline: 3px solid var(--ek-color-focus);
   outline-offset: 3px;
 }
 
