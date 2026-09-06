@@ -11,7 +11,8 @@
                     "env:stop":  "wp-env stop",
                     "env:status":  "wp-env status",
                     "env:destroy":  "wp-env destroy",
-                    "wp":  "wp-env run cli wp"
+    "wp":  "wp-env run cli wp",
+    "theme:activate": "wp-env run cli wp theme activate empire-king"
                 },
     "devDependencies":  {
                             "@wordpress/env":  "^11.14.0"

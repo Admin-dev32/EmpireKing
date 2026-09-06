@@ -1,0 +1,26 @@
+name: Foundation validation
+
+on:
+  pull_request:
+    branches: [live-dev, main]
+  push:
+    branches: [live-dev, main]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Validate JSON manifests
+        run: node -e "for (const file of ['project.json', 'package.json', '.wp-env.json']) JSON.parse(require('fs').readFileSync(file, 'utf8'));"
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+      - name: Lint theme PHP
+        run: find wp-content/themes/empire-king -type f -name '*.php' -print0 | xargs -0 -n1 php -l

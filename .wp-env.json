@@ -5,6 +5,9 @@
   "plugins": [
     "https://downloads.wordpress.org/plugin/woocommerce.11.1.0.zip"
   ],
+  "themes": [
+    "./wp-content/themes/empire-king"
+  ],
   "port": 8888,
   "config": {
     "WP_DEBUG": true,

@@ -9,3 +9,8 @@
 - Git Safe Sync installed.
 - Git Live Sync Watcher installed.
 - Autosync behavioral verification started: 2026-09-06 13:45:57
+
+## WordPress/WooCommerce theme foundation
+
+- Added the minimal reusable `empire-king` classic theme with standard WordPress and WooCommerce support.
+- Added repository operating guidance, technical manifest, local theme mapping, and inexpensive branch-targeted CI validation.
