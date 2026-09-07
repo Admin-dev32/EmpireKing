@@ -10,11 +10,11 @@
 .home-menu-glimpse__panel { position: relative; min-height: clamp(25rem, 56vw, 40rem); overflow: hidden; background: #211b18; isolation: isolate; }
 .home-menu-glimpse__background { position: absolute; z-index: -2; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .home-menu-glimpse__panel::after { position: absolute; z-index: -1; inset: 0; background: linear-gradient(90deg, rgba(23,23,23,0.32), transparent 60%); content: ''; pointer-events: none; }
-.home-menu-glimpse__frame { position: absolute; inset: 0; z-index: 0; margin: 0; opacity: 0; transition: opacity 420ms ease; pointer-events: none; }
+.home-menu-glimpse__frame { position: absolute; inset: 0; z-index: 0; margin: 0; opacity: 0; transition: opacity 200ms cubic-bezier(0.4, 0, 0.2, 1); pointer-events: none; }
 .home-menu-glimpse__frame.is-current { z-index: 1; opacity: 1; pointer-events: auto; }
 .home-menu-glimpse__frame--food { display: grid; place-items: center; padding: clamp(1.5rem, 6vw, 5rem); }
-.home-menu-glimpse__frame--food img { display: block; width: min(88%, 47rem); max-height: 88%; object-fit: contain; filter: drop-shadow(0 1.25rem 1.5rem rgba(0,0,0,0.28)); }
-.home-menu-glimpse__frame--food.is-current img { animation: menu-glimpse-zoom 2s ease-out both; }
+.home-menu-glimpse__frame--food img { display: block; width: min(88%, 47rem); max-height: 88%; object-fit: contain; filter: drop-shadow(0 1.25rem 1.5rem rgba(0,0,0,0.28)); transform: scale(0.985); transition: transform 1000ms cubic-bezier(0.22, 1, 0.36, 1); }
+.home-menu-glimpse__frame--food.is-current img { transform: scale(1.04); }
 .home-menu-glimpse__frame--cta { display: grid; place-content: center; justify-items: center; gap: 1rem; padding: 2rem; color: var(--ek-color-white); text-align: center; background: linear-gradient(135deg, rgba(178,31,45,0.95), rgba(115,20,30,0.95)); }
 .home-menu-glimpse__panel[data-accent="1"] .home-menu-glimpse__frame--cta { background: linear-gradient(135deg, #211b18, #6f5620); }
 .home-menu-glimpse__panel[data-accent="2"] .home-menu-glimpse__frame--cta { background: linear-gradient(135deg, #7d1520, #211b18); }
@@ -27,6 +27,5 @@
 .home-menu-glimpse__empty { display: grid; place-items: center; min-height: 20rem; padding: 2rem; text-align: center; background: var(--ek-color-muted); }
 .home-menu-glimpse__empty p { margin: 0 0 1rem; font-size: 1.1rem; }
 .home-menu-glimpse__tab:focus-visible, .home-menu-glimpse a:focus-visible { outline: 3px solid var(--ek-color-focus); outline-offset: 3px; }
-@keyframes menu-glimpse-zoom { from { opacity: 0; transform: scale(0.96); } 18% { opacity: 1; } 82% { opacity: 1; } to { opacity: 0; transform: scale(1.035); } }
 @media (max-width: 48rem) { .home-menu-glimpse { margin-inline: calc(50% - 50vw); padding: 3.5rem var(--ek-space-3); background: #fff9ed; } .home-menu-glimpse__tabs { justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 0.5rem; } .home-menu-glimpse__tab { flex: 0 0 auto; } .home-menu-glimpse__panel { min-height: min(125vw, 34rem); } .home-menu-glimpse__fallback-order { left: 1rem; right: auto; } }
-@media (prefers-reduced-motion: reduce) { .home-menu-glimpse__frame { transition: none; } .home-menu-glimpse__frame--food img { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .home-menu-glimpse__frame, .home-menu-glimpse__frame--food img { transition: none; } }
