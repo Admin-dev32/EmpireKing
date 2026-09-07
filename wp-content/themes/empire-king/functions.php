@@ -171,7 +171,7 @@ function empire_king_get_blog_url() {
 	if ( $page_id && 'publish' === get_post_status( $page_id ) ) {
 		return get_permalink( $page_id );
 	}
-	return 'posts' === get_option( 'show_on_front' ) ? home_url( '/' ) : false;
+	return 'posts' === get_option( 'show_on_front' ) && ! locate_template( 'front-page.php' ) ? home_url( '/' ) : false;
 }
 
 /**
