@@ -33,12 +33,13 @@ $order_gateway_maps_key   = empire_king_get_google_maps_api_key();
 				</div>
 				<div id="pickup-panel" class="order-tab-panel" role="tabpanel" aria-labelledby="pickup-tab">
 					<button class="order-location-control" type="button" data-open-location-selector="pickup"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12Z" /><circle cx="12" cy="9" r="2.25" /></svg><span class="order-location-control__unselected">Select Your Restaurant</span><span class="order-location-control__selected" hidden><span class="order-location-control__mode">Pickup From</span><strong></strong><span class="order-location-control__address"></span></span><span class="order-location-control__change" hidden>Change</span><span class="order-location-control__arrow" aria-hidden="true">›</span></button>
-					<button class="order-gateway__button" type="button" data-open-location-selector="pickup">Order Now</button>
+					<button class="order-gateway__button" type="button" data-order-submit="pickup">Order Now</button>
 				</div>
 				<div id="delivery-panel" class="order-tab-panel" role="tabpanel" aria-labelledby="delivery-tab" hidden>
 					<button class="order-location-control" type="button" data-open-location-selector="delivery"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12Z" /><circle cx="12" cy="9" r="2.25" /></svg><span class="order-location-control__unselected">Select Your Restaurant</span><span class="order-location-control__selected" hidden><span class="order-location-control__mode">Delivery From</span><strong></strong><span class="order-location-control__address"></span></span><span class="order-location-control__change" hidden>Change</span><span class="order-location-control__arrow" aria-hidden="true">›</span></button>
-					<button class="order-gateway__button" type="button" data-open-location-selector="delivery">Order Now</button>
+					<button class="order-gateway__button" type="button" data-order-submit="delivery">Order Now</button>
 				</div>
+				<p class="order-gateway__status" role="status" aria-live="polite"></p>
 			</div>
 		</div>
 	</div>

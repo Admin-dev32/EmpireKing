@@ -100,6 +100,21 @@ function empire_king_enqueue_styles() {
 				'strategy'  => 'defer',
 			)
 		);
+
+		wp_localize_script(
+			'empire-king-order-gateway',
+			'empireKingOrderGateway',
+			array(
+				'routes' => array(
+					'Avenue H' => array(
+						'pickup' => 'https://empireking3aveh.com/order-now/',
+					),
+					'Avenue I' => array(
+						'pickup' => 'https://empireking2avei.com/order-now/',
+					),
+				),
+			)
+		);
 	}
 }
 add_action( 'wp_enqueue_scripts', 'empire_king_enqueue_styles' );

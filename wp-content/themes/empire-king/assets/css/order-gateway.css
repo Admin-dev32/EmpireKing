@@ -106,6 +106,8 @@
 .order-gateway__button:hover,
 .order-gateway__button:focus-visible { background: var(--ek-color-action-hover); transform: translateY(-1px); }
 .order-gateway__button:active { transform: translateY(0); }
+.order-gateway__status { margin: 0; color: var(--ek-color-red); font-size: 0.82rem; font-weight: 800; line-height: 1.35; }
+.order-gateway__status:not(:empty) { margin: 0.35rem 0.5rem 0; }
 .order-selection-confirmation { min-height: 0; margin: 0.15rem 0.5rem 0.35rem; color: var(--ek-color-red); font-size: 0.88rem; font-weight: 800; }
 .order-selection-confirmation:not(:empty)::before { content: '✓ '; color: var(--ek-color-red); }
 

@@ -9,7 +9,9 @@ document.addEventListener('DOMContentLoaded', () => {
 	const openButtons = Array.from(document.querySelectorAll('[data-open-location-selector]'));
 	const locationButtons = Array.from(document.querySelectorAll('.order-location-option'));
 	const locationControls = Array.from(document.querySelectorAll('.order-location-control'));
+	const orderButtons = Array.from(document.querySelectorAll('[data-order-submit]'));
 	const mapContainer = document.querySelector('#order-location-map');
+	const status = document.querySelector('.order-gateway__status');
 
 	if (!gateway || !dialog || !closeButton || !dialogTitle || !dialogDescription || typeof dialog.showModal !== 'function') {
 		return;
@@ -22,6 +24,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	let exitAnimationHandler;
 	let mapInstance;
 	let mapBounds;
+	let isProceedingToOrder = false;
+	const orderRoutes = window.empireKingOrderGateway && window.empireKingOrderGateway.routes ? window.empireKingOrderGateway.routes : {};
 	const locations = {
 		'Avenue H': '1036 W Avenue H, Lancaster, CA 93534',
 		'Avenue I': '810 W Ave I, Lancaster, CA',
@@ -116,6 +120,10 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 	};
 
+	const setOrderStatus = (message = '') => {
+		if (status) status.textContent = message;
+	};
+
 	const clearCloseSequence = () => {
 		window.clearTimeout(closeTimer);
 		if (exitAnimationHandler) dialog.removeEventListener('animationend', exitAnimationHandler);
@@ -141,8 +149,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	const selectLocation = (locationName) => {
 		selectedLocation = locationName;
+		setOrderStatus();
 		updateSelection();
 		closeSelector();
+	};
+
+	const submitOrder = (mode) => {
+		if (!selectedLocation) {
+			openSelector(mode);
+			return;
+		}
+
+		if (mode === 'delivery') {
+			setOrderStatus(`Delivery ordering for ${selectedLocation} is not configured in this development prototype.`);
+			return;
+		}
+
+		const pickupUrl = orderRoutes[selectedLocation] && orderRoutes[selectedLocation].pickup;
+		if (!pickupUrl) {
+			setOrderStatus(`Pickup ordering for ${selectedLocation} is not configured in this development prototype.`);
+			return;
+		}
+
+		if (isProceedingToOrder) return;
+		isProceedingToOrder = true;
+		window.location.assign(pickupUrl);
 	};
 
 	const openSelector = (mode) => {
@@ -166,6 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 	});
 	openButtons.forEach((button) => button.addEventListener('click', () => openSelector(button.dataset.openLocationSelector)));
+	orderButtons.forEach((button) => button.addEventListener('click', () => submitOrder(button.dataset.orderSubmit)));
 	closeButton.addEventListener('click', () => closeSelector());
 	dialog.addEventListener('cancel', (event) => { event.preventDefault(); closeSelector(); });
 	dialog.addEventListener('close', clearCloseSequence);
