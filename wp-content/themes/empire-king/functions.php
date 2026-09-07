@@ -70,6 +70,16 @@ function empire_king_enqueue_styles() {
 			wp_get_theme()->get( 'Version' )
 		);
 
+		$home_slides = empire_king_get_home_slideshow_images();
+		if ( $home_slides ) {
+			wp_enqueue_style(
+				'empire-king-home-slideshow',
+				get_theme_file_uri( 'assets/css/home-slideshow.css' ),
+				array( 'empire-king-home' ),
+				wp_get_theme()->get( 'Version' )
+			);
+		}
+
 		$maps_api_key = empire_king_get_google_maps_api_key();
 		if ( $maps_api_key ) {
 			wp_enqueue_script(
@@ -100,6 +110,19 @@ function empire_king_enqueue_styles() {
 				'strategy'  => 'defer',
 			)
 		);
+
+		if ( $home_slides ) {
+			wp_enqueue_script(
+				'empire-king-home-slideshow',
+				get_theme_file_uri( 'assets/js/home-slideshow.js' ),
+				array(),
+				wp_get_theme()->get( 'Version' ),
+				array(
+					'in_footer' => true,
+					'strategy'  => 'defer',
+				)
+			);
+		}
 
 		wp_localize_script(
 			'empire-king-order-gateway',
@@ -219,6 +242,40 @@ function empire_king_get_order_gateway_combo_url() {
 
 	$combo_url = get_theme_file_uri( 'assets/images/home/order-gateway-combo/' . basename( $first_file ) );
 	return $combo_url;
+}
+
+/**
+ * Gets the folder-driven Home slideshow images in natural filename order.
+ *
+ * @return array<int, array{url: string, alt: string}>
+ */
+function empire_king_get_home_slideshow_images() {
+	$slideshow_directory = get_theme_file_path( 'assets/images/home/slideshow' );
+	$extensions          = array( 'webp', 'jpg', 'jpeg', 'png' );
+	$files               = glob( $slideshow_directory . '/*' );
+	$files               = false === $files ? array() : array_filter(
+		$files,
+		static function ( $file ) use ( $extensions ) {
+			return is_file( $file ) && in_array( strtolower( pathinfo( $file, PATHINFO_EXTENSION ) ), $extensions, true );
+		}
+	);
+
+	natcasesort( $files );
+	$slides = array();
+
+	foreach ( $files as $file ) {
+		$filename = pathinfo( $file, PATHINFO_FILENAME );
+		$alt_text = preg_replace( '/^\d+[-_\s]*/', '', $filename );
+		$alt_text = preg_replace( '/[-_]+/', ' ', $alt_text );
+		$alt_text = trim( preg_replace( '/\s+/', ' ', $alt_text ) );
+
+		$slides[] = array(
+			'url' => get_theme_file_uri( 'assets/images/home/slideshow/' . basename( $file ) ),
+			'alt' => $alt_text,
+		);
+	}
+
+	return $slides;
 }
 
 /**

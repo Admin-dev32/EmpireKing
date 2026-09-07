@@ -12,6 +12,7 @@ get_header();
 $order_gateway_background = empire_king_get_order_gateway_background_url();
 $order_gateway_combo      = empire_king_get_order_gateway_combo_url();
 $order_gateway_maps_key   = empire_king_get_google_maps_api_key();
+$home_slides              = empire_king_get_home_slideshow_images();
 ?>
 <section id="order" class="order-gateway<?php echo $order_gateway_background ? ' order-gateway--has-background' : ''; ?><?php echo $order_gateway_combo ? ' order-gateway--has-combo' : ''; ?>" aria-labelledby="home-title">
 	<?php if ( $order_gateway_background ) : ?>
@@ -44,6 +45,32 @@ $order_gateway_maps_key   = empire_king_get_google_maps_api_key();
 		</div>
 	</div>
 </section>
+
+<?php if ( $home_slides ) : ?>
+	<section class="home-slideshow" aria-roledescription="carousel" aria-label="Empire King Burger slideshow">
+		<div class="home-slideshow__frame">
+			<?php foreach ( $home_slides as $index => $slide ) : ?>
+				<figure class="home-slideshow__slide<?php echo 0 === $index ? ' is-active' : ''; ?>" aria-hidden="<?php echo 0 === $index ? 'false' : 'true'; ?>">
+					<img src="<?php echo esc_url( $slide['url'] ); ?>" alt="<?php echo esc_attr( $slide['alt'] ); ?>">
+				</figure>
+			<?php endforeach; ?>
+			<?php if ( count( $home_slides ) > 1 ) : ?>
+				<button class="home-slideshow__arrow home-slideshow__arrow--previous" type="button" aria-label="Previous slide"><span aria-hidden="true">‹</span></button>
+				<button class="home-slideshow__arrow home-slideshow__arrow--next" type="button" aria-label="Next slide"><span aria-hidden="true">›</span></button>
+			<?php endif; ?>
+		</div>
+		<?php if ( count( $home_slides ) > 1 ) : ?>
+			<div class="home-slideshow__controls">
+				<div class="home-slideshow__pagination" aria-label="Select slideshow image">
+					<?php foreach ( $home_slides as $index => $slide ) : ?>
+						<button class="home-slideshow__dot" type="button" aria-label="Show slide <?php echo esc_attr( $index + 1 ); ?>" aria-current="<?php echo 0 === $index ? 'true' : 'false'; ?>"></button>
+					<?php endforeach; ?>
+				</div>
+				<button class="home-slideshow__toggle" type="button" aria-label="Pause slideshow" aria-pressed="false"><span aria-hidden="true">Ⅱ</span></button>
+			</div>
+		<?php endif; ?>
+	</section>
+<?php endif; ?>
 
 <dialog id="order-location-selector" class="order-location-dialog" aria-labelledby="order-location-dialog-title" aria-describedby="order-location-dialog-description">
 	<div class="order-location-dialog__topbar">

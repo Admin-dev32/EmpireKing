@@ -1,0 +1,88 @@
+.home-slideshow {
+	width: min(100% - (var(--ek-space-3) * 2), 72rem);
+	margin: var(--ek-space-5) auto;
+}
+
+.home-slideshow__frame {
+	position: relative;
+	overflow: hidden;
+	aspect-ratio: 3 / 2;
+	background: var(--ek-color-muted);
+	border-radius: var(--ek-radius);
+}
+
+.home-slideshow__slide {
+	position: absolute;
+	inset: 0;
+	margin: 0;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 320ms ease;
+}
+
+.home-slideshow__slide.is-active {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+.home-slideshow__slide img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.home-slideshow__arrow,
+.home-slideshow__toggle,
+.home-slideshow__dot {
+	font: inherit;
+	cursor: pointer;
+}
+
+.home-slideshow__arrow {
+	position: absolute;
+	top: 50%;
+	z-index: 1;
+	display: grid;
+	width: 3rem;
+	height: 3rem;
+	place-items: center;
+	padding: 0;
+	color: var(--ek-color-black);
+	background: rgb(255 255 255 / 88%);
+	border: 0;
+	border-radius: 50%;
+	transform: translateY(-50%);
+}
+
+.home-slideshow__arrow:hover,
+.home-slideshow__toggle:hover { background: var(--ek-color-yellow); }
+.home-slideshow__arrow--previous { left: var(--ek-space-2); }
+.home-slideshow__arrow--next { right: var(--ek-space-2); }
+.home-slideshow__arrow span { font-size: 2rem; line-height: 1; }
+
+.home-slideshow__controls {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--ek-space-2);
+	padding-top: var(--ek-space-2);
+}
+
+.home-slideshow__pagination { display: flex; align-items: center; gap: 0.5rem; }
+.home-slideshow__dot { width: 0.65rem; height: 0.65rem; padding: 0; background: var(--ek-color-border); border: 0; border-radius: 50%; }
+.home-slideshow__dot[aria-current="true"] { background: var(--ek-color-red); }
+.home-slideshow__toggle { display: grid; width: 2rem; height: 2rem; place-items: center; padding: 0; color: var(--ek-color-black); background: var(--ek-color-white); border: 1px solid var(--ek-color-border); border-radius: 50%; }
+.home-slideshow__arrow:focus-visible,
+.home-slideshow__dot:focus-visible,
+.home-slideshow__toggle:focus-visible { outline: 3px solid var(--ek-color-focus); outline-offset: 3px; }
+
+@media (max-width: 48rem) {
+	.home-slideshow { margin: var(--ek-space-4) auto; }
+	.home-slideshow__frame { aspect-ratio: 1 / 1; }
+	.home-slideshow__arrow { width: 3.25rem; height: 3.25rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.home-slideshow__slide { transition: none; }
+}
