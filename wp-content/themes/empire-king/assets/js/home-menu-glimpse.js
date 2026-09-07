@@ -14,7 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
 	const prepareFrames = frames => Promise.all(frames.map(frame => {
 		const image = frame.querySelector('img');
 		if (!image) return Promise.resolve();
-		const decode = () => typeof image.decode === 'function' ? image.decode().catch(() => undefined) : Promise.resolve();
+		const decode = () => Promise.race([
+			typeof image.decode === 'function' ? image.decode().catch(() => undefined) : Promise.resolve(),
+			new Promise(resolve => window.setTimeout(resolve, IMAGE_READY_TIMEOUT_MS)),
+		]);
 		if (image.complete) return decode();
 		return Promise.race([
 			new Promise(resolve => image.addEventListener('load', () => decode().then(resolve), { once: true })),
