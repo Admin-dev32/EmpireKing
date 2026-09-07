@@ -1,8 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
 	const section = document.querySelector('#locations');
+	const scrollTrack = section?.querySelector('[data-locations-track]');
+	const stickyStage = section?.querySelector('[data-locations-stage]');
 	const mapElement = section?.querySelector('#home-locations-map');
 	const dock = section?.querySelector('[data-locations-dock]');
-	if (!section || !mapElement || !dock) return;
+	if (!section || !scrollTrack || !stickyStage || !mapElement || !dock) return;
 	const choices = Array.from(dock.querySelectorAll('[data-location-key]'));
 	const panels = Array.from(dock.querySelectorAll('[data-location-panel]'));
 	const resetButtons = Array.from(dock.querySelectorAll('[data-locations-reset]'));
@@ -126,23 +128,34 @@ document.addEventListener('DOMContentLoaded', () => {
 	};
 
 
-	// Sole visibility authority. The runway belongs to Locations, never its sibling.
+	const clamp = (value, minimum, maximum) => Math.min(maximum, Math.max(minimum, value));
+	const syncStickyOffset = () => {
+		const header = document.querySelector('.site-header');
+		const offset = header ? header.getBoundingClientRect().height + 8 : 0;
+		scrollTrack.style.setProperty('--locations-sticky-top', `${offset}px`);
+	};
+
+	// Sole lifecycle authority: one native sticky track and its scroll progress.
 	const updateLocationsDock = () => {
-		const locationsRect = section.getBoundingClientRect();
+		const trackRect = scrollTrack.getBoundingClientRect();
+		const stickyStageHeight = stickyStage.getBoundingClientRect().height;
+		const scrollableDistance = Math.max(0, scrollTrack.offsetHeight - stickyStageHeight);
+		const stickyTopOffset = parseFloat(getComputedStyle(scrollTrack).getPropertyValue('--locations-sticky-top')) || 0;
+		const progress = scrollableDistance > 0
+			? clamp((stickyTopOffset - trackRect.top) / scrollableDistance, 0, 1)
+			: 0;
 		const mapRect = mapElement.getBoundingClientRect();
-		const bottomOffset = parseFloat(getComputedStyle(dock).bottom) || 16;
-		const exitDistance = dock.offsetHeight + bottomOffset + 120;
-		const visible = mapRect.top <= window.innerHeight * 0.7
-			&& locationsRect.bottom > window.innerHeight + exitDistance;
+		const insideStickyTrack = trackRect.top <= stickyTopOffset
+			&& trackRect.bottom > stickyTopOffset + stickyStageHeight;
+		const exitProgress = clamp((progress - 0.78) / 0.14, 0, 1);
+		const visible = insideStickyTrack && progress < 0.92;
+		const exiting = visible && progress >= 0.78;
 		if (!visible && (gesture || settleCleanup)) clearInteraction();
 		dock.classList.toggle('is-visible', visible);
+		dock.classList.toggle('is-exiting', exiting);
 		dock.inert = !visible;
 		dock.setAttribute('aria-hidden', String(!visible));
-		// A fast fling can cross any distance during a timed fade. Finish immediately
-		// inside the runway in that case, before the next section can be exposed.
-		const atBoundary = locationsRect.bottom <= window.innerHeight + 32;
-		dock.style.visibility = atBoundary ? 'hidden' : '';
-		dock.style.transitionDuration = atBoundary ? '0s' : '';
+		dock.style.setProperty('--locations-dock-opacity', String(1 - exitProgress));
 		if (!mapInitialized && mapRect.top < window.innerHeight && mapRect.bottom > 0) initializeMap();
 	};
 	const scheduleDockUpdate = () => {
@@ -259,10 +272,11 @@ document.addEventListener('DOMContentLoaded', () => {
 	resetButtons.forEach(button => button.addEventListener('click', showBothLocations));
 
 	window.addEventListener('scroll', scheduleDockUpdate, { passive: true });
-	window.addEventListener('resize', () => { clearInteraction(); scheduleDockUpdate(); });
-	window.addEventListener('pageshow', scheduleDockUpdate);
+	window.addEventListener('resize', () => { clearInteraction(); syncStickyOffset(); scheduleDockUpdate(); });
+	window.addEventListener('pageshow', () => { syncStickyOffset(); scheduleDockUpdate(); });
 	window.addEventListener('load', scheduleDockUpdate);
 	reducedMotion.addEventListener('change', () => { clearInteraction(); scheduleDockUpdate(); });
 	setSplit(50);
+	syncStickyOffset();
 	updateLocationsDock();
 });

@@ -170,6 +170,7 @@ $stories_blog_url = empire_king_get_blog_url();
 		<h2 id="locations-title">Find Your Empire King</h2>
 		<p>Two Lancaster locations. Pick the one that works for you.</p>
 	</div>
+	<div class="home-locations__track" data-locations-track>
 	<div class="home-locations__stage" data-locations-stage>
 		<div id="home-locations-map" class="home-locations__map" aria-label="Map showing Empire King Avenue H and Avenue I locations" role="region">
 			<p class="home-locations__map-fallback">Interactive map unavailable. Choose a location below.</p>
@@ -206,6 +207,7 @@ $stories_blog_url = empire_king_get_blog_url();
 				</div>
 			</article>
 		</div>
+	</div>
 	</div>
 </section>
 

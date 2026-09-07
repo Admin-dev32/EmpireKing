@@ -1,17 +1,18 @@
-.home-locations { padding-top: clamp(3rem, 7vw, 6rem); padding-bottom: clamp(22rem, 32vw, 27rem); color: var(--ek-color-black); }
+.home-locations { padding-top: clamp(3rem, 7vw, 6rem); padding-bottom: clamp(3rem, 7vw, 6rem); color: var(--ek-color-black); }
 .home-locations * { box-sizing: border-box; }
 .home-locations__intro { max-width: 42rem; margin-bottom: clamp(2rem, 4vw, 3.5rem); }
 .home-locations__intro > p:first-child { margin: 0 0 0.65rem; color: var(--ek-color-red); font-size: 0.85rem; font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase; }
 .home-locations__intro h2 { margin: 0; font-family: var(--ek-font-display); font-size: clamp(2.25rem, 5vw, 4.25rem); line-height: 1.04; letter-spacing: -0.05em; }
 .home-locations__intro > p:last-child { margin: 1rem 0 0; font-size: clamp(1.05rem, 2vw, 1.2rem); line-height: 1.55; }
-.home-locations__stage { position: relative; min-width: 0; }
-.home-locations__map { position: relative; min-height: clamp(40rem, 60vw, 45rem); overflow: hidden; background: #e8e3d8; border: 1px solid var(--ek-color-border); }
+.home-locations__track { --locations-sticky-top: 4.75rem; --locations-stage-height: clamp(40rem, 60vw, 45rem); position: relative; height: calc(var(--locations-stage-height) + clamp(28rem, 80svh, 42rem)); }
+.home-locations__stage { position: sticky; top: var(--locations-sticky-top); min-width: 0; height: var(--locations-stage-height); }
+.home-locations__map { position: relative; height: 100%; min-height: 0; overflow: hidden; background: #e8e3d8; border: 1px solid var(--ek-color-border); }
 .home-locations__map::before { position: absolute; inset: 0; z-index: 0; background: linear-gradient(135deg, rgba(178, 31, 45, 0.12), transparent 48%), repeating-linear-gradient(-28deg, transparent 0 4.8rem, rgba(255, 255, 255, 0.34) 4.85rem 4.95rem); content: ''; pointer-events: none; }
 .home-locations__map-fallback { position: absolute; top: 50%; left: 50%; z-index: 1; width: min(24rem, calc(100% - 2rem)); margin: 0; padding: 1rem 1.25rem; transform: translate(-50%, -50%); background: var(--ek-color-white); border-left: 0.35rem solid var(--ek-color-yellow); color: var(--ek-color-black); font-weight: 800; line-height: 1.45; text-align: center; }
 .home-locations__map.is-ready::before, .home-locations__map.is-ready .home-locations__map-fallback { display: none; }
 
 
-/* One fixed tray; Locations' normal-flow bottom padding is its exit runway. */
+/* One fixed tray, synchronized solely to the Locations sticky track. */
 .home-locations__dock {
 	position: fixed; right: 50%; bottom: calc(1rem + env(safe-area-inset-bottom)); z-index: 19;
 	width: min(66rem, calc(100vw - 2rem)); overflow: hidden;
@@ -21,6 +22,7 @@
 	transition: opacity 280ms ease, transform 300ms ease, visibility 0s linear 300ms;
 }
 .home-locations__dock.is-visible { opacity: 1; transform: translate(50%, 0); visibility: visible; pointer-events: auto; transition-delay: 0s; }
+.home-locations__dock.is-exiting { opacity: var(--locations-dock-opacity, 1); transform: translate(50%, calc((1 - var(--locations-dock-opacity, 1)) * 16px)); pointer-events: none; transition: none; }
 .home-locations__choices { display: grid; grid-template-columns: minmax(0, var(--locations-split, 50%)) minmax(0, 1fr); transition: grid-template-columns 220ms ease; }
 .home-locations__choice { display: block; min-width: 0; padding: 0; overflow: hidden; appearance: none; border: 0; background: transparent; color: inherit; cursor: pointer; text-align: left; }
 .home-locations__choice + .home-locations__choice { box-shadow: inset 1px 0 rgba(32,27,24,0.13); }
@@ -53,7 +55,7 @@
 .home-locations__dock.is-dragging .home-locations__choices { transition: none; }
 @media (max-width: 40rem) {
 	.home-locations { padding-top: var(--ek-space-4); }
-	.home-locations__map { min-height: clamp(32.5rem, 150vw, 38.75rem); }
+	.home-locations__track { --locations-stage-height: clamp(32.5rem, 150vw, 38.75rem); height: calc(var(--locations-stage-height) + clamp(28rem, 85svh, 40rem)); }
 	.home-locations__dock { width: calc(100vw - 1.5rem); border-radius: 0.9rem; }
 	.home-locations__choice-inner { grid-template-columns: 1fr; gap: 0.5rem; padding: 0.9rem 0.75rem; }
 	.home-locations__badge { width: 2.2rem; height: 2.2rem; font-size: 1.25rem; }
