@@ -56,6 +56,8 @@ function empire_king_enqueue_styles() {
 	);
 
 	if ( is_front_page() ) {
+		wp_enqueue_style( 'empire-king-featured-favorites', get_theme_file_uri( 'assets/css/featured-favorites.css' ), array( 'empire-king-home' ), wp_get_theme()->get( 'Version' ) );
+		wp_enqueue_script( 'empire-king-featured-favorites', get_theme_file_uri( 'assets/js/featured-favorites.js' ), array(), wp_get_theme()->get( 'Version' ), array( 'in_footer' => true, 'strategy' => 'defer' ) );
 		wp_enqueue_style(
 			'empire-king-home',
 			get_theme_file_uri( 'assets/css/home.css' ),
@@ -141,6 +143,35 @@ function empire_king_enqueue_styles() {
 	}
 }
 add_action( 'wp_enqueue_scripts', 'empire_king_enqueue_styles' );
+
+/**
+ * Development-only Featured Favorites provider; these are not confirmed menu items.
+ * Replace this provider with an approved data adapter later. Keep the category
+ * key/label/image and item name/image/alt shape; presentation owns the #order CTA.
+ * No transactional catalog, store choice, or remote request belongs here.
+ *
+ * @return array Prototype categories containing display-only items.
+ */
+function empire_king_get_featured_favorites() {
+	$categories = array(
+		'burgers'      => array( 'label' => 'Burgers', 'names' => array( 'Burger Favorite', 'Double Burger Favorite' ) ),
+		'chicken'      => array( 'label' => 'Chicken', 'names' => array( 'Chicken Favorite' ) ),
+		'meals'        => array( 'label' => 'Meals', 'names' => array( 'Meal Favorite' ) ),
+		'family-packs' => array( 'label' => 'Family Packs', 'names' => array( 'Family Pack Favorite' ) ),
+	);
+	foreach ( $categories as &$category ) {
+		$category['image'] = '';
+		$category['items'] = array_map(
+			static function ( $name ) {
+				return array( 'name' => $name, 'image' => '', 'alt' => '' );
+			},
+			$category['names']
+		);
+		unset( $category['names'] );
+	}
+	unset( $category );
+	return $categories;
+}
 
 /**
  * Gets the first eligible repository-owned logo asset, if supplied.

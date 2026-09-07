@@ -90,25 +90,42 @@ $home_slides              = empire_king_get_home_slideshow_images();
 	</div>
 </dialog>
 
-<section id="favorites" class="home-section" aria-labelledby="favorites-title">
-	<div class="section-intro">
-		<p class="home-eyebrow">Prototype section</p>
-		<h2 id="favorites-title">Featured Favorites</h2>
+<?php $featured_categories = empire_king_get_featured_favorites(); ?>
+<section id="favorites" class="featured-favorites" aria-labelledby="favorites-title" aria-describedby="favorites-note">
+	<h2 id="favorites-title">Featured Favorites</h2>
+	<p id="favorites-note" class="featured-favorites__note">Development preview &middot; Sample items and imagery placeholders</p>
+	<div class="featured-favorites__categories" role="group" aria-label="Featured categories">
+		<?php foreach ( $featured_categories as $key => $category ) : ?>
+			<button class="featured-favorites__category" type="button" data-featured-category="<?php echo esc_attr( $key ); ?>" aria-pressed="<?php echo array_key_first( $featured_categories ) === $key ? 'true' : 'false'; ?>" aria-controls="favorites-products">
+				<span class="featured-favorites__thumbnail" aria-hidden="true">
+					<?php if ( $category['image'] ) : ?><img src="<?php echo esc_url( $category['image'] ); ?>" alt=""><?php else : ?><span class="featured-favorites__thumbnail-placeholder"></span><?php endif; ?>
+				</span>
+				<span><?php echo esc_html( $category['label'] ); ?></span>
+			</button>
+		<?php endforeach; ?>
 	</div>
-	<div class="favorite-grid">
-		<article class="favorite-card">
-			<div class="media-placeholder media-placeholder--card" aria-hidden="true"><span>Product Photo</span></div>
-			<div class="favorite-card__body"><h3>Burger Favorite</h3><p>Development-only placeholder description for the future featured item.</p><a href="#locations">Order</a></div>
-		</article>
-		<article class="favorite-card">
-			<div class="media-placeholder media-placeholder--card" aria-hidden="true"><span>Product Photo</span></div>
-			<div class="favorite-card__body"><h3>Combo Favorite</h3><p>Development-only placeholder description for the future featured item.</p><a href="#locations">Order</a></div>
-		</article>
-		<article class="favorite-card">
-			<div class="media-placeholder media-placeholder--card" aria-hidden="true"><span>Product Photo</span></div>
-			<div class="favorite-card__body"><h3>Family Favorite</h3><p>Development-only placeholder description for the future featured item.</p><a href="#locations">Order</a></div>
-		</article>
+	<div class="featured-favorites__showcase">
+		<button class="featured-favorites__arrow featured-favorites__arrow--previous" type="button" data-featured-previous aria-label="Previous featured item" aria-controls="favorites-products" hidden><span aria-hidden="true">&#8592;</span></button>
+		<div id="favorites-products" class="featured-favorites__products">
+			<?php foreach ( $featured_categories as $key => $category ) : ?>
+				<?php foreach ( $category['items'] as $index => $item ) : ?>
+					<article class="featured-favorites__product" data-featured-item="<?php echo esc_attr( $key ); ?>" data-slot="<?php echo esc_attr( $index ); ?>" <?php echo array_key_first( $featured_categories ) !== $key || $index > 1 ? 'hidden' : ''; ?>>
+						<div class="featured-favorites__image">
+							<?php if ( $item['image'] ) : ?>
+								<img src="<?php echo esc_url( $item['image'] ); ?>" alt="<?php echo esc_attr( $item['alt'] ); ?>" loading="lazy" decoding="async">
+							<?php else : ?>
+								<div class="featured-favorites__placeholder" aria-hidden="true"><span>Product image pending</span></div>
+							<?php endif; ?>
+						</div>
+						<h3><?php echo esc_html( $item['name'] ); ?></h3>
+						<a class="featured-favorites__order" href="#order">Order Now</a>
+					</article>
+				<?php endforeach; ?>
+			<?php endforeach; ?>
+		</div>
+		<button class="featured-favorites__arrow featured-favorites__arrow--next" type="button" data-featured-next aria-label="Next featured item" aria-controls="favorites-products" hidden><span aria-hidden="true">&#8594;</span></button>
 	</div>
+	<p class="screen-reader-text" data-featured-status role="status" aria-atomic="true"></p>
 </section>
 
 <section id="deals" class="home-section" aria-labelledby="deals-title">
