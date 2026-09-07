@@ -1,17 +1,18 @@
 # Home Menu Glimpse media contract
 
-Each category uses this exact folder shape:
+Codex does not create this media. Jorge supplies every image.
 
 ```text
-{category-key}/
-  background/
-    one-image.jpg|jpeg|png|webp
-  foreground/
-    01.png
-    02.png
-    03.png
+burgers/       background/  foreground/
+sandwiches/    background/  foreground/
+chicken/       background/  foreground/
+fries/         background/  foreground/
+salads/        background/  foreground/
+drinks/        background/  foreground/
+ice-cream/     background/  foreground/
+family-packs/  background/  foreground/
 ```
 
-Use exactly one eligible background and one to three transparent PNG foreground food cutouts. The background stays static while the foreground PNGs animate, then the section ends on its CTA frame. Invalid or incomplete category folders are ignored. If no valid category exists, the Home renders its intentional menu-imagery placeholder with an Order Now link.
+For each category, add exactly one background (`.webp`, `.jpg`, `.jpeg`, or `.png`) and one to three transparent foreground `.png` cutouts. Filenames are arbitrary; natural filename order controls the foreground sequence. For example, `01-burger.png`, `02-double.png`, and `03-bacon.png` play in that order.
 
-Use keys such as `burgers`, `sandwiches`, `chicken`, `fries`, `salads`, `drinks`, `ice-cream`, and `family-packs`; valid extra keys follow natural folder order.
+Incomplete categories are ignored. Adding valid files automatically enables a category after refresh; removing required files disables it. The `.gitkeep` files preserve empty folders and are ignored by discovery.
