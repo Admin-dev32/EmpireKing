@@ -134,6 +134,7 @@ $home_slides              = empire_king_get_home_slideshow_images();
 <?php
 $home_stories = empire_king_get_home_stories();
 $stories_background = empire_king_get_stories_background_url();
+$stories_blog_url = empire_king_get_blog_url();
 ?>
 <?php if ( $home_stories ) : ?>
 <section id="latest-stories" class="home-stories<?php echo $stories_background ? ' home-stories--custom-background' : ''; ?>" aria-labelledby="stories-title"<?php if ( $stories_background ) : ?> style="background-image: url('<?php echo esc_url( $stories_background ); ?>');"<?php endif; ?>>
@@ -171,6 +172,9 @@ $stories_background = empire_king_get_stories_background_url();
 			<button class="home-stories__dot" type="button" aria-label="<?php echo esc_attr( 'Show story ' . ( $index + 1 ) . ': ' . $story['title'] ); ?>" aria-controls="stories-cards" aria-current="<?php echo 0 === $index ? 'true' : 'false'; ?>"></button>
 		<?php endforeach; ?>
 	</div>
+	<?php if ( $stories_blog_url ) : ?>
+		<p class="home-stories__all"><a href="<?php echo esc_url( $stories_blog_url ); ?>">View All Stories</a></p>
+	<?php endif; ?>
 	<p class="screen-reader-text" data-stories-status role="status" aria-atomic="true"></p>
 </section>
 <?php endif; ?>
