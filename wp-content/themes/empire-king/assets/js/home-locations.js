@@ -1,35 +1,41 @@
 document.addEventListener('DOMContentLoaded', () => {
-	const stage = document.querySelector('[data-locations-stage]');
-	const scene = document.querySelector('[data-locations-scene]');
-	const mapElement = document.querySelector('#home-locations-map');
-	const dock = document.querySelector('[data-locations-dock]');
-	const choices = Array.from(document.querySelectorAll('[data-location-key]'));
-	const panels = Array.from(document.querySelectorAll('[data-location-panel]'));
-	const resetButtons = Array.from(document.querySelectorAll('[data-locations-reset]'));
-
-	if (!scene || !stage || !mapElement || !dock || !choices.length) return;
-
+	const section = document.querySelector('#locations');
+	const mapElement = section?.querySelector('#home-locations-map');
+	const dock = section?.querySelector('[data-locations-dock]');
+	if (!section || !mapElement || !dock) return;
+	const choices = Array.from(dock.querySelectorAll('[data-location-key]'));
+	const panels = Array.from(dock.querySelectorAll('[data-location-panel]'));
+	const resetButtons = Array.from(dock.querySelectorAll('[data-locations-reset]'));
+	const splitGrid = dock.querySelector('[data-locations-choices]');
+	const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 	const locations = {
 		'avenue-h': { label: 'H', name: 'Avenue H', position: { lat: 34.7161, lng: -118.1494 } },
 		'avenue-i': { label: 'I', name: 'Avenue I', position: { lat: 34.7046, lng: -118.147 } },
 	};
-	let map;
-	let bounds;
+	let map, bounds;
 	let mapInitialized = false;
-	let dragState;
-	let suppressedPointer;
-	let settleFrame;
-	const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 	const markers = {};
+	let split = 50;
+	let gesture = null;
+	let settleCleanup = null;
+	let suppressedClick = false;
+	let updateFrame = null;
 
-	const setDockAvailability = (phase, opacity = 0) => {
-		const isActive = phase === 'active';
-		dock.dataset.sceneState = phase;
-		dock.style.setProperty('--locations-opacity', String(opacity));
-		dock.classList.toggle('is-active', isActive);
-		dock.setAttribute('aria-hidden', String(!isActive));
-		dock.inert = !isActive;
-		if (!isActive) abortReveal();
+	const setSplit = (value) => {
+		split = value;
+		dock.style.setProperty('--locations-split', value + '%');
+	};
+	const selectedSplit = () => dock.dataset.selected === 'avenue-h' ? 100 : dock.dataset.selected === 'avenue-i' ? 0 : 50;
+	const clearInteraction = () => {
+		const previous = gesture;
+		gesture = null;
+		if (previous && dock.hasPointerCapture(previous.pointerId)) dock.releasePointerCapture(previous.pointerId);
+		if (settleCleanup) settleCleanup();
+		dock.classList.remove('is-dragging');
+		delete dock.dataset.splitPreview;
+		dock.style.removeProperty('--locations-preview-height');
+		dock.style.removeProperty('--locations-tile-width');
+		setSplit(selectedSplit());
 	};
 
 	const markerIcon = (isSelected) => ({
@@ -53,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	const selectLocation = (locationKey) => {
 		if (!locations[locationKey]) return;
-		abortReveal();
+		clearInteraction();
 		dock.dataset.selected = locationKey;
 		setSplit(locationKey === 'avenue-h' ? 100 : 0);
 		choices.forEach((choice) => {
@@ -63,10 +69,11 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 		panels.forEach((panel) => { panel.hidden = panel.dataset.locationPanel !== locationKey; });
 		updateMapSelection(locationKey);
+		scheduleDockUpdate();
 	};
 
 	const showBothLocations = () => {
-		abortReveal();
+		clearInteraction();
 		delete dock.dataset.selected;
 		setSplit(50);
 		choices.forEach((choice) => {
@@ -75,6 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 		panels.forEach((panel) => { panel.hidden = true; });
 		updateMapSelection();
+		scheduleDockUpdate();
 	};
 
 	const initializeMap = () => {
@@ -113,160 +121,148 @@ document.addEventListener('DOMContentLoaded', () => {
 			bounds.extend(location.position);
 		});
 		mapElement.classList.add('is-ready');
-		showBothLocations();
+		updateMapSelection(dock.dataset.selected);
+		scheduleDockUpdate();
 	};
 
-	choices.forEach((choice) => choice.addEventListener('click', () => selectLocation(choice.dataset.locationKey)));
-	resetButtons.forEach((button) => button.addEventListener('click', showBothLocations));
 
+	// Sole visibility authority. The runway belongs to Locations, never its sibling.
+	const updateLocationsDock = () => {
+		const locationsRect = section.getBoundingClientRect();
+		const mapRect = mapElement.getBoundingClientRect();
+		const bottomOffset = parseFloat(getComputedStyle(dock).bottom) || 16;
+		const exitDistance = dock.offsetHeight + bottomOffset + 120;
+		const visible = mapRect.top <= window.innerHeight * 0.7
+			&& locationsRect.bottom > window.innerHeight + exitDistance;
+		if (!visible && (gesture || settleCleanup)) clearInteraction();
+		dock.classList.toggle('is-visible', visible);
+		dock.inert = !visible;
+		dock.setAttribute('aria-hidden', String(!visible));
+		// A fast fling can cross any distance during a timed fade. Finish immediately
+		// inside the runway in that case, before the next section can be exposed.
+		const atBoundary = locationsRect.bottom <= window.innerHeight + 32;
+		dock.style.visibility = atBoundary ? 'hidden' : '';
+		dock.style.transitionDuration = atBoundary ? '0s' : '';
+		if (!mapInitialized && mapRect.top < window.innerHeight && mapRect.bottom > 0) initializeMap();
+	};
+	const scheduleDockUpdate = () => {
+		if (updateFrame !== null) return;
+		updateFrame = window.requestAnimationFrame(() => {
+			updateFrame = null;
+			updateLocationsDock();
+		});
+	};
 
-	// One physical divider; selection remains owned by the existing canonical functions.
-	let split = 50;
-	const setSplit = (value) => {
-		split = Math.max(0, Math.min(100, value));
-		dock.style.setProperty('--locations-split', split + '%');
-	};
-	const releaseCapture = (state) => {
-		if (state.surface.hasPointerCapture(state.pointerId)) state.surface.releasePointerCapture(state.pointerId);
-	};
-	const abortReveal = () => {
-		window.cancelAnimationFrame(settleFrame);
-		const state = dragState;
-		dragState = undefined;
-		if (state) releaseCapture(state);
-		dock.classList.remove('is-revealing', 'is-dragging');
-		setSplit(dock.dataset.selected === 'avenue-h' ? 100 : dock.dataset.selected === 'avenue-i' ? 0 : 50);
-		dock.style.removeProperty('--locations-reveal-height');
-		dock.style.removeProperty('--locations-copy-width');
-	};
 	const settle = (state, commit) => {
-		dock.classList.remove('is-dragging');
-		const from = split;
-		const to = commit ? (state.reset ? 50 : state.locationKey === 'avenue-h' ? 100 : 0) : state.initialSplit;
-		const started = performance.now();
+		const target = commit ? (state.closing ? 50 : state.key === 'avenue-h' ? 100 : 0) : state.startSplit;
+		const focusWasInside = dock.contains(document.activeElement);
 		const finish = () => {
-			abortReveal();
+			clearInteraction();
 			if (commit) {
-				if (state.reset) showBothLocations();
-				else selectLocation(state.locationKey);
+				if (state.closing) showBothLocations();
+				else selectLocation(state.key);
+				if (focusWasInside) {
+					const destination = state.closing
+						? choices.find(button => button.dataset.locationKey === state.key)
+						: panels.find(panel => panel.dataset.locationPanel === state.key).querySelector('a');
+					destination.focus({ preventScroll: true });
+				}
 			}
-			if (dock.contains(document.activeElement)) {
-				const focusTarget = commit
-					? (state.reset ? choices.find(c => c.dataset.locationKey === state.locationKey) : panels.find(p => p.dataset.locationPanel === state.locationKey).querySelector('a'))
-					: state.surface;
-				focusTarget.focus({ preventScroll: true });
-			}
+			scheduleDockUpdate();
 		};
-		if (reducedMotion.matches) { finish(); return; }
-		const tick = (now) => {
-			const t = Math.min(1, (now - started) / 240);
-			setSplit(from + (to - from) * (1 - Math.pow(1 - t, 3)));
-			if (t < 1) settleFrame = window.requestAnimationFrame(tick);
-			else finish();
+		if (reducedMotion.matches || split === target) { finish(); return; }
+		const end = event => {
+			if (event.target === splitGrid && event.propertyName === 'grid-template-columns') finish();
 		};
-		settleFrame = window.requestAnimationFrame(tick);
+		const timer = window.setTimeout(finish, 280);
+		settleCleanup = () => {
+			window.clearTimeout(timer);
+			splitGrid.removeEventListener('transitionend', end);
+			settleCleanup = null;
+		};
+		splitGrid.addEventListener('transitionend', end);
+		// Flush the last direct width before enabling the release-only transition.
+		splitGrid.getBoundingClientRect();
+		dock.classList.remove('is-dragging');
+		setSplit(target);
 	};
-	const startDrag = (event) => {
-		if (dragState || !event.isPrimary || event.button !== 0 || !dock.classList.contains('is-active')) return;
+	dock.addEventListener('pointerdown', event => {
+		// A fresh physical tap must never inherit click suppression from an old drag.
+		suppressedClick = false;
+		if (!event.isPrimary || event.button !== 0 || gesture || settleCleanup || dock.inert) return;
 		if (event.target.closest('a, [data-locations-reset]')) return;
-		suppressedPointer = undefined;
-		const surface = event.currentTarget;
-		const selected = dock.dataset.selected;
-		const key = selected || surface.dataset.locationKey;
-		if (!key || (selected && surface.dataset.locationPanel !== selected)) return;
-		const rect = dock.getBoundingClientRect();
-		dragState = {
-			surface, pointerId: event.pointerId, locationKey: key, reset: Boolean(selected),
-			direction: (key === 'avenue-h' ? 1 : -1) * (selected ? -1 : 1),
-			startX: event.clientX, startY: event.clientY, initialSplit: split, horizontal: false,
-			rect, grabOffset: event.clientX - (rect.left + rect.width * split / 100),
-			samples: [{ x: event.clientX, time: event.timeStamp }],
+		const surface = event.target.closest('[data-location-key], [data-location-panel]');
+		if (!surface) return;
+		const key = dock.dataset.selected || surface.dataset.locationKey;
+		if (!key) return;
+		const width = dock.clientWidth;
+		gesture = {
+			pointerId: event.pointerId, key, closing: Boolean(dock.dataset.selected),
+			startX: event.clientX, startY: event.clientY, startSplit: split,
+			startSplitPx: split / 100 * width, width, dragging: false,
+			direction: (key === 'avenue-h' ? 1 : -1) * (dock.dataset.selected ? -1 : 1),
+			lastX: event.clientX, lastTime: event.timeStamp, velocity: 0,
 		};
-		surface.setPointerCapture(event.pointerId);
-	};
-	const moveDrag = (event) => {
-		const state = dragState;
-		if (!state || state.pointerId !== event.pointerId) return;
+	});
+	const movePointer = event => {
+		const state = gesture;
+		if (!state || event.pointerId !== state.pointerId) return;
 		const dx = event.clientX - state.startX;
 		const dy = event.clientY - state.startY;
-		if (!state.horizontal) {
-			if (Math.abs(dy) >= 8 && Math.abs(dy) >= Math.abs(dx)) { abortReveal(); return; }
+		if (!state.dragging) {
+			if (Math.abs(dy) >= 8 && Math.abs(dy) >= Math.abs(dx)) { clearInteraction(); return; }
 			if (Math.abs(dx) < 8) return;
-			if (Math.abs(dy) >= Math.abs(dx) || dx * state.direction <= 0) { abortReveal(); return; }
-			state.horizontal = true;
-			dock.style.setProperty('--locations-reveal-height', dock.clientHeight + 'px');
-			dock.style.setProperty('--locations-copy-width', state.rect.width / 2 + 'px');
-			dock.classList.add('is-revealing', 'is-dragging');
+			if (Math.abs(dx) <= Math.abs(dy) || dx * state.direction <= 0) { clearInteraction(); return; }
+			state.dragging = true;
+			dock.style.setProperty('--locations-preview-height', dock.clientHeight + 'px');
+			dock.style.setProperty('--locations-tile-width', state.width / 2 + 'px');
+			dock.dataset.splitPreview = state.key;
+			dock.classList.add('is-dragging');
+			dock.setPointerCapture(event.pointerId);
 		}
 		event.preventDefault();
-		// Absolute pointer X, with a fixed grab offset so off-divider grabs never jump.
-		const pointerSplit = (event.clientX - state.grabOffset - state.rect.left) / state.rect.width * 100;
-		setSplit(state.locationKey === 'avenue-h'
-			? Math.max(50, Math.min(100, pointerSplit))
-			: Math.max(0, Math.min(50, pointerSplit)));
-		state.samples.push({ x: event.clientX, time: event.timeStamp });
-		while (state.samples.length > 2 && event.timeStamp - state.samples[0].time > 100) state.samples.shift();
+		const splitPx = state.startSplitPx + event.clientX - state.startX;
+		const percent = splitPx / state.width * 100;
+		setSplit(state.key === 'avenue-h' ? Math.max(50, Math.min(100, percent)) : Math.max(0, Math.min(50, percent)));
+		const elapsed = event.timeStamp - state.lastTime;
+		if (elapsed > 0 && event.clientX !== state.lastX) {
+			state.velocity = (event.clientX - state.lastX) * state.direction / elapsed;
+			state.lastX = event.clientX;
+			state.lastTime = event.timeStamp;
+		}
 	};
-	const finishDrag = (event, cancelled = false) => {
-		const state = dragState;
-		if (!state || state.pointerId !== event.pointerId) return;
-		if (!state.horizontal) { abortReveal(); return; }
-		if (!cancelled) moveDrag(event);
-		suppressedPointer = state.pointerId;
-		releaseCapture(state);
-		const sample = state.samples[0];
-		const velocity = (event.clientX - sample.x) * state.direction / Math.max(1, event.timeStamp - sample.time);
-		const distance = Math.max(0, (event.clientX - state.startX) * state.direction);
-		const crossed = state.reset
-			? (state.locationKey === 'avenue-h' ? split <= 75 : split >= 25)
-			: (state.locationKey === 'avenue-h' ? split >= 75 : split <= 25);
-		const commit = !cancelled && (crossed || (distance >= 24 && velocity >= 0.45));
-		settle(state, commit);
+	const finishPointer = (event, cancelled = false) => {
+		const state = gesture;
+		if (!state || event.pointerId !== state.pointerId) return;
+		if (!state.dragging) { clearInteraction(); return; }
+		if (!cancelled) movePointer(event);
+		gesture = null; // Release must not re-enter through lostpointercapture.
+		suppressedClick = true;
+		if (dock.hasPointerCapture(state.pointerId)) dock.releasePointerCapture(state.pointerId);
+		const crossed = state.closing ? (state.key === 'avenue-h' ? split <= 75 : split >= 25)
+			: (state.key === 'avenue-h' ? split >= 75 : split <= 25);
+		const fast = event.timeStamp - state.lastTime < 100 && state.velocity >= 0.45
+			&& (event.clientX - state.startX) * state.direction >= 24;
+		settle(state, !cancelled && (crossed || fast));
 	};
-	choices.concat(panels).forEach((surface) => {
-		surface.addEventListener('pointerdown', startDrag);
-		surface.addEventListener('pointermove', moveDrag);
-		surface.addEventListener('pointerup', event => finishDrag(event));
-		surface.addEventListener('pointercancel', event => finishDrag(event, true));
-	});
-	dock.addEventListener('click', (event) => {
-		if (event.detail === 0 || suppressedPointer === undefined) return;
-		if (event.pointerId !== undefined && event.pointerId !== suppressedPointer) return;
+	dock.addEventListener('pointermove', movePointer);
+	dock.addEventListener('pointerup', event => finishPointer(event));
+	dock.addEventListener('pointercancel', event => finishPointer(event, true));
+	dock.addEventListener('lostpointercapture', event => finishPointer(event, true));
+	dock.addEventListener('click', event => {
+		if (!suppressedClick || event.detail === 0) return;
+		suppressedClick = false;
 		event.preventDefault();
 		event.stopPropagation();
-		suppressedPointer = undefined;
 	}, true);
+	choices.forEach(button => button.addEventListener('click', () => selectLocation(button.dataset.locationKey)));
+	resetButtons.forEach(button => button.addEventListener('click', showBothLocations));
 
-
-	// One controller samples the bounded sticky scene, never the next section.
-	// Exit opacity follows the internal runway, so a fast scroll cannot outrun a timer.
-	let sceneFrame;
-	const updateScene = () => {
-		sceneFrame = undefined;
-		const rect = scene.getBoundingClientRect();
-		const top = parseFloat(getComputedStyle(stage).top) || 0;
-		const remaining = rect.bottom - top - stage.offsetHeight;
-		const pinned = rect.top <= top && remaining > 0;
-		// Also reserve viewport space below shorter desktop stages.
-		const exitRemaining = rect.bottom - Math.max(window.innerHeight, top + stage.offsetHeight);
-		const opacity = Math.max(0, Math.min(1, (exitRemaining - 64) / 160));
-		const phase = !pinned || opacity === 0 ? 'inactive' : opacity < 1 ? 'exiting' : 'active';
-		setDockAvailability(phase, reducedMotion.matches && phase === 'exiting' ? 0 : opacity);
-		if (rect.top < window.innerHeight && rect.bottom > 0) initializeMap();
-	};
-	const scheduleScene = () => {
-		if (sceneFrame === undefined) sceneFrame = window.requestAnimationFrame(updateScene);
-	};
-	const sizeScene = () => {
-		const header = document.querySelector('.site-header');
-		const top = header ? header.getBoundingClientRect().height + 8 : 8;
-		scene.style.setProperty('--locations-top', top + 'px');
-		scheduleScene();
-	};
-	window.addEventListener('scroll', scheduleScene, { passive: true });
-	window.addEventListener('resize', sizeScene);
-	window.addEventListener('pageshow', sizeScene);
-	reducedMotion.addEventListener('change', scheduleScene);
-	setDockAvailability('inactive');
-	sizeScene();
+	window.addEventListener('scroll', scheduleDockUpdate, { passive: true });
+	window.addEventListener('resize', () => { clearInteraction(); scheduleDockUpdate(); });
+	window.addEventListener('pageshow', scheduleDockUpdate);
+	window.addEventListener('load', scheduleDockUpdate);
+	reducedMotion.addEventListener('change', () => { clearInteraction(); scheduleDockUpdate(); });
+	setSplit(50);
+	updateLocationsDock();
 });
