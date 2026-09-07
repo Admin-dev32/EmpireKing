@@ -47,6 +47,13 @@ function empire_king_enqueue_styles() {
 		wp_get_theme()->get( 'Version' )
 	);
 
+	wp_enqueue_style(
+		'empire-king-footer',
+		get_theme_file_uri( 'assets/css/footer.css' ),
+		array( 'empire-king-style' ),
+		wp_get_theme()->get( 'Version' )
+	);
+
 	wp_enqueue_script(
 		'empire-king-header-navigation',
 		get_theme_file_uri( 'assets/js/header-navigation.js' ),
@@ -267,6 +274,40 @@ function empire_king_get_logo_url() {
 
 	$logo_url = get_theme_file_uri( 'assets/images/branding/logo/' . basename( $first_file ) );
 	return $logo_url;
+}
+
+/**
+ * Gets the dedicated footer logo asset, if one has been supplied.
+ *
+ * @return string|false Footer logo URL or false when no asset is available.
+ */
+function empire_king_get_footer_logo_url() {
+	static $footer_logo_url = null;
+
+	if ( null !== $footer_logo_url ) {
+		return $footer_logo_url;
+	}
+
+	$logo_directory = get_theme_file_path( 'assets/images/branding/footer-logo' );
+	$extensions     = array( 'svg', 'png', 'webp', 'jpg', 'jpeg' );
+	$files          = glob( $logo_directory . '/*' );
+	$files          = false === $files ? array() : array_filter(
+		$files,
+		static function ( $file ) use ( $extensions ) {
+			return is_file( $file ) && in_array( strtolower( pathinfo( $file, PATHINFO_EXTENSION ) ), $extensions, true );
+		}
+	);
+
+	natcasesort( $files );
+	$first_file = reset( $files );
+
+	if ( false === $first_file ) {
+		$footer_logo_url = false;
+		return $footer_logo_url;
+	}
+
+	$footer_logo_url = get_theme_file_uri( 'assets/images/branding/footer-logo/' . basename( $first_file ) );
+	return $footer_logo_url;
 }
 
 /**
