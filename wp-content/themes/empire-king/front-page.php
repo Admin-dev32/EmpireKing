@@ -243,7 +243,7 @@ $stories_blog_url = empire_king_get_blog_url();
 		</div>
 		<p class="screen-reader-text" data-menu-glimpse-status role="status" aria-atomic="true"></p>
 	<?php else : ?>
-		<div class="home-menu-glimpse__empty"><p>Menu imagery is being prepared.</p><a href="#order">Order Now</a></div>
+		<div class="home-menu-glimpse__empty"><p>Menu imagery is being prepared.</p><button type="button" data-direct-order>Order Now</button></div>
 	<?php endif; ?>
 </section>
 
