@@ -13,6 +13,7 @@ $order_gateway_background = empire_king_get_order_gateway_background_url();
 $order_gateway_combo      = empire_king_get_order_gateway_combo_url();
 $order_gateway_maps_key   = empire_king_get_google_maps_api_key();
 $home_slides              = empire_king_get_home_slideshow_images();
+$home_quality_image       = empire_king_get_home_quality_image_url();
 ?>
 <section id="order" class="order-gateway<?php echo $order_gateway_background ? ' order-gateway--has-background' : ''; ?><?php echo $order_gateway_combo ? ' order-gateway--has-combo' : ''; ?>" aria-labelledby="home-title">
 	<?php if ( $order_gateway_background ) : ?>
@@ -212,9 +213,24 @@ $stories_blog_url = empire_king_get_blog_url();
 	<div class="home-locations__handoff" data-locations-handoff aria-hidden="true"></div>
 </section>
 
-<section id="about" class="home-section quality-section" aria-labelledby="quality-title">
-	<div class="media-placeholder media-placeholder--quality" aria-hidden="true"><span>Quality / Restaurant Photo</span></div>
-	<div class="quality-section__copy"><p class="home-eyebrow">Prototype section</p><h2 id="quality-title">Fresh Food. No Complicated Story.</h2><p>Development-only copy placeholder for the future About and food-quality introduction.</p></div>
+<section id="about" class="home-section quality-section home-quality" aria-labelledby="quality-title">
+	<div class="home-quality__media">
+		<?php if ( $home_quality_image ) : ?>
+			<img src="<?php echo esc_url( $home_quality_image ); ?>" alt="Empire King Burger food" loading="lazy">
+		<?php else : ?>
+			<div class="home-quality__placeholder" aria-hidden="true"><span></span><span></span><span></span></div>
+		<?php endif; ?>
+	</div>
+	<div class="home-quality__copy">
+		<p class="home-quality__eyebrow">Quality First</p>
+		<h2 id="quality-title">Fresh Food. No Complicated Story.</h2>
+		<p class="home-quality__intro">Fresh, never frozen burger patties. Fresh vegetables. Beef bacon. Crinkle-cut fries. The kind of straightforward food Empire King is built around.</p>
+		<dl class="home-quality__facts">
+			<div><dt>Fresh</dt><dd>Never-frozen burger patties</dd></div>
+			<div><dt>Fresh Veggies</dt><dd>Fresh vegetables</dd></div>
+			<div><dt>Beef Bacon</dt><dd>Not pork bacon</dd></div>
+		</dl>
+	</div>
 </section>
 
 <section id="contact" class="screen-reader-text" aria-label="Contact"></section>

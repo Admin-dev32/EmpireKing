@@ -76,6 +76,7 @@ function empire_king_enqueue_styles() {
 			array( 'empire-king-style' ),
 			wp_get_theme()->get( 'Version' )
 		);
+		wp_enqueue_style( 'empire-king-home-quality', get_theme_file_uri( 'assets/css/home-quality.css' ), array( 'empire-king-home' ), wp_get_theme()->get( 'Version' ) );
 
 		empire_king_enqueue_order_gateway_assets( array( 'empire-king-home' ) );
 		wp_enqueue_script(
@@ -367,6 +368,40 @@ function empire_king_get_home_slideshow_images() {
 	}
 
 	return $slides;
+}
+
+/**
+ * Gets the one optional repository-owned Home Quality image.
+ *
+ * @return string|false Image URL when exactly one eligible image is available.
+ */
+function empire_king_get_home_quality_image_url() {
+	static $image_url = null;
+
+	if ( null !== $image_url ) {
+		return $image_url;
+	}
+
+	$directory  = get_theme_file_path( 'assets/images/home-quality' );
+	$extensions = array( 'webp', 'jpg', 'jpeg', 'png' );
+	$files      = glob( $directory . '/*' );
+	$files      = false === $files ? array() : array_filter(
+		$files,
+		static function ( $file ) use ( $extensions ) {
+			return is_file( $file ) && in_array( strtolower( pathinfo( $file, PATHINFO_EXTENSION ) ), $extensions, true );
+		}
+	);
+
+	if ( 1 !== count( $files ) ) {
+		if ( count( $files ) > 1 && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( 'Empire King Home Quality image: expected one eligible image; using the development placeholder.' );
+		}
+		$image_url = false;
+		return $image_url;
+	}
+
+	$image_url = get_theme_file_uri( 'assets/images/home-quality/' . rawurlencode( basename( reset( $files ) ) ) );
+	return $image_url;
 }
 
 /**
