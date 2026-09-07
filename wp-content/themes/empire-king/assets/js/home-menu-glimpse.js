@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		let index = 0;
 		const render = () => {
 			frames.forEach((frame, frameIndex) => frame.classList.toggle('is-current', frameIndex === index));
-			if (index < frames.length - 1 && !reducedMotion.matches) timer = window.setTimeout(() => { index += 1; render(); }, 1350);
+			if (index < frames.length - 1 && !reducedMotion.matches) timer = window.setTimeout(() => { index += 1; render(); }, 2000);
 		};
 		if (reducedMotion.matches) index = frames.length - 1;
 		render();

@@ -371,86 +371,39 @@ function empire_king_get_home_slideshow_images() {
 	return $slides;
 }
 
-/** Returns the optional canonical Store API source for the corporate Home. */
-function empire_king_get_home_menu_source_url() {
-	$source = trim( (string) getenv( 'EMPIRE_KING_MENU_SOURCE_URL' ) );
-	return $source && wp_http_validate_url( $source ) ? untrailingslashit( $source ) : false;
-}
-
-/** Normalizes public Store API or local WooCommerce records into menu glimpse categories. */
-function empire_king_normalize_home_menu_glimpse( $products ) {
-	$categories = array();
-	foreach ( $products as $product ) {
-		if ( empty( $product['image'] ) || empty( $product['categories'] ) ) {
-			continue;
-		}
-		foreach ( $product['categories'] as $category ) {
-			$key = sanitize_title( $category['slug'] ?? $category['name'] ?? '' );
-			if ( ! $key || empty( $category['name'] ) ) {
-				continue;
-			}
-			if ( ! isset( $categories[ $key ] ) ) {
-				$categories[ $key ] = array( 'key' => $key, 'name' => sanitize_text_field( $category['name'] ), 'images' => array() );
-			}
-			if ( count( $categories[ $key ]['images'] ) < 3 ) {
-				$categories[ $key ]['images'][] = array( 'url' => esc_url_raw( $product['image'] ), 'alt' => sanitize_text_field( $product['name'] ?? '' ) );
-			}
-		}
-	}
-	$categories = array_filter( $categories, static function ( $category ) { return ! empty( $category['images'] ); } );
-	$priority = array( 'burger', 'sandwich', 'chicken', 'meal', 'side', 'drink', 'dessert' );
-	usort( $categories, static function ( $a, $b ) use ( $priority ) {
-		$rank = static function ( $category ) use ( $priority ) {
-			foreach ( $priority as $index => $needle ) {
-				if ( false !== strpos( $category['key'], $needle ) ) return $index;
-			}
-			return count( $priority );
-		};
-		return $rank( $a ) <=> $rank( $b ) ?: strnatcasecmp( $a['name'], $b['name'] );
-	} );
-	return array_values( $categories );
-}
-
-/** Retrieves public product imagery from the one configured canonical Store API. */
-function empire_king_get_remote_home_menu_glimpse( $source ) {
-	$cache_key = 'ek_menu_glimpse_' . md5( $source );
-	$cached    = get_transient( $cache_key );
-	if ( false !== $cached ) return $cached;
-	$response = wp_remote_get( trailingslashit( $source ) . 'wp-json/wc/store/v1/products?per_page=100&catalog_visibility=visible', array( 'timeout' => 5 ) );
-	$items    = ! is_wp_error( $response ) && 200 === wp_remote_retrieve_response_code( $response ) ? json_decode( wp_remote_retrieve_body( $response ), true ) : array();
-	$products = array();
-	foreach ( is_array( $items ) ? $items : array() as $item ) {
-		$products[] = array( 'name' => $item['name'] ?? '', 'image' => $item['images'][0]['src'] ?? '', 'categories' => $item['categories'] ?? array() );
-	}
-	$data = empire_king_normalize_home_menu_glimpse( $products );
-	set_transient( $cache_key, $data, 10 * MINUTE_IN_SECONDS );
-	return $data;
-}
-
-/** Retrieves public published product imagery from local WooCommerce when available. */
-function empire_king_get_local_home_menu_glimpse() {
-	if ( ! function_exists( 'wc_get_products' ) ) return array();
-	$products = array();
-	foreach ( wc_get_products( array( 'status' => 'publish', 'limit' => 100, 'orderby' => 'menu_order', 'order' => 'ASC' ) ) as $product ) {
-		$image = wp_get_attachment_image_url( $product->get_image_id(), 'large' );
-		$categories = array();
-		foreach ( $product->get_category_ids() as $term_id ) {
-			$term = get_term( $term_id, 'product_cat' );
-			if ( $term && ! is_wp_error( $term ) ) $categories[] = array( 'name' => $term->name, 'slug' => $term->slug );
-		}
-		$products[] = array( 'name' => $product->get_name(), 'image' => $image, 'categories' => $categories );
-	}
-	return empire_king_normalize_home_menu_glimpse( $products );
-}
-
-/** Resolves canonical, local, or intentional empty data for the Home Menu Glimpse. */
+/** Gets valid curated background and transparent foreground sequences for Home Menu Glimpse. */
 function empire_king_get_home_menu_glimpse() {
-	$source = empire_king_get_home_menu_source_url();
-	$items  = $source ? empire_king_get_remote_home_menu_glimpse( $source ) : array();
-	$mode   = $items ? 'canonical' : 'local';
-	if ( ! $items ) $items = empire_king_get_local_home_menu_glimpse();
-	if ( ! $items ) $mode = 'empty';
-	return array( 'mode' => $mode, 'categories' => $items );
+	$directory  = get_theme_file_path( 'assets/images/home-menu-glimpse' );
+	$folders    = glob( $directory . '/*', GLOB_ONLYDIR );
+	$categories = array();
+	foreach ( false === $folders ? array() : $folders as $folder ) {
+		$key         = sanitize_title( basename( $folder ) );
+		$backgrounds = glob( $folder . '/background/*.{webp,jpg,jpeg,png}', GLOB_BRACE );
+		$foregrounds = glob( $folder . '/foreground/*.png' );
+		$backgrounds = false === $backgrounds ? array() : array_filter( $backgrounds, 'is_file' );
+		$foregrounds = false === $foregrounds ? array() : array_filter( $foregrounds, 'is_file' );
+		natsort( $backgrounds );
+		natsort( $foregrounds );
+		if ( ! $key || 1 !== count( $backgrounds ) || ! $foregrounds ) continue;
+		$label = ucwords( str_replace( '-', ' ', $key ) );
+		$categories[] = array(
+			'key'         => $key,
+			'name'        => $label,
+			'background'  => get_theme_file_uri( 'assets/images/home-menu-glimpse/' . rawurlencode( basename( $folder ) ) . '/background/' . rawurlencode( basename( reset( $backgrounds ) ) ) ),
+			'foregrounds' => array_map( static function ( $file ) use ( $folder, $label ) {
+				return array( 'url' => get_theme_file_uri( 'assets/images/home-menu-glimpse/' . rawurlencode( basename( $folder ) ) . '/foreground/' . rawurlencode( basename( $file ) ) ), 'alt' => $label . ' food' );
+			}, array_slice( array_values( $foregrounds ), 0, 3 ) ),
+		);
+	}
+	$priority = array( 'burgers', 'sandwiches', 'chicken', 'fries', 'salads', 'drinks', 'ice-cream', 'family-packs' );
+	usort( $categories, static function ( $a, $b ) use ( $priority ) {
+		$a_rank = array_search( $a['key'], $priority, true );
+		$b_rank = array_search( $b['key'], $priority, true );
+		$a_rank = false === $a_rank ? count( $priority ) : $a_rank;
+		$b_rank = false === $b_rank ? count( $priority ) : $b_rank;
+		return $a_rank <=> $b_rank ?: strnatcasecmp( $a['name'], $b['name'] );
+	} );
+	return array( 'mode' => $categories ? 'curated' : 'empty', 'categories' => $categories );
 }
 
 /**

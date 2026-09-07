@@ -228,8 +228,9 @@ $stories_blog_url = empire_king_get_blog_url();
 		<div class="home-menu-glimpse__stage">
 			<?php foreach ( $home_menu_glimpse['categories'] as $category_index => $category ) : ?>
 				<section id="menu-glimpse-<?php echo esc_attr( $category['key'] ); ?>" class="home-menu-glimpse__panel" data-menu-glimpse-panel="<?php echo esc_attr( $category['key'] ); ?>" data-accent="<?php echo esc_attr( $category_index % 3 ); ?>" role="tabpanel" <?php echo $category['key'] !== $default_menu_category['key'] ? 'hidden' : ''; ?>>
-					<?php foreach ( $category['images'] as $image_index => $image ) : ?>
-						<figure class="home-menu-glimpse__frame<?php echo 0 === $image_index ? ' is-current' : ''; ?>" data-menu-glimpse-frame>
+					<img class="home-menu-glimpse__background" src="<?php echo esc_url( $category['background'] ); ?>" alt="" aria-hidden="true" loading="lazy" decoding="async">
+					<?php foreach ( $category['foregrounds'] as $image_index => $image ) : ?>
+						<figure class="home-menu-glimpse__frame home-menu-glimpse__frame--food<?php echo 0 === $image_index ? ' is-current' : ''; ?>" data-menu-glimpse-frame>
 							<img src="<?php echo esc_url( $image['url'] ); ?>" alt="<?php echo esc_attr( $image['alt'] ); ?>" loading="lazy" decoding="async">
 						</figure>
 					<?php endforeach; ?>
