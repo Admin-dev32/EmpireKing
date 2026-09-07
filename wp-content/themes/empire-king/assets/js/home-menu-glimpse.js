@@ -14,6 +14,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	let categoryTransitionTimer = null;
 	let playbackRun = 0;
 	let activePanel = panels.find(panel => !panel.hidden) || panels[0];
+	let viewportPlaybackStarted = false;
+	let viewportObserver = null;
 
 	const prepareImage = (image, useTimeout = true) => {
 		if (!image) return Promise.resolve();
@@ -112,12 +114,35 @@ document.addEventListener('DOMContentLoaded', () => {
 		const panel = panels.find(item => item.dataset.menuGlimpsePanel === key);
 		if (panel) prepareInitialVisual(panel);
 	};
+	const selectedCategoryKey = () => tabs.find(tab => tab.getAttribute('aria-selected') === 'true').dataset.menuGlimpseCategory;
+	const startViewportPlayback = () => {
+		if (viewportPlaybackStarted) return;
+		viewportPlaybackStarted = true;
+		if (viewportObserver) viewportObserver.disconnect();
+		showCategory(selectedCategoryKey(), false);
+	};
 
 	tabs.forEach((tab) => {
-		tab.addEventListener('click', () => showCategory(tab.dataset.menuGlimpseCategory));
+		tab.addEventListener('click', () => {
+			if (!viewportPlaybackStarted) {
+				viewportPlaybackStarted = true;
+				if (viewportObserver) viewportObserver.disconnect();
+			}
+			showCategory(tab.dataset.menuGlimpseCategory);
+		});
 		tab.addEventListener('pointerenter', () => prewarmCategory(tab.dataset.menuGlimpseCategory));
 		tab.addEventListener('focus', () => prewarmCategory(tab.dataset.menuGlimpseCategory));
 	});
-	reducedMotion.addEventListener('change', () => showCategory(tabs.find(tab => tab.getAttribute('aria-selected') === 'true').dataset.menuGlimpseCategory, false));
-	showCategory(tabs.find(tab => tab.getAttribute('aria-selected') === 'true').dataset.menuGlimpseCategory, false);
+	reducedMotion.addEventListener('change', () => {
+		if (viewportPlaybackStarted) showCategory(selectedCategoryKey(), false);
+	});
+	prewarmCategory(selectedCategoryKey());
+	if ('IntersectionObserver' in window) {
+		viewportObserver = new IntersectionObserver((entries) => {
+			if (entries.some(entry => entry.isIntersecting && entry.intersectionRatio >= 0.33)) startViewportPlayback();
+		}, { threshold: 0.33 });
+		viewportObserver.observe(section);
+	} else {
+		startViewportPlayback();
+	}
 });
