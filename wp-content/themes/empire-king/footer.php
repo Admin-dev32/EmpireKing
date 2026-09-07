@@ -35,6 +35,7 @@ $terms_url       = $terms_page && 'publish' === get_post_status( $terms_page ) ?
 		</div>
 		<nav class="site-footer__navigation" aria-label="<?php echo esc_attr__( 'Footer navigation', 'empire-king' ); ?>">
 			<ul class="site-footer__links">
+				<li><a href="<?php echo esc_url( home_url( '/deals/' ) ); ?>"><?php esc_html_e( 'Deals', 'empire-king' ); ?></a></li>
 				<li><a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'Home', 'empire-king' ); ?></a></li>
 				<li><a href="<?php echo esc_url( home_url( '/#order' ) ); ?>"><?php esc_html_e( 'Order', 'empire-king' ); ?></a></li>
 				<li><a href="<?php echo esc_url( home_url( '/#favorites' ) ); ?>"><?php esc_html_e( 'Featured Favorites', 'empire-king' ); ?></a></li>

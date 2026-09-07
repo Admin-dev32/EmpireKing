@@ -65,7 +65,10 @@ function empire_king_enqueue_styles() {
 		)
 	);
 
-	if ( is_singular( 'post' ) ) {
+	if ( is_page( 'deals' ) ) {
+		wp_enqueue_style( 'empire-king-deals', get_theme_file_uri( 'assets/css/deals.css' ), array( 'empire-king-style' ), wp_get_theme()->get( 'Version' ) );
+	}
+	if ( is_singular( 'post' ) || is_page( 'deals' ) ) {
 		empire_king_enqueue_order_gateway_assets( array( 'empire-king-style' ) );
 	}
 
@@ -124,6 +127,13 @@ function empire_king_enqueue_styles() {
 	}
 }
 add_action( 'wp_enqueue_scripts', 'empire_king_enqueue_styles' );
+
+add_filter( 'pre_get_document_title', function ( $title ) {
+	return is_page( 'deals' ) ? 'Deals & Specials in Lancaster, CA | Empire King Burger' : $title;
+} );
+add_action( 'wp_head', function () {
+	if ( is_page( 'deals' ) ) echo '<meta name="description" content="Current Empire King Burger deals and specials in Lancaster, California. Browse current offers and choose your restaurant to order online.">' . "\n";
+} );
 
 /** Pickup routes are shared by the Home gateway and Blog direct-order flow. */
 function empire_king_get_order_gateway_routes() {
@@ -503,7 +513,7 @@ function empire_king_primary_nav_fallback( $args = array() ) {
 	?>
 	<ul class="<?php echo esc_attr( $menu_class ); ?>">
 		<li><a href="<?php echo esc_url( home_url( '/#order' ) ); ?>"><?php esc_html_e( 'Menu', 'empire-king' ); ?></a></li>
-		<li><a href="<?php echo esc_url( home_url( '/#deals' ) ); ?>"><?php esc_html_e( 'Deals', 'empire-king' ); ?></a></li>
+		<li><a href="<?php echo esc_url( home_url( '/deals/' ) ); ?>"><?php esc_html_e( 'Deals', 'empire-king' ); ?></a></li>
 		<li><a href="<?php echo esc_url( home_url( '/#locations' ) ); ?>"><?php esc_html_e( 'Locations', 'empire-king' ); ?></a></li>
 		<li><a href="<?php echo esc_url( home_url( '/#about' ) ); ?>"><?php esc_html_e( 'About', 'empire-king' ); ?></a></li>
 	</ul>

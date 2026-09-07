@@ -155,24 +155,25 @@ document.addEventListener('DOMContentLoaded', () => {
 		setOrderStatus();
 		updateSelection();
 		if (selectionIntent === 'direct-order') {
-			const pickupUrl = orderRoutes[locationName] && orderRoutes[locationName].pickup;
-			if (pickupUrl && !isProceedingToOrder) {
-				isProceedingToOrder = true;
-				let destination = pickupUrl;
-				if (directOrderCategory) {
-					try {
-						const destinationUrl = new URL(pickupUrl, window.location.origin);
-						destinationUrl.searchParams.set('ekb_cat', directOrderCategory);
-						destination = destinationUrl.toString();
-					} catch (error) {
-						// Use the configured pickup URL unchanged if it cannot be parsed.
-					}
-				}
-				window.location.assign(destination);
-			}
+			proceedToPickup(locationName, directOrderCategory);
 			return;
 		}
 		closeSelector();
+	};
+
+	const proceedToPickup = (locationName, category = '') => {
+		const pickupUrl = orderRoutes[locationName] && orderRoutes[locationName].pickup;
+		if (!pickupUrl || isProceedingToOrder) return;
+		const destination = new URL(pickupUrl, window.location.origin);
+		if (category) destination.searchParams.set('ekb_cat', category);
+		if (document.querySelector('[data-deals-page]')) {
+			const source = new URLSearchParams(window.location.search);
+			['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'gclid', 'gbraid', 'wbraid', 'fbclid'].forEach(key => {
+				if (source.has(key)) destination.searchParams.set(key, source.get(key));
+			});
+		}
+		isProceedingToOrder = true;
+		window.location.assign(destination.toString());
 	};
 
 	const submitOrder = (mode) => {
@@ -192,9 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			return;
 		}
 
-		if (isProceedingToOrder) return;
-		isProceedingToOrder = true;
-		window.location.assign(pickupUrl);
+		proceedToPickup(selectedLocation);
 	};
 
 	const openSelector = (mode, intent = 'home') => {
@@ -224,6 +223,11 @@ document.addEventListener('DOMContentLoaded', () => {
 	directOrderButtons.forEach((button) => button.addEventListener('click', (event) => {
 		event.preventDefault();
 		directOrderCategory = button.dataset.orderCategory || '';
+		if (['Avenue H', 'Avenue I'].includes(button.dataset.orderLocation)) {
+			proceedToPickup(button.dataset.orderLocation, directOrderCategory);
+			directOrderCategory = '';
+			return;
+		}
 		openSelector('pickup', 'direct-order');
 	}));
 	closeButton.addEventListener('click', () => closeSelector());
