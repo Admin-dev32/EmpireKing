@@ -62,6 +62,44 @@ function empire_king_enqueue_styles() {
 			array( 'empire-king-style' ),
 			wp_get_theme()->get( 'Version' )
 		);
+
+		wp_enqueue_style(
+			'empire-king-order-gateway',
+			get_theme_file_uri( 'assets/css/order-gateway.css' ),
+			array( 'empire-king-home' ),
+			wp_get_theme()->get( 'Version' )
+		);
+
+		$maps_api_key = empire_king_get_google_maps_api_key();
+		if ( $maps_api_key ) {
+			wp_enqueue_script(
+				'empire-king-google-maps-api',
+				add_query_arg(
+					array(
+						'key' => $maps_api_key,
+						'v'   => 'weekly',
+					),
+					'https://maps.googleapis.com/maps/api/js'
+				),
+				array(),
+				null,
+				array(
+					'in_footer' => true,
+					'strategy'  => 'defer',
+				)
+			);
+		}
+
+		wp_enqueue_script(
+			'empire-king-order-gateway',
+			get_theme_file_uri( 'assets/js/order-gateway.js' ),
+			$maps_api_key ? array( 'empire-king-google-maps-api' ) : array(),
+			wp_get_theme()->get( 'Version' ),
+			array(
+				'in_footer' => true,
+				'strategy'  => 'defer',
+			)
+		);
 	}
 }
 add_action( 'wp_enqueue_scripts', 'empire_king_enqueue_styles' );
@@ -101,6 +139,104 @@ function empire_king_get_logo_url() {
 }
 
 /**
+ * Gets the first optional decorative Order Gateway background asset.
+ *
+ * @return string|false Background URL or false when no asset is available.
+ */
+function empire_king_get_order_gateway_background_url() {
+	static $background_url = null;
+
+	if ( null !== $background_url ) {
+		return $background_url;
+	}
+
+	$background_directory = get_theme_file_path( 'assets/images/home/order-gateway-background' );
+	$extensions           = array( 'webp', 'png', 'jpg', 'jpeg' );
+	$files                = glob( $background_directory . '/*' );
+	$files                = false === $files ? array() : array_filter(
+		$files,
+		static function ( $file ) use ( $extensions ) {
+			return is_file( $file ) && in_array( strtolower( pathinfo( $file, PATHINFO_EXTENSION ) ), $extensions, true );
+		}
+	);
+
+	natcasesort( $files );
+	$first_file = reset( $files );
+
+	if ( false === $first_file ) {
+		$background_url = false;
+		return $background_url;
+	}
+
+	$background_url = get_theme_file_uri( 'assets/images/home/order-gateway-background/' . basename( $first_file ) );
+	return $background_url;
+}
+
+/**
+ * Gets the first optional transparent combo image for the Order Gateway.
+ *
+ * @return string|false Combo image URL or false when no asset is available.
+ */
+function empire_king_get_order_gateway_combo_url() {
+	static $combo_url = null;
+
+	if ( null !== $combo_url ) {
+		return $combo_url;
+	}
+
+	$combo_directory = get_theme_file_path( 'assets/images/home/order-gateway-combo' );
+	$extensions      = array( 'png', 'webp' );
+	$files           = glob( $combo_directory . '/*' );
+	$files           = false === $files ? array() : array_filter(
+		$files,
+		static function ( $file ) use ( $extensions ) {
+			return is_file( $file ) && in_array( strtolower( pathinfo( $file, PATHINFO_EXTENSION ) ), $extensions, true );
+		}
+	);
+
+	natcasesort( $files );
+	$first_file = reset( $files );
+
+	if ( false === $first_file ) {
+		$combo_url = false;
+		return $combo_url;
+	}
+
+	$combo_url = get_theme_file_uri( 'assets/images/home/order-gateway-combo/' . basename( $first_file ) );
+	return $combo_url;
+}
+
+/**
+ * Gets the Maps JavaScript API key from the local environment.
+ *
+ * The local MU loader supplies the preferred API key from .env, with the
+ * previous Embed key accepted as a backwards-compatible fallback. Do not
+ * place either key in this repository.
+ *
+ * @return string|false API key or false when no key is configured.
+ */
+function empire_king_get_google_maps_api_key() {
+	$api_key = getenv( 'EMPIRE_KING_GOOGLE_MAPS_API_KEY' );
+	if ( false === $api_key || '' === $api_key ) {
+		$api_key = getenv( 'EMPIRE_KING_GOOGLE_MAPS_EMBED_KEY' );
+	}
+
+	if ( false === $api_key || '' === $api_key ) {
+		$api_key = defined( 'EMPIRE_KING_GOOGLE_MAPS_API_KEY' ) ? EMPIRE_KING_GOOGLE_MAPS_API_KEY : '';
+	}
+
+	if ( ! $api_key ) {
+		$api_key = defined( 'EMPIRE_KING_GOOGLE_MAPS_EMBED_KEY' ) ? EMPIRE_KING_GOOGLE_MAPS_EMBED_KEY : '';
+	}
+
+	if ( ! $api_key ) {
+		return false;
+	}
+
+	return $api_key;
+}
+
+/**
  * Prints approved fallback navigation when a WordPress menu is not assigned.
  *
  * @param array<string, mixed> $args Navigation arguments.
@@ -109,7 +245,7 @@ function empire_king_primary_nav_fallback( $args = array() ) {
 	$menu_class = isset( $args['menu_class'] ) ? $args['menu_class'] : 'primary-menu';
 	?>
 	<ul class="<?php echo esc_attr( $menu_class ); ?>">
-		<li><a href="<?php echo esc_url( home_url( '/#locations' ) ); ?>"><?php esc_html_e( 'Menu', 'empire-king' ); ?></a></li>
+		<li><a href="<?php echo esc_url( home_url( '/#order' ) ); ?>"><?php esc_html_e( 'Menu', 'empire-king' ); ?></a></li>
 		<li><a href="<?php echo esc_url( home_url( '/#deals' ) ); ?>"><?php esc_html_e( 'Deals', 'empire-king' ); ?></a></li>
 		<li><a href="<?php echo esc_url( home_url( '/#locations' ) ); ?>"><?php esc_html_e( 'Locations', 'empire-king' ); ?></a></li>
 		<li><a href="<?php echo esc_url( home_url( '/#about' ) ); ?>"><?php esc_html_e( 'About', 'empire-king' ); ?></a></li>

@@ -8,6 +8,11 @@
   "themes": [
     "./wp-content/themes/empire-king"
   ],
+  "mappings": {
+    "wp-content/mu-plugins/empire-king-env.php": "./wp-content/mu-plugins/empire-king-env.php",
+    ".env": "./.env",
+    ".htaccess": "./.htaccess"
+  },
   "port": 8888,
   "config": {
     "WP_DEBUG": true,

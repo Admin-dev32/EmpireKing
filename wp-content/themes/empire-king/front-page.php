@@ -9,19 +9,58 @@
  */
 
 get_header();
+$order_gateway_background = empire_king_get_order_gateway_background_url();
+$order_gateway_combo      = empire_king_get_order_gateway_combo_url();
+$order_gateway_maps_key   = empire_king_get_google_maps_api_key();
 ?>
-<section class="home-hero" aria-labelledby="home-title">
-	<div class="home-hero__copy">
-		<p class="home-eyebrow">Lancaster, California</p>
-		<h1 id="home-title">Made Fresh. Built to Satisfy.</h1>
-		<p class="home-lead">Big burgers, satisfying combos, and local favorites from Empire King Burger.</p>
-		<div class="home-actions">
-			<a class="button button--primary" href="#locations">Order Now</a>
-			<a class="button button--secondary" href="#locations">View Locations</a>
+<section id="order" class="order-gateway<?php echo $order_gateway_background ? ' order-gateway--has-background' : ''; ?><?php echo $order_gateway_combo ? ' order-gateway--has-combo' : ''; ?>" aria-labelledby="home-title">
+	<?php if ( $order_gateway_background ) : ?>
+		<div class="order-gateway__background" aria-hidden="true" style="--ek-order-background: url('<?php echo esc_url( $order_gateway_background ); ?>');"></div>
+	<?php endif; ?>
+	<div class="order-gateway__inner">
+		<?php if ( $order_gateway_combo ) : ?>
+			<div class="order-gateway__combo" aria-hidden="true"><img src="<?php echo esc_url( $order_gateway_combo ); ?>" alt=""></div>
+		<?php endif; ?>
+		<div class="order-gateway__content">
+			<div class="order-gateway__intro">
+				<h1 id="home-title">Ready to Order?</h1>
+				<p class="order-gateway__accent">Start here</p>
+			</div>
+			<div class="order-gateway__card">
+				<div class="order-tabs" role="tablist" aria-label="Order method">
+					<button id="pickup-tab" class="order-tab" type="button" role="tab" aria-selected="true" aria-controls="pickup-panel" data-order-mode="pickup">Pickup</button>
+					<button id="delivery-tab" class="order-tab" type="button" role="tab" aria-selected="false" aria-controls="delivery-panel" data-order-mode="delivery" tabindex="-1">Delivery</button>
+				</div>
+				<div id="pickup-panel" class="order-tab-panel" role="tabpanel" aria-labelledby="pickup-tab">
+					<button class="order-location-control" type="button" data-open-location-selector="pickup"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12Z" /><circle cx="12" cy="9" r="2.25" /></svg><span class="order-location-control__unselected">Select Your Restaurant</span><span class="order-location-control__selected" hidden><span class="order-location-control__mode">Pickup From</span><strong></strong><span class="order-location-control__address"></span></span><span class="order-location-control__change" hidden>Change</span><span class="order-location-control__arrow" aria-hidden="true">›</span></button>
+					<button class="order-gateway__button" type="button" data-open-location-selector="pickup">Order Now</button>
+				</div>
+				<div id="delivery-panel" class="order-tab-panel" role="tabpanel" aria-labelledby="delivery-tab" hidden>
+					<button class="order-location-control" type="button" data-open-location-selector="delivery"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12Z" /><circle cx="12" cy="9" r="2.25" /></svg><span class="order-location-control__unselected">Select Your Restaurant</span><span class="order-location-control__selected" hidden><span class="order-location-control__mode">Delivery From</span><strong></strong><span class="order-location-control__address"></span></span><span class="order-location-control__change" hidden>Change</span><span class="order-location-control__arrow" aria-hidden="true">›</span></button>
+					<button class="order-gateway__button" type="button" data-open-location-selector="delivery">Order Now</button>
+				</div>
+			</div>
 		</div>
 	</div>
-	<div class="media-placeholder media-placeholder--hero" aria-hidden="true"><span>Hero Food Photo</span></div>
 </section>
+
+<dialog id="order-location-selector" class="order-location-dialog" aria-labelledby="order-location-dialog-title" aria-describedby="order-location-dialog-description">
+	<div class="order-location-dialog__topbar">
+		<p class="order-location-dialog__label">Empire King Burger</p>
+		<button class="order-location-dialog__close" type="button" aria-label="Close location selector"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18" /></svg></button>
+	</div>
+	<div class="order-location-dialog__content">
+		<h2 id="order-location-dialog-title">Choose Your Pickup Location</h2>
+		<p id="order-location-dialog-description">Choose the location you'd like to order from.</p>
+		<?php if ( $order_gateway_maps_key ) : ?>
+			<div id="order-location-map" class="order-location-map" role="region" aria-label="Map showing Empire King locations in Lancaster"></div>
+		<?php endif; ?>
+		<div class="order-location-options" aria-label="Choose a location">
+			<button class="order-location-option" type="button" data-location="Avenue H" aria-pressed="false"><svg class="order-location-option__icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12Z" /><circle cx="12" cy="9" r="2.25" /></svg><span class="order-location-option__details"><strong>Avenue H</strong><span>1036 W Avenue H<br>Lancaster, CA 93534</span></span><span class="order-location-option__arrow" aria-hidden="true">›</span><span class="order-location-option__selected">Selected</span></button>
+			<button class="order-location-option" type="button" data-location="Avenue I" aria-pressed="false"><svg class="order-location-option__icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12Z" /><circle cx="12" cy="9" r="2.25" /></svg><span class="order-location-option__details"><strong>Avenue I</strong><span>810 W Ave I<br>Lancaster, CA</span></span><span class="order-location-option__arrow" aria-hidden="true">›</span><span class="order-location-option__selected">Selected</span></button>
+		</div>
+	</div>
+</dialog>
 
 <section id="favorites" class="home-section" aria-labelledby="favorites-title">
 	<div class="section-intro">

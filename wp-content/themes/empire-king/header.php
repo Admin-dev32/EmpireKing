@@ -31,7 +31,7 @@
 		<nav class="primary-navigation" aria-label="<?php esc_attr_e( 'Primary navigation', 'empire-king' ); ?>">
 			<?php empire_king_render_primary_navigation( 'primary-menu' ); ?>
 		</nav>
-		<a class="header-order-link" href="<?php echo esc_url( home_url( '/#locations' ) ); ?>">Order Now</a>
+		<a class="header-order-link" href="<?php echo esc_url( home_url( '/#order' ) ); ?>">Order Now</a>
 		<a class="header-icon-button header-location-link" href="<?php echo esc_url( home_url( '/#locations' ) ); ?>" aria-label="<?php esc_attr_e( 'Choose a location', 'empire-king' ); ?>">
 			<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12Z" /><circle cx="12" cy="9" r="2.25" /></svg>
 		</a>
@@ -49,7 +49,7 @@
 		<nav class="mobile-navigation__nav" aria-label="<?php esc_attr_e( 'Mobile primary navigation', 'empire-king' ); ?>">
 			<?php empire_king_render_primary_navigation( 'mobile-primary-menu' ); ?>
 		</nav>
-		<a class="button button--primary mobile-navigation__order" href="<?php echo esc_url( home_url( '/#locations' ) ); ?>">Order Now</a>
+		<a class="button button--primary mobile-navigation__order" href="<?php echo esc_url( home_url( '/#order' ) ); ?>">Order Now</a>
 	</dialog>
 </header>
 <main id="primary" class="site-content">

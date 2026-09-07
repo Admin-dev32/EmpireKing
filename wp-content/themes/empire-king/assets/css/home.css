@@ -1,20 +1,14 @@
-.home-section,
-.home-hero {
+.home-section {
 	padding-top: var(--ek-space-5);
 	padding-bottom: var(--ek-space-5);
 }
 
-.home-hero,
 .quality-section,
 .deal-band {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 	align-items: center;
 	gap: clamp(2rem, 6vw, 6rem);
-}
-
-.home-hero {
-	min-height: 31rem;
 }
 
 .home-eyebrow {
@@ -25,39 +19,21 @@
 	text-transform: uppercase;
 }
 
-.home-hero h1,
 .home-section h2 {
 	margin: 0;
 	line-height: 1.05;
 	letter-spacing: -0.04em;
 }
 
-.home-hero h1 {
-	max-width: 11ch;
-	font-size: clamp(3rem, 6vw, 5.75rem);
-}
-
 .home-section h2 {
 	font-size: clamp(2.1rem, 4vw, 3.75rem);
 }
 
-.home-lead,
 .deal-band p,
 .quality-section p,
 .favorite-card p,
 .location-card address {
 	font-size: clamp(1rem, 1.5vw, 1.2rem);
-}
-
-.home-lead {
-	max-width: 34rem;
-	margin: var(--ek-space-3) 0;
-}
-
-.home-actions {
-	display: flex;
-	flex-wrap: wrap;
-	gap: var(--ek-space-2);
 }
 
 .button {
@@ -92,7 +68,6 @@
 	text-transform: uppercase;
 }
 
-.media-placeholder--hero { min-height: 29rem; }
 .section-intro { margin-bottom: var(--ek-space-3); }
 
 .favorite-grid,
@@ -152,17 +127,12 @@
 }
 
 @media (max-width: 48rem) {
-	.home-section,
-	.home-hero { padding-top: var(--ek-space-4); padding-bottom: var(--ek-space-4); }
-	.home-hero,
+	.home-section { padding-top: var(--ek-space-4); padding-bottom: var(--ek-space-4); }
 	.quality-section,
 	.deal-band { grid-template-columns: 1fr; gap: var(--ek-space-3); }
-	.home-hero { min-height: 0; }
-	.media-placeholder--hero { min-height: 20rem; }
 	.favorite-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 34rem) {
 	.location-grid { grid-template-columns: 1fr; }
-	.home-actions .button { width: 100%; }
 }
