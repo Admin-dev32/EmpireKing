@@ -235,9 +235,9 @@ $stories_blog_url = empire_king_get_blog_url();
 						</figure>
 					<?php endforeach; ?>
 					<div class="home-menu-glimpse__frame home-menu-glimpse__frame--cta" data-menu-glimpse-frame>
-						<p>Ready to order?</p><h3><?php echo esc_html( $category['name'] ); ?> is waiting.</h3><span>Choose your restaurant to start an order.</span><a href="#order">Order Now</a>
+						<p>Ready to Order?</p><h3>Craving <?php echo esc_html( $category['name'] ); ?>?</h3><span>Choose your restaurant to start your order.</span><button type="button" data-direct-order>Order Now</button>
 					</div>
-					<a class="home-menu-glimpse__fallback-order" href="#order">Order Now</a>
+					<button class="home-menu-glimpse__fallback-order" type="button" data-direct-order>Order Now</button>
 				</section>
 			<?php endforeach; ?>
 		</div>

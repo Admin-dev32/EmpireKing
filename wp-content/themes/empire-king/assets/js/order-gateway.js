@@ -10,11 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
 	const locationButtons = Array.from(document.querySelectorAll('.order-location-option'));
 	const locationControls = Array.from(document.querySelectorAll('.order-location-control'));
 	const orderButtons = Array.from(document.querySelectorAll('[data-order-submit]'));
-	const blogOrderButtons = Array.from(document.querySelectorAll('[data-blog-direct-order]'));
+	const directOrderButtons = Array.from(document.querySelectorAll('[data-direct-order], [data-blog-direct-order]'));
 	const mapContainer = document.querySelector('#order-location-map');
 	const status = document.querySelector('.order-gateway__status');
 
-	if (!dialog || !closeButton || !dialogTitle || !dialogDescription || typeof dialog.showModal !== 'function' || (!gateway && !blogOrderButtons.length)) {
+	if (!dialog || !closeButton || !dialogTitle || !dialogDescription || typeof dialog.showModal !== 'function' || (!gateway && !directOrderButtons.length)) {
 		return;
 	}
 
@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		selectedLocation = locationName;
 		setOrderStatus();
 		updateSelection();
-		if (selectionIntent === 'blog-direct-order') {
+		if (selectionIntent === 'direct-order') {
 			const pickupUrl = orderRoutes[locationName] && orderRoutes[locationName].pickup;
 			if (pickupUrl && !isProceedingToOrder) {
 				isProceedingToOrder = true;
@@ -209,9 +209,9 @@ document.addEventListener('DOMContentLoaded', () => {
 	});
 	openButtons.forEach((button) => button.addEventListener('click', () => openSelector(button.dataset.openLocationSelector)));
 	orderButtons.forEach((button) => button.addEventListener('click', () => submitOrder(button.dataset.orderSubmit)));
-	blogOrderButtons.forEach((button) => button.addEventListener('click', (event) => {
+	directOrderButtons.forEach((button) => button.addEventListener('click', (event) => {
 		event.preventDefault();
-		openSelector('pickup', 'blog-direct-order');
+		openSelector('pickup', 'direct-order');
 	}));
 	closeButton.addEventListener('click', () => closeSelector());
 	dialog.addEventListener('cancel', (event) => { event.preventDefault(); closeSelector(); });

@@ -21,11 +21,11 @@
 .home-menu-glimpse__frame--cta p { margin: 0; color: var(--ek-color-yellow); font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase; }
 .home-menu-glimpse__frame--cta h3 { max-width: 42rem; margin: 0; font-family: var(--ek-font-display); font-size: clamp(2.3rem, 6vw, 5rem); line-height: 0.98; letter-spacing: -0.05em; }
 .home-menu-glimpse__frame--cta > span { font-size: clamp(1rem, 2vw, 1.2rem); }
-.home-menu-glimpse__frame--cta a, .home-menu-glimpse__fallback-order, .home-menu-glimpse__empty a { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0.8rem 1.5rem; background: var(--ek-color-yellow); color: var(--ek-color-black); font-weight: 900; text-decoration: none; }
+.home-menu-glimpse__frame--cta button, .home-menu-glimpse__fallback-order, .home-menu-glimpse__empty a { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0.8rem 1.5rem; background: var(--ek-color-yellow); color: var(--ek-color-black); border: 0; cursor: pointer; font: inherit; font-weight: 900; text-decoration: none; }
 .home-menu-glimpse__fallback-order { position: absolute; z-index: 2; right: 1rem; bottom: 1rem; }
 .home-menu-glimpse.is-enhanced .home-menu-glimpse__fallback-order { display: none; }
 .home-menu-glimpse__empty { display: grid; place-items: center; min-height: 20rem; padding: 2rem; text-align: center; background: var(--ek-color-muted); }
 .home-menu-glimpse__empty p { margin: 0 0 1rem; font-size: 1.1rem; }
-.home-menu-glimpse__tab:focus-visible, .home-menu-glimpse a:focus-visible { outline: 3px solid var(--ek-color-focus); outline-offset: 3px; }
+.home-menu-glimpse__tab:focus-visible, .home-menu-glimpse a:focus-visible, .home-menu-glimpse button:focus-visible { outline: 3px solid var(--ek-color-focus); outline-offset: 3px; }
 @media (max-width: 48rem) { .home-menu-glimpse { margin-inline: calc(50% - 50vw); padding: 3.5rem var(--ek-space-3); background: #fff9ed; } .home-menu-glimpse__tabs { justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 0.5rem; } .home-menu-glimpse__tab { flex: 0 0 auto; } .home-menu-glimpse__panel { min-height: min(125vw, 34rem); } .home-menu-glimpse__fallback-order { left: 1rem; right: auto; } }
 @media (prefers-reduced-motion: reduce) { .home-menu-glimpse__frame, .home-menu-glimpse__frame--food img { transition: none; } }
