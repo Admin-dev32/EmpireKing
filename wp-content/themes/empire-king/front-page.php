@@ -209,6 +209,7 @@ $stories_blog_url = empire_king_get_blog_url();
 		</div>
 	</div>
 	</div>
+	<div class="home-locations__handoff" data-locations-handoff aria-hidden="true"></div>
 </section>
 
 <section id="about" class="home-section quality-section" aria-labelledby="quality-title">

@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	let settleCleanup = null;
 	let suppressedClick = false;
 	let updateFrame = null;
+	let hasEnteredLocations = false;
 
 	const setSplit = (value) => {
 		split = value;
@@ -145,17 +146,24 @@ document.addEventListener('DOMContentLoaded', () => {
 			? clamp((stickyTopOffset - trackRect.top) / scrollableDistance, 0, 1)
 			: 0;
 		const mapRect = mapElement.getBoundingClientRect();
+		const visibleTop = Math.max(mapRect.top, stickyTopOffset);
+		const visibleBottom = Math.min(mapRect.bottom, window.innerHeight);
+		const visibleHeight = Math.max(0, visibleBottom - visibleTop);
+		const visibleRatio = mapRect.height > 0 ? clamp(visibleHeight / mapRect.height, 0, 1) : 0;
 		const insideStickyTrack = trackRect.top <= stickyTopOffset
 			&& trackRect.bottom > stickyTopOffset + stickyStageHeight;
-		const exitProgress = clamp((progress - 0.78) / 0.14, 0, 1);
-		const visible = insideStickyTrack && progress < 0.92;
-		const exiting = visible && progress >= 0.78;
+		if (visibleRatio >= 0.5) hasEnteredLocations = true;
+		if (trackRect.top > stickyTopOffset && visibleRatio < 0.5) hasEnteredLocations = false;
+		const exitProgress = clamp((progress - 0.75) / 0.13, 0, 1);
+		const visible = hasEnteredLocations && (visibleRatio >= 0.5 || insideStickyTrack) && progress < 0.88;
+		const exiting = visible && insideStickyTrack && progress >= 0.75;
 		if (!visible && (gesture || settleCleanup)) clearInteraction();
 		dock.classList.toggle('is-visible', visible);
 		dock.classList.toggle('is-exiting', exiting);
 		dock.inert = !visible;
 		dock.setAttribute('aria-hidden', String(!visible));
 		dock.style.setProperty('--locations-dock-opacity', String(1 - exitProgress));
+		section.style.setProperty('--locations-handoff-space', `${Math.max(0, window.innerHeight - stickyTopOffset - stickyStageHeight + 24)}px`);
 		if (!mapInitialized && mapRect.top < window.innerHeight && mapRect.bottom > 0) initializeMap();
 	};
 	const scheduleDockUpdate = () => {
