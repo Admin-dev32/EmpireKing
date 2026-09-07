@@ -4,8 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	const closeButton = document.querySelector('.order-location-dialog__close');
 	const dialogTitle = document.querySelector('#order-location-dialog-title');
 	const dialogDescription = document.querySelector('#order-location-dialog-description');
-	const tabs = Array.from(document.querySelectorAll('[role="tab"][data-order-mode]'));
-	const panels = Array.from(document.querySelectorAll('[role="tabpanel"]'));
+	const tabs = gateway ? Array.from(gateway.querySelectorAll('[role="tab"][data-order-mode]')) : [];
+	const panels = gateway ? Array.from(gateway.querySelectorAll('.order-tab-panel[role="tabpanel"]')) : [];
 	const openButtons = Array.from(document.querySelectorAll('[data-open-location-selector]'));
 	const locationButtons = Array.from(document.querySelectorAll('.order-location-option'));
 	const locationControls = Array.from(document.querySelectorAll('.order-location-control'));
@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	let mapBounds;
 	let isProceedingToOrder = false;
 	let selectionIntent = 'home';
+	let directOrderCategory = '';
 	const orderRoutes = window.empireKingOrderGateway && window.empireKingOrderGateway.routes ? window.empireKingOrderGateway.routes : {};
 	const locations = {
 		'Avenue H': '1036 W Avenue H, Lancaster, CA 93534',
@@ -157,7 +158,17 @@ document.addEventListener('DOMContentLoaded', () => {
 			const pickupUrl = orderRoutes[locationName] && orderRoutes[locationName].pickup;
 			if (pickupUrl && !isProceedingToOrder) {
 				isProceedingToOrder = true;
-				window.location.assign(pickupUrl);
+				let destination = pickupUrl;
+				if (directOrderCategory) {
+					try {
+						const destinationUrl = new URL(pickupUrl, window.location.origin);
+						destinationUrl.searchParams.set('ekb_cat', directOrderCategory);
+						destination = destinationUrl.toString();
+					} catch (error) {
+						// Use the configured pickup URL unchanged if it cannot be parsed.
+					}
+				}
+				window.location.assign(destination);
 			}
 			return;
 		}
@@ -189,6 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const openSelector = (mode, intent = 'home') => {
 		if (dialog.open) return;
 		selectionIntent = intent;
+		if (intent !== 'direct-order') directOrderCategory = '';
 		setActiveTab(mode);
 		clearCloseSequence();
 		dialogTitle.textContent = `Choose Your ${modeLabel()} Location`;
@@ -211,12 +223,14 @@ document.addEventListener('DOMContentLoaded', () => {
 	orderButtons.forEach((button) => button.addEventListener('click', () => submitOrder(button.dataset.orderSubmit)));
 	directOrderButtons.forEach((button) => button.addEventListener('click', (event) => {
 		event.preventDefault();
+		directOrderCategory = button.dataset.orderCategory || '';
 		openSelector('pickup', 'direct-order');
 	}));
 	closeButton.addEventListener('click', () => closeSelector());
 	dialog.addEventListener('cancel', (event) => { event.preventDefault(); closeSelector(); });
 	dialog.addEventListener('close', () => {
 		selectionIntent = 'home';
+		directOrderCategory = '';
 		clearCloseSequence();
 	});
 	locationButtons.forEach((button) => button.addEventListener('click', () => selectLocation(button.dataset.location)));

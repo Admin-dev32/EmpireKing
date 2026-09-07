@@ -376,6 +376,15 @@ function empire_king_get_home_menu_glimpse() {
 	$directory  = get_theme_file_path( 'assets/images/home-menu-glimpse' );
 	$folders    = glob( $directory . '/*', GLOB_ONLYDIR );
 	$categories = array();
+	$order_category_map = array(
+		'burgers'      => 'burger',
+		'sandwiches'   => 'sandwich',
+		'fries'        => 'fries',
+		'salads'       => 'salads',
+		'drinks'       => 'drinks',
+		'ice-cream'    => 'ice-cream',
+		'family-packs' => 'family-pack-combos',
+	);
 	foreach ( false === $folders ? array() : $folders as $folder ) {
 		$key         = sanitize_title( basename( $folder ) );
 		$backgrounds = array_merge(
@@ -389,11 +398,13 @@ function empire_king_get_home_menu_glimpse() {
 		$foregrounds = false === $foregrounds ? array() : array_filter( $foregrounds, 'is_file' );
 		natsort( $backgrounds );
 		natsort( $foregrounds );
-		if ( ! $key || 1 !== count( $backgrounds ) || ! $foregrounds || count( $foregrounds ) > 3 ) continue;
+		$foregrounds = array_slice( array_values( $foregrounds ), 0, 3 );
+		if ( ! $key || 1 !== count( $backgrounds ) || ! $foregrounds ) continue;
 		$label = ucwords( str_replace( '-', ' ', $key ) );
 		$categories[] = array(
 			'key'         => $key,
 			'name'        => $label,
+			'order_category' => isset( $order_category_map[ $key ] ) ? $order_category_map[ $key ] : '',
 			'background'  => get_theme_file_uri( 'assets/images/home-menu-glimpse/' . rawurlencode( basename( $folder ) ) . '/background/' . rawurlencode( basename( reset( $backgrounds ) ) ) ),
 			'foregrounds' => array_map( static function ( $file ) use ( $folder, $label ) {
 				return array( 'url' => get_theme_file_uri( 'assets/images/home-menu-glimpse/' . rawurlencode( basename( $folder ) ) . '/foreground/' . rawurlencode( basename( $file ) ) ), 'alt' => $label . ' food' );
