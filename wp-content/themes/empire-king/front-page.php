@@ -131,17 +131,46 @@ $home_slides              = empire_king_get_home_slideshow_images();
 	<p class="screen-reader-text" data-featured-status role="status" aria-atomic="true"></p>
 </section>
 
-<section id="deals" class="home-section" aria-labelledby="deals-title">
-	<div class="deal-band">
-		<div class="deal-band__copy">
-			<p class="home-eyebrow">Prototype promotion</p>
-			<h2 id="deals-title">Current Deal</h2>
-			<p>A limited-time offer will appear here.</p>
-			<a class="button button--primary" href="#locations">Order Now</a>
+<?php $home_stories = empire_king_get_home_stories(); ?>
+<?php if ( $home_stories ) : ?>
+<section id="latest-stories" class="home-stories" aria-labelledby="stories-title">
+	<h2 id="stories-title">Latest From Empire King</h2>
+	<?php if ( $home_stories[0]['preview'] ) : ?>
+		<p class="home-stories__preview-note">Local design preview &middot; Sample stories, not published news</p>
+	<?php endif; ?>
+	<div class="home-stories__showcase">
+		<button class="home-stories__arrow home-stories__arrow--previous" type="button" data-stories-previous aria-label="Previous stories" aria-controls="stories-cards" hidden>&#8592;</button>
+		<div id="stories-cards" class="home-stories__cards">
+			<?php foreach ( $home_stories as $story ) : ?>
+				<article class="home-stories__card">
+					<div class="home-stories__image">
+						<?php if ( $story['image_id'] ) : ?>
+							<?php echo wp_get_attachment_image( $story['image_id'], 'large', false, array( 'loading' => 'lazy', 'decoding' => 'async' ) ); ?>
+						<?php else : ?>
+							<div class="home-stories__placeholder" aria-hidden="true"><span><?php echo $story['preview'] ? 'Story image placeholder' : ''; ?></span></div>
+						<?php endif; ?>
+					</div>
+					<div class="home-stories__body">
+						<h3><?php if ( $story['url'] ) : ?><a href="<?php echo esc_url( $story['url'] ); ?>"><?php echo esc_html( $story['title'] ); ?></a><?php else : ?><?php echo esc_html( $story['title'] ); ?><?php endif; ?></h3>
+						<?php if ( $story['url'] ) : ?>
+							<a class="home-stories__read" href="<?php echo esc_url( $story['url'] ); ?>" aria-label="<?php echo esc_attr( 'Read more: ' . $story['title'] ); ?>">Read More <span aria-hidden="true">&#8599;</span></a>
+						<?php else : ?>
+							<span class="home-stories__read" aria-disabled="true">Read More <span aria-hidden="true">&#8599;</span></span>
+						<?php endif; ?>
+					</div>
+				</article>
+			<?php endforeach; ?>
 		</div>
-		<div class="media-placeholder media-placeholder--deal" aria-hidden="true"><span>Deal Photo</span></div>
+		<button class="home-stories__arrow home-stories__arrow--next" type="button" data-stories-next aria-label="Next stories" aria-controls="stories-cards" hidden>&#8594;</button>
 	</div>
+	<div class="home-stories__pagination" role="group" aria-label="Choose first visible story" hidden>
+		<?php foreach ( $home_stories as $index => $story ) : ?>
+			<button class="home-stories__dot" type="button" aria-label="<?php echo esc_attr( 'Show story ' . ( $index + 1 ) . ': ' . $story['title'] ); ?>" aria-controls="stories-cards" aria-current="<?php echo 0 === $index ? 'true' : 'false'; ?>"></button>
+		<?php endforeach; ?>
+	</div>
+	<p class="screen-reader-text" data-stories-status role="status" aria-atomic="true"></p>
 </section>
+<?php endif; ?>
 
 <section id="locations" class="home-section home-section--muted" aria-labelledby="locations-title">
 	<div class="section-intro"><p class="home-eyebrow">Order by restaurant</p><h2 id="locations-title">Choose Your Location</h2></div>

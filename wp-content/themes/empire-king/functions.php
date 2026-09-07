@@ -56,6 +56,10 @@ function empire_king_enqueue_styles() {
 	);
 
 	if ( is_front_page() ) {
+		if ( empire_king_get_home_stories() ) {
+			wp_enqueue_style( 'empire-king-home-stories', get_theme_file_uri( 'assets/css/home-stories.css' ), array( 'empire-king-home' ), wp_get_theme()->get( 'Version' ) );
+			wp_enqueue_script( 'empire-king-home-stories', get_theme_file_uri( 'assets/js/home-stories.js' ), array(), wp_get_theme()->get( 'Version' ), array( 'in_footer' => true, 'strategy' => 'defer' ) );
+		}
 		wp_enqueue_style( 'empire-king-featured-favorites', get_theme_file_uri( 'assets/css/featured-favorites.css' ), array( 'empire-king-home' ), wp_get_theme()->get( 'Version' ) );
 		wp_enqueue_script( 'empire-king-featured-favorites', get_theme_file_uri( 'assets/js/featured-favorites.js' ), array(), wp_get_theme()->get( 'Version' ), array( 'in_footer' => true, 'strategy' => 'defer' ) );
 		wp_enqueue_style(
@@ -143,6 +147,47 @@ function empire_king_enqueue_styles() {
 	}
 }
 add_action( 'wp_enqueue_scripts', 'empire_king_enqueue_styles' );
+
+/**
+ * Display records from native published Posts and Media Library images.
+ * Local preview records are never persisted and cannot appear in production.
+ *
+ * @return array Story records, newest first.
+ */
+function empire_king_get_home_stories() {
+	static $stories = null;
+	if ( null !== $stories ) {
+		return $stories;
+	}
+	$stories = array();
+	$query = new WP_Query(
+		array(
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'posts_per_page' => 6,
+			'orderby' => array( 'date' => 'DESC', 'ID' => 'DESC' ),
+			'ignore_sticky_posts' => true,
+			'has_password' => false,
+			'no_found_rows' => true,
+		)
+	);
+	foreach ( $query->posts as $story_post ) {
+		$stories[] = array(
+			'id' => $story_post->ID,
+			'title' => get_the_title( $story_post ),
+			'url' => get_permalink( $story_post ),
+			'image_id' => get_post_thumbnail_id( $story_post ),
+			'preview' => false,
+		);
+	}
+	if ( ! $stories && 'local' === wp_get_environment_type() ) {
+		// Visual-development records only, not Empire King news or real posts.
+		foreach ( array( 'Sample Story One', 'Sample Story Two', 'Sample Story Three' ) as $title ) {
+			$stories[] = array( 'id' => 0, 'title' => $title, 'url' => '', 'image_id' => 0, 'preview' => true );
+		}
+	}
+	return $stories;
+}
 
 /**
  * Development-only Featured Favorites provider; these are not confirmed menu items.

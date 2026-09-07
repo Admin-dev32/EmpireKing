@@ -1,0 +1,47 @@
+.home-stories {
+	position: relative;
+	isolation: isolate;
+	padding: clamp(2rem, 5vw, 4rem) clamp(0.75rem, 3vw, 2rem);
+	margin-block: var(--ek-space-4);
+	background: var(--ek-color-yellow);
+	color: var(--ek-color-black);
+}
+.home-stories::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: repeating-radial-gradient(ellipse at -15% 120%, transparent 0 45px, var(--ek-color-red) 46px 57px, transparent 58px 105px); opacity: 0.1; }
+.home-stories * { box-sizing: border-box; }
+.home-stories [hidden] { display: none !important; }
+.home-stories h2 { margin: 0 0 2rem; font-family: var(--ek-font-display); font-size: clamp(2rem, 4.4vw, 3.75rem); line-height: 1.08; letter-spacing: -0.04em; }
+.home-stories__preview-note { margin: -0.75rem 0 1.75rem; font-size: 0.875rem; }
+.home-stories__showcase { position: relative; padding-inline: 3rem; }
+.home-stories__cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }
+.home-stories__card { min-width: 0; background: var(--ek-color-white); display: flex; flex-direction: column; animation: stories-reveal 180ms ease-out; }
+.home-stories__image { aspect-ratio: 3 / 2; overflow: hidden; background: var(--ek-color-muted); }
+.home-stories__image img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.home-stories__placeholder { display: grid; place-items: center; height: 100%; padding: 1rem; text-align: center; font-size: 0.875rem; background: radial-gradient(ellipse at 25% 70%, var(--ek-color-white), transparent 65%), var(--ek-color-muted); }
+.home-stories__body { padding: clamp(1rem, 2vw, 1.5rem); display: flex; flex-direction: column; align-items: flex-start; flex: 1; }
+.home-stories h3 { margin: 0 0 1.75rem; font: 900 clamp(1.35rem, 2vw, 1.8rem)/1.2 var(--ek-font-display); letter-spacing: -0.025em; overflow-wrap: anywhere; }
+.home-stories h3 a { text-decoration: none; }
+.home-stories h3 a:hover { text-decoration: underline; text-decoration-color: var(--ek-color-red); }
+.home-stories__read { position: relative; isolation: isolate; margin-top: auto; padding: 0.6rem 0.5rem; font-weight: 900; text-decoration: none; font-size: 1rem; }
+.home-stories__read::before { content: ''; position: absolute; inset: 0.3rem -0.1rem; background: var(--ek-color-yellow); z-index: -1; clip-path: polygon(3% 18%, 96% 5%, 100% 70%, 93% 89%, 7% 100%, 0 78%); transform: rotate(-1deg); }
+.home-stories__read span { margin-left: 0.5rem; }
+.home-stories__read:hover::before { background: var(--ek-color-accent-surface); }
+.home-stories__arrow { position: absolute; top: 35%; width: 44px; height: 44px; border: 0; padding: 0; background: var(--ek-color-black); color: var(--ek-color-white); border-radius: 50%; font-size: 1.5rem; cursor: pointer; }
+.home-stories__arrow--previous { left: -0.25rem; }
+.home-stories__arrow--next { right: -0.25rem; }
+.home-stories__pagination { display: flex; flex-wrap: wrap; justify-content: center; margin-top: 1.25rem; }
+.home-stories__dot { display: grid; place-items: center; width: 44px; height: 44px; border: 0; padding: 0; background: transparent; cursor: pointer; }
+.home-stories__dot::before { content: ''; width: 10px; height: 10px; border: 2px solid var(--ek-color-black); border-radius: 50%; }
+.home-stories__dot[aria-current="true"]::before { background: var(--ek-color-black); }
+.home-stories button:focus-visible, .home-stories a:focus-visible { outline: 3px solid var(--ek-color-focus); outline-offset: 3px; }
+@keyframes stories-reveal { from { opacity: 0.6; } to { opacity: 1; } }
+@media (max-width: 64rem) { .home-stories__cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 40rem) {
+	.home-stories__cards { grid-template-columns: minmax(0, 1fr); }
+	.home-stories__showcase { padding-inline: 0; }
+	.home-stories__arrow { top: 20%; z-index: 1; }
+	.home-stories__arrow--previous { left: -0.5rem; }
+	.home-stories__arrow--next { right: -0.5rem; }
+	.home-stories h3 { font-size: 1.65rem; }
+	.home-stories__body { padding: 1.5rem; }
+}
+@media (prefers-reduced-motion: reduce) { .home-stories__card { animation: none; } }
