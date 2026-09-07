@@ -384,7 +384,7 @@ function empire_king_get_home_menu_glimpse() {
 		$foregrounds = false === $foregrounds ? array() : array_filter( $foregrounds, 'is_file' );
 		natsort( $backgrounds );
 		natsort( $foregrounds );
-		if ( ! $key || 1 !== count( $backgrounds ) || ! $foregrounds ) continue;
+		if ( ! $key || 1 !== count( $backgrounds ) || ! $foregrounds || count( $foregrounds ) > 3 ) continue;
 		$label = ucwords( str_replace( '-', ' ', $key ) );
 		$categories[] = array(
 			'key'         => $key,
@@ -392,7 +392,7 @@ function empire_king_get_home_menu_glimpse() {
 			'background'  => get_theme_file_uri( 'assets/images/home-menu-glimpse/' . rawurlencode( basename( $folder ) ) . '/background/' . rawurlencode( basename( reset( $backgrounds ) ) ) ),
 			'foregrounds' => array_map( static function ( $file ) use ( $folder, $label ) {
 				return array( 'url' => get_theme_file_uri( 'assets/images/home-menu-glimpse/' . rawurlencode( basename( $folder ) ) . '/foreground/' . rawurlencode( basename( $file ) ) ), 'alt' => $label . ' food' );
-			}, array_slice( array_values( $foregrounds ), 0, 3 ) ),
+			}, array_values( $foregrounds ) ),
 		);
 	}
 	$priority = array( 'burgers', 'sandwiches', 'chicken', 'fries', 'salads', 'drinks', 'ice-cream', 'family-packs' );
