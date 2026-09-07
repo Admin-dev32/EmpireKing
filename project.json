@@ -43,8 +43,8 @@
   "readOrder": ["package.json", ".wp-env.json", ".gitignore", "README.md", "PROJECT-UPDATES.md"],
   "protectedPaths": ["index.php", "contact.php", "order.php", "visit.php", "includes/", "assets/", "WordPress core", "WooCommerce plugin/core"],
   "scope": {
-    "included": ["minimal shared classic theme", "corporate Home visual-direction prototype", "local wp-env theme mapping", "documentation", "inexpensive validation CI"],
-    "excluded": ["approved final corporate Home design", "legacy-site migration", "location selector UI", "checkout or payment implementation", "production infrastructure", "Catering"]
+    "included": ["shared classic theme", "corporate Home", "shared location ordering UI", "private Deals management plugin and public /deals/ landing page", "local wp-env theme/plugin mapping", "documentation", "focused validation"],
+    "excluded": ["legacy-site migration", "checkout or payment implementation", "production infrastructure", "Catering"]
   },
   "theme": {
     "location": "wp-content/themes/empire-king",
