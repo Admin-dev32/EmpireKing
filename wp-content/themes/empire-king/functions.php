@@ -378,7 +378,12 @@ function empire_king_get_home_menu_glimpse() {
 	$categories = array();
 	foreach ( false === $folders ? array() : $folders as $folder ) {
 		$key         = sanitize_title( basename( $folder ) );
-		$backgrounds = glob( $folder . '/background/*.{webp,jpg,jpeg,png}', GLOB_BRACE );
+		$backgrounds = array_merge(
+			glob( $folder . '/background/*.webp' ) ?: array(),
+			glob( $folder . '/background/*.jpg' ) ?: array(),
+			glob( $folder . '/background/*.jpeg' ) ?: array(),
+			glob( $folder . '/background/*.png' ) ?: array()
+		);
 		$foregrounds = glob( $folder . '/foreground/*.png' );
 		$backgrounds = false === $backgrounds ? array() : array_filter( $backgrounds, 'is_file' );
 		$foregrounds = false === $foregrounds ? array() : array_filter( $foregrounds, 'is_file' );
