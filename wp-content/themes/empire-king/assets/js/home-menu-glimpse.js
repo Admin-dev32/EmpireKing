@@ -15,25 +15,25 @@ document.addEventListener('DOMContentLoaded', () => {
 	let playbackRun = 0;
 	let activePanel = panels.find(panel => !panel.hidden) || panels[0];
 
-	const prepareImage = (image) => {
+	const prepareImage = (image, useTimeout = true) => {
 		if (!image) return Promise.resolve();
 		image.loading = 'eager';
-		const decode = () => Promise.race([
-			typeof image.decode === 'function' ? image.decode().catch(() => undefined) : Promise.resolve(),
-			new Promise(resolve => window.setTimeout(resolve, IMAGE_READY_TIMEOUT_MS)),
-		]);
+		const decode = () => {
+			const decoded = typeof image.decode === 'function' ? image.decode().catch(() => undefined) : Promise.resolve();
+			return useTimeout ? Promise.race([decoded, new Promise(resolve => window.setTimeout(resolve, IMAGE_READY_TIMEOUT_MS))]) : decoded;
+		};
 		if (image.complete) return decode();
-		return Promise.race([
+		const loaded = Promise.race([
 			new Promise(resolve => image.addEventListener('load', () => decode().then(resolve), { once: true })),
 			new Promise(resolve => image.addEventListener('error', resolve, { once: true })),
-			new Promise(resolve => window.setTimeout(resolve, IMAGE_READY_TIMEOUT_MS)),
 		]);
+		return useTimeout ? Promise.race([loaded, new Promise(resolve => window.setTimeout(resolve, IMAGE_READY_TIMEOUT_MS))]) : loaded;
 	};
 
 	const prepareFrames = frames => Promise.all(frames.map(frame => prepareImage(frame.querySelector('img'))));
 	const prepareInitialVisual = panel => Promise.all([
-		prepareImage(panel.querySelector('.home-menu-glimpse__background')),
-		prepareImage(panel.querySelector('.home-menu-glimpse__frame--food img')),
+		prepareImage(panel.querySelector('.home-menu-glimpse__background'), false),
+		prepareImage(panel.querySelector('.home-menu-glimpse__frame--food img'), false),
 	]);
 	const resetFrames = panel => Array.from(panel.querySelectorAll('[data-menu-glimpse-frame]')).forEach((frame, index) => {
 		frame.classList.toggle('is-current', index === 0);
