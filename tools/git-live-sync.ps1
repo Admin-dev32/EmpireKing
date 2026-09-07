@@ -12,14 +12,6 @@ if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($repoRoot)) {
 $repoRoot = $repoRoot.Trim()
 Set-Location $repoRoot
 
-$safeSync = Join-Path $PSScriptRoot 'git-safe-startup-sync.ps1'
-
-& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $safeSync
-
-if ($LASTEXITCODE -ne 0) {
-    throw "Safe Sync In failed. Watcher was not started."
-}
-
 $branch = (& git branch --show-current).Trim()
 
 if ($branch -notlike 'dev/*') {
@@ -83,11 +75,17 @@ function Test-GitOperationActive {
 
 function Get-WorkingSignature {
     $entries = @(git status --porcelain=v1 --untracked-files=all)
+    if ($LASTEXITCODE -ne 0) {
+        throw "Could not read working tree status."
+    }
     return ($entries -join "`n")
 }
 
 function Find-BlockedSecretPath {
     $entries = @(git status --porcelain=v1 --untracked-files=all)
+    if ($LASTEXITCODE -ne 0) {
+        throw "Could not inspect paths for secret protection."
+    }
 
     foreach ($entry in $entries) {
         if ($entry.Length -lt 4) {
@@ -122,6 +120,29 @@ function Find-BlockedSecretPath {
     return $null
 }
 
+function Assert-OutboundWorkSafe {
+    if (Test-GitOperationActive) {
+        throw "Active merge, rebase, cherry-pick, or revert detected. Watcher stopped."
+    }
+
+    & git diff --cached --quiet
+
+    if ($LASTEXITCODE -ne 0) {
+        throw "Pre-existing staged changes detected or index unreadable. Watcher stopped instead of modifying the index."
+    }
+
+    $blockedPath = Find-BlockedSecretPath
+    if ($blockedPath) {
+        throw "Secret-like file blocked from autosync: $blockedPath"
+    }
+
+    & git diff --check
+
+    if ($LASTEXITCODE -ne 0) {
+        throw "git diff --check failed. Watcher stopped."
+    }
+}
+
 function Get-AheadBehind {
     & git fetch origin "refs/heads/${branch}:refs/remotes/origin/${branch}" --quiet
 
@@ -129,7 +150,11 @@ function Get-AheadBehind {
         throw "Could not fetch origin/$branch."
     }
 
-    $counts = (& git rev-list --left-right --count "HEAD...origin/$branch").Trim()
+    $countOutput = @(& git rev-list --left-right --count "HEAD...origin/$branch")
+    if ($LASTEXITCODE -ne 0) {
+        throw "Could not compare HEAD with origin/$branch."
+    }
+    $counts = $countOutput -join ' '
 
     if ($counts -notmatch '^\s*(\d+)\s+(\d+)\s*$') {
         throw "Could not determine ahead/behind state."
@@ -138,6 +163,13 @@ function Get-AheadBehind {
     return [PSCustomObject]@{
         Ahead  = [int]$Matches[1]
         Behind = [int]$Matches[2]
+    }
+}
+
+function Assert-OutboundRemoteSafe {
+    $state = Get-AheadBehind
+    if ($state.Behind -gt 0) {
+        throw "origin/$branch advanced (behind: $($state.Behind), ahead: $($state.Ahead)). Dirty work must be reconciled manually. Watcher stopped before staging or checkpointing."
     }
 }
 
@@ -165,6 +197,30 @@ function Push-LocalAhead {
 }
 
 try {
+    $origin = (& git remote get-url origin 2>$null)
+    if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($origin)) {
+        throw "origin is missing. Watcher was not started."
+    }
+    if ($origin.Trim() -cnotmatch '\A(?:https://github\.com/|git@github\.com:|ssh://git@github\.com/)Admin-dev32/EmpireKing(?:\.git)?\z') {
+        throw "Unexpected origin. Expected the Admin-dev32/EmpireKing GitHub repository."
+    }
+
+    Assert-OutboundWorkSafe
+    $startupSignature = Get-WorkingSignature
+    if ([string]::IsNullOrWhiteSpace($startupSignature)) {
+        $safeSync = Join-Path $PSScriptRoot 'git-safe-startup-sync.ps1'
+        & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $safeSync
+        if ($LASTEXITCODE -ne 0) {
+            throw "Safe Sync In failed. Watcher was not started."
+        }
+    }
+    else {
+        # Fetching the exact branch also verifies that it exists on origin.
+        Assert-OutboundRemoteSafe
+        Assert-OutboundWorkSafe
+        Write-Host "Dirty outbound startup approved; existing work will enter the 15-second debounce." -ForegroundColor Cyan
+    }
+
     Write-Host ""
     Write-Host "=== EMPIRE KING GIT LIVE SYNC ===" -ForegroundColor Cyan
     Write-Host "Repository: $repoRoot"
@@ -233,24 +289,10 @@ try {
             continue
         }
 
-        # Do not interfere with manually staged work.
-        & git diff --cached --quiet
-
-        if ($LASTEXITCODE -ne 0) {
-            throw "Pre-existing staged changes detected. Watcher stopped instead of modifying the index."
-        }
-
-        $blockedPath = Find-BlockedSecretPath
-
-        if ($blockedPath) {
-            throw "Secret-like file blocked from autosync: $blockedPath"
-        }
-
-        & git diff --check
-
-        if ($LASTEXITCODE -ne 0) {
-            throw "git diff --check failed. Watcher stopped."
-        }
+        # Never checkpoint on a knowingly stale base. Recheck local guards
+        # after fetching, before taking ownership of any index changes.
+        Assert-OutboundRemoteSafe
+        Assert-OutboundWorkSafe
 
         & git add -A
 
