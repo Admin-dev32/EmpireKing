@@ -27,8 +27,8 @@ document.addEventListener('DOMContentLoaded', () => {
 		'Avenue I': '810 W Ave I, Lancaster, CA',
 	};
 	const mapLocations = [
-		{ label: 'H', position: { lat: 34.7161, lng: -118.1494 } },
-		{ label: 'I', position: { lat: 34.7046, lng: -118.1470 } },
+		{ name: 'Avenue H', label: 'H', position: { lat: 34.7161, lng: -118.1494 } },
+		{ name: 'Avenue I', label: 'I', position: { lat: 34.7046, lng: -118.1470 } },
 	];
 
 	const initializeMap = () => {
@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		mapBounds = new window.google.maps.LatLngBounds();
 		mapLocations.forEach((location) => {
-			new window.google.maps.Marker({
+			const marker = new window.google.maps.Marker({
 				icon: {
 					fillColor: '#b21f2d',
 					fillOpacity: 1,
@@ -77,7 +77,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				label: { color: '#ffffff', fontSize: '12px', fontWeight: '800', text: location.label },
 				map: mapInstance,
 				position: location.position,
+				title: `Select ${location.name}`,
 			});
+			marker.addListener('click', () => selectLocation(location.name));
 			mapBounds.extend(location.position);
 		});
 		mapInstance.fitBounds(mapBounds, 36);
@@ -137,6 +139,12 @@ document.addEventListener('DOMContentLoaded', () => {
 		closeTimer = window.setTimeout(finishClose, 280);
 	};
 
+	const selectLocation = (locationName) => {
+		selectedLocation = locationName;
+		updateSelection();
+		closeSelector();
+	};
+
 	const openSelector = (mode) => {
 		if (dialog.open) return;
 		setActiveTab(mode);
@@ -161,5 +169,5 @@ document.addEventListener('DOMContentLoaded', () => {
 	closeButton.addEventListener('click', () => closeSelector());
 	dialog.addEventListener('cancel', (event) => { event.preventDefault(); closeSelector(); });
 	dialog.addEventListener('close', clearCloseSequence);
-	locationButtons.forEach((button) => button.addEventListener('click', () => { selectedLocation = button.dataset.location; updateSelection(); closeSelector(); }));
+	locationButtons.forEach((button) => button.addEventListener('click', () => selectLocation(button.dataset.location)));
 });
