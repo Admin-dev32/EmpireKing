@@ -117,6 +117,9 @@ $home_slides              = empire_king_get_home_slideshow_images();
 								<div class="featured-favorites__placeholder" aria-hidden="true"><span>Product image pending</span></div>
 							<?php endif; ?>
 						</div>
+						<?php if ( ! empty( $item['tag'] ) ) : ?>
+							<span class="featured-favorites__tag"><?php echo esc_html( $item['tag'] ); ?></span>
+						<?php endif; ?>
 						<h3><?php echo esc_html( $item['name'] ); ?></h3>
 						<a class="featured-favorites__order" href="#order">Order Now</a>
 					</article>

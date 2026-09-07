@@ -163,7 +163,7 @@ function empire_king_get_featured_favorites() {
 		$category['image'] = '';
 		$category['items'] = array_map(
 			static function ( $name ) {
-				return array( 'name' => $name, 'image' => '', 'alt' => '' );
+				return array( 'name' => $name, 'tag' => 'FEATURED', 'image' => '', 'alt' => '' );
 			},
 			$category['names']
 		);
