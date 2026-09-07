@@ -2,7 +2,7 @@
   "project": {
     "name": "Empire King Burger",
     "repository": "Admin-dev32/EmpireKing",
-    "phase": "corporate Home visual-direction prototype"
+    "phase": "Deals landing-page system implementation"
   },
   "sourcesOfTruth": [
     "README.md",
@@ -16,12 +16,13 @@
     "locationStores": "Two independent WordPress and WooCommerce installations; no WordPress Multisite",
     "theme": "Reusable Empire King theme shared by the corporate site and location stores",
     "commerce": "WooCommerce owns product, cart, and checkout behavior on location stores",
-    "durableBusinessLogic": "Use a dedicated plugin when non-theme functionality is required",
-    "futureCorporateRouting": "Every transactional Order, Menu, product, or deal action must ask for location before routing to a store"
+    "durableBusinessLogic": "empire-king-deals plugin owns private Deal records/categories, scheduling, eligibility, featured selection, and owner access",
+    "futureCorporateRouting": "Shared theme pickup routes and location selector; single-location Deals route directly to their eligible store"
   },
   "seo": {
     "architectureGate": "completed",
-    "home": "Corporate brand and discovery Home; prototype implementation, not approved final design"
+    "home": "Corporate brand and discovery Home; prototype implementation, not approved final design",
+    "deals": "/deals/ is the sole permanent indexable Deals landing page; no public Deal singles, category archives, or sitemap entries"
   },
   "localRuntime": {
     "siteUrl": "http://localhost:8888",
@@ -51,13 +52,14 @@
   },
   "integrations": {
     "woocommerce": { "status": "local development dependency", "version": "11.1.0" },
-    "locationRouting": { "status": "documented only; not implemented" }
+    "locationRouting": { "status": "Shared Order Gateway supports Home, Blog, Menu Glimpse, and Deals; verified categories and allowlisted Deals campaign parameters" }
   },
   "mediaArchitecture": {
     "staticBrandAssets": "Repository-owned assets when intentionally supplied",
     "productAndOperationalMedia": "CMS-managed WordPress/WooCommerce media; do not hardcode production uploads",
     "temporaryPlaceholders": "Clearly identify any temporary development placeholder when one is introduced",
-    "mediaCounts": "Not established; do not invent counts"
+    "mediaCounts": "Not established; do not invent counts",
+    "dealPromotionalMedia": "User-managed WordPress Media Library featured images; no seeded offers or source-controlled promotional artwork"
   },
   "validation": ["parse JSON manifests", "git diff --check", "update wp-env", "verify WordPress and WooCommerce versions", "verify and activate theme", "lint theme PHP", "verify local HTTP response"]
 }
