@@ -9,7 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	const toggle = slideshow.querySelector('.home-slideshow__toggle');
 	const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 	let activeIndex = 0;
-	let isPaused = reducedMotion;
+	let isManuallyPaused = false;
+	let hasFocus = false;
 	let intervalId;
 
 	if (slides.length < 2) return;
@@ -31,21 +32,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	const startAutoplay = () => {
 		stopAutoplay();
-		if (!isPaused) intervalId = window.setInterval(() => showSlide(activeIndex + 1), 5500);
+		if (!reducedMotion && !isManuallyPaused && !hasFocus) {
+			intervalId = window.setInterval(() => showSlide(activeIndex + 1), 5500);
+		}
 	};
 
-	const setPaused = (paused) => {
-		isPaused = paused;
-		toggle.setAttribute('aria-pressed', String(paused));
-		toggle.setAttribute('aria-label', paused ? 'Play slideshow' : 'Pause slideshow');
-		toggle.firstElementChild.textContent = paused ? '▶' : 'Ⅱ';
+	const updateToggle = () => {
+		const isStopped = reducedMotion || isManuallyPaused;
+		toggle.setAttribute('aria-pressed', String(isStopped));
+		toggle.setAttribute('aria-label', isStopped ? 'Play slideshow' : 'Pause slideshow');
+		toggle.firstElementChild.textContent = isStopped ? '▶' : 'Ⅱ';
+	};
+
+	const setManuallyPaused = (paused) => {
+		isManuallyPaused = paused;
+		updateToggle();
 		startAutoplay();
 	};
 
 	previous.addEventListener('click', () => showSlide(activeIndex - 1));
 	next.addEventListener('click', () => showSlide(activeIndex + 1));
 	dots.forEach((dot, index) => dot.addEventListener('click', () => showSlide(index)));
-	toggle.addEventListener('click', () => setPaused(!isPaused));
-	slideshow.addEventListener('focusin', () => setPaused(true));
+	toggle.addEventListener('click', () => setManuallyPaused(!isManuallyPaused));
+	slideshow.addEventListener('focusin', () => {
+		hasFocus = true;
+		stopAutoplay();
+	});
+	slideshow.addEventListener('focusout', (event) => {
+		if (slideshow.contains(event.relatedTarget)) return;
+		hasFocus = false;
+		startAutoplay();
+	});
+	updateToggle();
 	startAutoplay();
 });
