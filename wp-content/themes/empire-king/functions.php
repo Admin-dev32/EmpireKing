@@ -30,6 +30,9 @@ function empire_king_setup() {
 add_action( 'after_setup_theme', 'empire_king_setup' );
 
 function empire_king_enqueue_styles() {
+	if ( is_home() || is_singular( 'post' ) ) {
+		wp_enqueue_style( 'empire-king-blog', get_theme_file_uri( 'assets/css/blog.css' ), array( 'empire-king-style' ), wp_get_theme()->get( 'Version' ) );
+	}
 	wp_enqueue_style(
 		'empire-king-style',
 		get_stylesheet_uri(),
@@ -147,6 +150,29 @@ function empire_king_enqueue_styles() {
 	}
 }
 add_action( 'wp_enqueue_scripts', 'empire_king_enqueue_styles' );
+
+/** Gets the optional, repository-owned decorative stories background. */
+function empire_king_get_stories_background_url() {
+	$directory = get_theme_file_path( 'assets/images/home/stories-background' );
+	$files = glob( $directory . '/*' );
+	$files = array_filter(
+		false === $files ? array() : $files,
+		static function ( $file ) {
+			return is_file( $file ) && in_array( strtolower( pathinfo( $file, PATHINFO_EXTENSION ) ), array( 'webp', 'jpg', 'jpeg', 'png' ), true );
+		}
+	);
+	usort( $files, static function ( $a, $b ) { return strnatcasecmp( $a, $b ) ?: strcmp( $a, $b ); } );
+	return $files ? get_theme_file_uri( 'assets/images/home/stories-background/' . rawurlencode( basename( $files[0] ) ) ) : false;
+}
+
+/** Blog navigation follows Reading settings; no fabricated archive URL. */
+function empire_king_get_blog_url() {
+	$page_id = (int) get_option( 'page_for_posts' );
+	if ( $page_id && 'publish' === get_post_status( $page_id ) ) {
+		return get_permalink( $page_id );
+	}
+	return 'posts' === get_option( 'show_on_front' ) ? home_url( '/' ) : false;
+}
 
 /**
  * Display records from native published Posts and Media Library images.

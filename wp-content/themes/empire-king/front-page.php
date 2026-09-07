@@ -131,9 +131,12 @@ $home_slides              = empire_king_get_home_slideshow_images();
 	<p class="screen-reader-text" data-featured-status role="status" aria-atomic="true"></p>
 </section>
 
-<?php $home_stories = empire_king_get_home_stories(); ?>
+<?php
+$home_stories = empire_king_get_home_stories();
+$stories_background = empire_king_get_stories_background_url();
+?>
 <?php if ( $home_stories ) : ?>
-<section id="latest-stories" class="home-stories" aria-labelledby="stories-title">
+<section id="latest-stories" class="home-stories<?php echo $stories_background ? ' home-stories--custom-background' : ''; ?>" aria-labelledby="stories-title"<?php if ( $stories_background ) : ?> style="background-image: url('<?php echo esc_url( $stories_background ); ?>');"<?php endif; ?>>
 	<h2 id="stories-title">Latest From Empire King</h2>
 	<?php if ( $home_stories[0]['preview'] ) : ?>
 		<p class="home-stories__preview-note">Local design preview &middot; Sample stories, not published news</p>

@@ -7,6 +7,11 @@
 	color: var(--ek-color-black);
 }
 .home-stories::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: repeating-radial-gradient(ellipse at -15% 120%, transparent 0 45px, var(--ek-color-red) 46px 57px, transparent 58px 105px); opacity: 0.1; }
+.home-stories--custom-background { background-size: cover; background-position: center; }
+.home-stories--custom-background::before { content: none; }
+.home-stories--custom-background > h2,
+.home-stories--custom-background > .home-stories__preview-note { background: var(--ek-color-white); padding: 0.5rem 0.75rem; width: fit-content; max-width: 100%; }
+.home-stories--custom-background .home-stories__dot { background: var(--ek-color-white); }
 .home-stories * { box-sizing: border-box; }
 .home-stories [hidden] { display: none !important; }
 .home-stories h2 { margin: 0 0 2rem; font-family: var(--ek-font-display); font-size: clamp(2rem, 4.4vw, 3.75rem); line-height: 1.08; letter-spacing: -0.04em; }
