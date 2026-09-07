@@ -19,6 +19,7 @@
 .home-menu-glimpse__frame--cta > span { font-size: clamp(1rem, 2vw, 1.2rem); }
 .home-menu-glimpse__frame--cta a, .home-menu-glimpse__fallback-order, .home-menu-glimpse__empty a { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0.8rem 1.5rem; background: var(--ek-color-yellow); color: var(--ek-color-black); font-weight: 900; text-decoration: none; }
 .home-menu-glimpse__fallback-order { position: absolute; z-index: 2; right: 1rem; bottom: 1rem; }
+.home-menu-glimpse.is-enhanced .home-menu-glimpse__fallback-order { display: none; }
 .home-menu-glimpse__empty { display: grid; place-items: center; min-height: 20rem; padding: 2rem; text-align: center; background: var(--ek-color-muted); }
 .home-menu-glimpse__empty p { margin: 0 0 1rem; font-size: 1.1rem; }
 .home-menu-glimpse__tab:focus-visible, .home-menu-glimpse a:focus-visible { outline: 3px solid var(--ek-color-focus); outline-offset: 3px; }

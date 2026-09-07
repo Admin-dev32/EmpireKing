@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const status = section.querySelector('[data-menu-glimpse-status]');
 	const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 	if (!tabs.length || !panels.length) return;
+	section.classList.add('is-enhanced');
 	let timer = null;
 	const showCategory = (key, announce = true) => {
 		window.clearTimeout(timer);
