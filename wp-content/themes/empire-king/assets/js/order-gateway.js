@@ -10,10 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
 	const locationButtons = Array.from(document.querySelectorAll('.order-location-option'));
 	const locationControls = Array.from(document.querySelectorAll('.order-location-control'));
 	const orderButtons = Array.from(document.querySelectorAll('[data-order-submit]'));
+	const blogOrderButtons = Array.from(document.querySelectorAll('[data-blog-direct-order]'));
 	const mapContainer = document.querySelector('#order-location-map');
 	const status = document.querySelector('.order-gateway__status');
 
-	if (!gateway || !dialog || !closeButton || !dialogTitle || !dialogDescription || typeof dialog.showModal !== 'function') {
+	if (!dialog || !closeButton || !dialogTitle || !dialogDescription || typeof dialog.showModal !== 'function' || (!gateway && !blogOrderButtons.length)) {
 		return;
 	}
 
@@ -25,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	let mapInstance;
 	let mapBounds;
 	let isProceedingToOrder = false;
+	let selectionIntent = 'home';
 	const orderRoutes = window.empireKingOrderGateway && window.empireKingOrderGateway.routes ? window.empireKingOrderGateway.routes : {};
 	const locations = {
 		'Avenue H': '1036 W Avenue H, Lancaster, CA 93534',
@@ -151,6 +153,14 @@ document.addEventListener('DOMContentLoaded', () => {
 		selectedLocation = locationName;
 		setOrderStatus();
 		updateSelection();
+		if (selectionIntent === 'blog-direct-order') {
+			const pickupUrl = orderRoutes[locationName] && orderRoutes[locationName].pickup;
+			if (pickupUrl && !isProceedingToOrder) {
+				isProceedingToOrder = true;
+				window.location.assign(pickupUrl);
+			}
+			return;
+		}
 		closeSelector();
 	};
 
@@ -176,8 +186,9 @@ document.addEventListener('DOMContentLoaded', () => {
 		window.location.assign(pickupUrl);
 	};
 
-	const openSelector = (mode) => {
+	const openSelector = (mode, intent = 'home') => {
 		if (dialog.open) return;
+		selectionIntent = intent;
 		setActiveTab(mode);
 		clearCloseSequence();
 		dialogTitle.textContent = `Choose Your ${modeLabel()} Location`;
@@ -198,8 +209,15 @@ document.addEventListener('DOMContentLoaded', () => {
 	});
 	openButtons.forEach((button) => button.addEventListener('click', () => openSelector(button.dataset.openLocationSelector)));
 	orderButtons.forEach((button) => button.addEventListener('click', () => submitOrder(button.dataset.orderSubmit)));
+	blogOrderButtons.forEach((button) => button.addEventListener('click', (event) => {
+		event.preventDefault();
+		openSelector('pickup', 'blog-direct-order');
+	}));
 	closeButton.addEventListener('click', () => closeSelector());
 	dialog.addEventListener('cancel', (event) => { event.preventDefault(); closeSelector(); });
-	dialog.addEventListener('close', clearCloseSequence);
+	dialog.addEventListener('close', () => {
+		selectionIntent = 'home';
+		clearCloseSequence();
+	});
 	locationButtons.forEach((button) => button.addEventListener('click', () => selectLocation(button.dataset.location)));
 });

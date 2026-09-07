@@ -58,7 +58,12 @@ function empire_king_enqueue_styles() {
 		)
 	);
 
+	if ( is_singular( 'post' ) ) {
+		empire_king_enqueue_order_gateway_assets( array( 'empire-king-style' ) );
+	}
+
 	if ( is_front_page() ) {
+		wp_enqueue_style( 'empire-king-home-locations', get_theme_file_uri( 'assets/css/home-locations.css' ), array( 'empire-king-home' ), wp_get_theme()->get( 'Version' ) );
 		if ( empire_king_get_home_stories() ) {
 			wp_enqueue_style( 'empire-king-home-stories', get_theme_file_uri( 'assets/css/home-stories.css' ), array( 'empire-king-home' ), wp_get_theme()->get( 'Version' ) );
 			wp_enqueue_script( 'empire-king-home-stories', get_theme_file_uri( 'assets/js/home-stories.js' ), array(), wp_get_theme()->get( 'Version' ), array( 'in_footer' => true, 'strategy' => 'defer' ) );
@@ -72,11 +77,16 @@ function empire_king_enqueue_styles() {
 			wp_get_theme()->get( 'Version' )
 		);
 
-		wp_enqueue_style(
-			'empire-king-order-gateway',
-			get_theme_file_uri( 'assets/css/order-gateway.css' ),
-			array( 'empire-king-home' ),
-			wp_get_theme()->get( 'Version' )
+		empire_king_enqueue_order_gateway_assets( array( 'empire-king-home' ) );
+		wp_enqueue_script(
+			'empire-king-home-locations',
+			get_theme_file_uri( 'assets/js/home-locations.js' ),
+			empire_king_get_google_maps_api_key() ? array( 'empire-king-google-maps-api' ) : array(),
+			wp_get_theme()->get( 'Version' ),
+			array(
+				'in_footer' => true,
+				'strategy'  => 'defer',
+			)
 		);
 
 		$home_slides = empire_king_get_home_slideshow_images();
@@ -88,37 +98,6 @@ function empire_king_enqueue_styles() {
 				wp_get_theme()->get( 'Version' )
 			);
 		}
-
-		$maps_api_key = empire_king_get_google_maps_api_key();
-		if ( $maps_api_key ) {
-			wp_enqueue_script(
-				'empire-king-google-maps-api',
-				add_query_arg(
-					array(
-						'key' => $maps_api_key,
-						'v'   => 'weekly',
-					),
-					'https://maps.googleapis.com/maps/api/js'
-				),
-				array(),
-				null,
-				array(
-					'in_footer' => true,
-					'strategy'  => 'defer',
-				)
-			);
-		}
-
-		wp_enqueue_script(
-			'empire-king-order-gateway',
-			get_theme_file_uri( 'assets/js/order-gateway.js' ),
-			$maps_api_key ? array( 'empire-king-google-maps-api' ) : array(),
-			wp_get_theme()->get( 'Version' ),
-			array(
-				'in_footer' => true,
-				'strategy'  => 'defer',
-			)
-		);
 
 		if ( $home_slides ) {
 			wp_enqueue_script(
@@ -133,23 +112,33 @@ function empire_king_enqueue_styles() {
 			);
 		}
 
-		wp_localize_script(
-			'empire-king-order-gateway',
-			'empireKingOrderGateway',
-			array(
-				'routes' => array(
-					'Avenue H' => array(
-						'pickup' => 'https://empireking3aveh.com/order-now/',
-					),
-					'Avenue I' => array(
-						'pickup' => 'https://empireking2avei.com/order-now/',
-					),
-				),
-			)
-		);
 	}
 }
 add_action( 'wp_enqueue_scripts', 'empire_king_enqueue_styles' );
+
+/** Pickup routes are shared by the Home gateway and Blog direct-order flow. */
+function empire_king_get_order_gateway_routes() {
+	return array(
+		'Avenue H' => array( 'pickup' => 'https://empireking3aveh.com/order-now/' ),
+		'Avenue I' => array( 'pickup' => 'https://empireking2avei.com/order-now/' ),
+	);
+}
+
+/** Enqueues the reusable location selector only on pages that render it. */
+function empire_king_enqueue_order_gateway_assets( $style_dependencies ) {
+	wp_enqueue_style( 'empire-king-order-gateway', get_theme_file_uri( 'assets/css/order-gateway.css' ), $style_dependencies, wp_get_theme()->get( 'Version' ) );
+	$maps_api_key = empire_king_get_google_maps_api_key();
+	if ( $maps_api_key ) {
+		wp_enqueue_script( 'empire-king-google-maps-api', add_query_arg( array( 'key' => $maps_api_key, 'v' => 'weekly' ), 'https://maps.googleapis.com/maps/api/js' ), array(), null, array( 'in_footer' => true, 'strategy' => 'defer' ) );
+	}
+	wp_enqueue_script( 'empire-king-order-gateway', get_theme_file_uri( 'assets/js/order-gateway.js' ), $maps_api_key ? array( 'empire-king-google-maps-api' ) : array(), wp_get_theme()->get( 'Version' ), array( 'in_footer' => true, 'strategy' => 'defer' ) );
+	wp_localize_script( 'empire-king-order-gateway', 'empireKingOrderGateway', array( 'routes' => empire_king_get_order_gateway_routes() ) );
+}
+
+/** Prints the one shared location selector for Home and native Blog posts. */
+function empire_king_render_order_location_selector() {
+	get_template_part( 'template-parts/order-location-selector', null, array( 'maps_key' => empire_king_get_google_maps_api_key() ) );
+}
 
 /** Gets the optional, repository-owned decorative stories background. */
 function empire_king_get_stories_background_url() {
@@ -190,7 +179,7 @@ function empire_king_get_home_stories() {
 		array(
 			'post_type' => 'post',
 			'post_status' => 'publish',
-			'posts_per_page' => 9,
+			'posts_per_page' => 12,
 			'orderby' => array( 'date' => 'DESC', 'ID' => 'DESC' ),
 			'ignore_sticky_posts' => true,
 			'has_password' => false,

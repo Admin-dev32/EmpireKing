@@ -72,23 +72,7 @@ $home_slides              = empire_king_get_home_slideshow_images();
 	</section>
 <?php endif; ?>
 
-<dialog id="order-location-selector" class="order-location-dialog" aria-labelledby="order-location-dialog-title" aria-describedby="order-location-dialog-description">
-	<div class="order-location-dialog__topbar">
-		<p class="order-location-dialog__label">Empire King Burger</p>
-		<button class="order-location-dialog__close" type="button" aria-label="Close location selector"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18" /></svg></button>
-	</div>
-	<div class="order-location-dialog__content">
-		<h2 id="order-location-dialog-title">Choose Your Pickup Location</h2>
-		<p id="order-location-dialog-description">Choose the location you'd like to order from.</p>
-		<?php if ( $order_gateway_maps_key ) : ?>
-			<div id="order-location-map" class="order-location-map" role="region" aria-label="Map showing Empire King locations in Lancaster"></div>
-		<?php endif; ?>
-		<div class="order-location-options" aria-label="Choose a location">
-			<button class="order-location-option" type="button" data-location="Avenue H" aria-pressed="false"><svg class="order-location-option__icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12Z" /><circle cx="12" cy="9" r="2.25" /></svg><span class="order-location-option__details"><strong>Avenue H</strong><span>1036 W Avenue H<br>Lancaster, CA 93534</span></span><span class="order-location-option__arrow" aria-hidden="true">›</span><span class="order-location-option__selected">Selected</span></button>
-			<button class="order-location-option" type="button" data-location="Avenue I" aria-pressed="false"><svg class="order-location-option__icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12Z" /><circle cx="12" cy="9" r="2.25" /></svg><span class="order-location-option__details"><strong>Avenue I</strong><span>810 W Ave I<br>Lancaster, CA</span></span><span class="order-location-option__arrow" aria-hidden="true">›</span><span class="order-location-option__selected">Selected</span></button>
-		</div>
-	</div>
-</dialog>
+<?php empire_king_render_order_location_selector(); ?>
 
 <?php $featured_categories = empire_king_get_featured_favorites(); ?>
 <section id="favorites" class="featured-favorites" aria-labelledby="favorites-title" aria-describedby="favorites-note">
@@ -179,13 +163,52 @@ $stories_blog_url = empire_king_get_blog_url();
 </section>
 <?php endif; ?>
 
-<section id="locations" class="home-section home-section--muted" aria-labelledby="locations-title">
-	<div class="section-intro"><p class="home-eyebrow">Order by restaurant</p><h2 id="locations-title">Choose Your Location</h2></div>
-	<div class="location-grid">
-		<article class="location-card"><h3>Avenue H</h3><address>1036 W Avenue H<br>Lancaster, CA 93534</address></article>
-		<article class="location-card"><h3>Avenue I</h3><address>810 W Ave I<br>Lancaster, CA</address></article>
+<?php $location_routes = empire_king_get_order_gateway_routes(); ?>
+<section id="locations" class="home-locations" aria-labelledby="locations-title">
+	<div class="home-locations__intro">
+		<p>Our Locations</p>
+		<h2 id="locations-title">Find Your Empire King</h2>
+		<p>Two Lancaster locations. Pick the one that works for you.</p>
 	</div>
-	<?php // Development state: store selection and routing are intentionally not wired in this prototype. ?>
+	<div class="home-locations__scene" data-locations-scene>
+	<div class="home-locations__stage" data-locations-stage>
+		<div id="home-locations-map" class="home-locations__map" aria-label="Map showing Empire King Avenue H and Avenue I locations" role="region">
+			<p class="home-locations__map-fallback">Interactive map unavailable. Choose a location below.</p>
+		</div>
+		<div class="home-locations__dock" data-locations-dock aria-label="Choose an Empire King location">
+			<div class="home-locations__choices" data-locations-choices>
+				<button class="home-locations__choice" type="button" data-location-key="avenue-h" aria-controls="home-location-avenue-h" aria-expanded="false" aria-pressed="false">
+					<span class="home-locations__choice-inner">
+					<span class="home-locations__badge" aria-hidden="true">H</span>
+					<span class="home-locations__choice-copy"><span class="home-locations__choice-name">Avenue H</span><span class="home-locations__choice-address">1036 W Avenue H<br>Lancaster, CA 93534</span></span>
+				</span>
+				</button>
+				<button class="home-locations__choice" type="button" data-location-key="avenue-i" aria-controls="home-location-avenue-i" aria-expanded="false" aria-pressed="false">
+					<span class="home-locations__choice-inner">
+					<span class="home-locations__badge" aria-hidden="true">I</span>
+					<span class="home-locations__choice-copy"><span class="home-locations__choice-name">Avenue I</span><span class="home-locations__choice-address">810 W Ave I<br>Lancaster, CA</span></span>
+				</span>
+				</button>
+			</div>
+			<article id="home-location-avenue-h" class="home-locations__detail home-locations__detail--avenue-h" data-location-panel="avenue-h" hidden>
+				<div class="home-locations__detail-heading"><span class="home-locations__badge" aria-hidden="true">H</span><div><h3>Avenue H</h3><address>1036 W Avenue H<br>Lancaster, CA 93534</address></div></div>
+				<div class="home-locations__actions">
+					<a class="home-locations__order" href="<?php echo esc_url( $location_routes['Avenue H']['pickup'] ); ?>">Order from Avenue H</a>
+					<a class="home-locations__directions" href="https://www.google.com/maps/search/?api=1&amp;query=1036%20W%20Avenue%20H%2C%20Lancaster%2C%20CA%2093534" target="_blank" rel="noopener noreferrer">Get Directions <span aria-hidden="true">&#8599;</span></a>
+					<button class="home-locations__reset" type="button" data-locations-reset>Show Both Locations</button>
+				</div>
+			</article>
+			<article id="home-location-avenue-i" class="home-locations__detail home-locations__detail--avenue-i" data-location-panel="avenue-i" hidden>
+				<div class="home-locations__detail-heading"><span class="home-locations__badge" aria-hidden="true">I</span><div><h3>Avenue I</h3><address>810 W Ave I<br>Lancaster, CA</address></div></div>
+				<div class="home-locations__actions">
+					<a class="home-locations__order" href="<?php echo esc_url( $location_routes['Avenue I']['pickup'] ); ?>">Order from Avenue I</a>
+					<a class="home-locations__directions" href="https://www.google.com/maps/search/?api=1&amp;query=810%20W%20Ave%20I%2C%20Lancaster%2C%20CA" target="_blank" rel="noopener noreferrer">Get Directions <span aria-hidden="true">&#8599;</span></a>
+					<button class="home-locations__reset" type="button" data-locations-reset>Show Both Locations</button>
+				</div>
+			</article>
+		</div>
+	</div>
+	</div>
 </section>
 
 <section id="about" class="home-section quality-section" aria-labelledby="quality-title">
