@@ -77,6 +77,8 @@ function empire_king_enqueue_styles() {
 			wp_get_theme()->get( 'Version' )
 		);
 		wp_enqueue_style( 'empire-king-home-quality', get_theme_file_uri( 'assets/css/home-quality.css' ), array( 'empire-king-home' ), wp_get_theme()->get( 'Version' ) );
+		wp_enqueue_style( 'empire-king-home-menu-glimpse', get_theme_file_uri( 'assets/css/home-menu-glimpse.css' ), array( 'empire-king-home' ), wp_get_theme()->get( 'Version' ) );
+		wp_enqueue_script( 'empire-king-home-menu-glimpse', get_theme_file_uri( 'assets/js/home-menu-glimpse.js' ), array(), wp_get_theme()->get( 'Version' ), array( 'in_footer' => true, 'strategy' => 'defer' ) );
 
 		empire_king_enqueue_order_gateway_assets( array( 'empire-king-home' ) );
 		wp_enqueue_script(
@@ -402,6 +404,88 @@ function empire_king_get_home_quality_image_url() {
 
 	$image_url = get_theme_file_uri( 'assets/images/home-quality/' . rawurlencode( basename( reset( $files ) ) ) );
 	return $image_url;
+}
+
+/** Returns the optional canonical Store API source for the corporate Home. */
+function empire_king_get_home_menu_source_url() {
+	$source = trim( (string) getenv( 'EMPIRE_KING_MENU_SOURCE_URL' ) );
+	return $source && wp_http_validate_url( $source ) ? untrailingslashit( $source ) : false;
+}
+
+/** Normalizes public Store API or local WooCommerce records into menu glimpse categories. */
+function empire_king_normalize_home_menu_glimpse( $products ) {
+	$categories = array();
+	foreach ( $products as $product ) {
+		if ( empty( $product['image'] ) || empty( $product['categories'] ) ) {
+			continue;
+		}
+		foreach ( $product['categories'] as $category ) {
+			$key = sanitize_title( $category['slug'] ?? $category['name'] ?? '' );
+			if ( ! $key || empty( $category['name'] ) ) {
+				continue;
+			}
+			if ( ! isset( $categories[ $key ] ) ) {
+				$categories[ $key ] = array( 'key' => $key, 'name' => sanitize_text_field( $category['name'] ), 'images' => array() );
+			}
+			if ( count( $categories[ $key ]['images'] ) < 3 ) {
+				$categories[ $key ]['images'][] = array( 'url' => esc_url_raw( $product['image'] ), 'alt' => sanitize_text_field( $product['name'] ?? '' ) );
+			}
+		}
+	}
+	$categories = array_filter( $categories, static function ( $category ) { return ! empty( $category['images'] ); } );
+	$priority = array( 'burger', 'sandwich', 'chicken', 'meal', 'side', 'drink', 'dessert' );
+	usort( $categories, static function ( $a, $b ) use ( $priority ) {
+		$rank = static function ( $category ) use ( $priority ) {
+			foreach ( $priority as $index => $needle ) {
+				if ( false !== strpos( $category['key'], $needle ) ) return $index;
+			}
+			return count( $priority );
+		};
+		return $rank( $a ) <=> $rank( $b ) ?: strnatcasecmp( $a['name'], $b['name'] );
+	} );
+	return array_values( $categories );
+}
+
+/** Retrieves public product imagery from the one configured canonical Store API. */
+function empire_king_get_remote_home_menu_glimpse( $source ) {
+	$cache_key = 'ek_menu_glimpse_' . md5( $source );
+	$cached    = get_transient( $cache_key );
+	if ( false !== $cached ) return $cached;
+	$response = wp_remote_get( trailingslashit( $source ) . 'wp-json/wc/store/v1/products?per_page=100&catalog_visibility=visible', array( 'timeout' => 5 ) );
+	$items    = ! is_wp_error( $response ) && 200 === wp_remote_retrieve_response_code( $response ) ? json_decode( wp_remote_retrieve_body( $response ), true ) : array();
+	$products = array();
+	foreach ( is_array( $items ) ? $items : array() as $item ) {
+		$products[] = array( 'name' => $item['name'] ?? '', 'image' => $item['images'][0]['src'] ?? '', 'categories' => $item['categories'] ?? array() );
+	}
+	$data = empire_king_normalize_home_menu_glimpse( $products );
+	set_transient( $cache_key, $data, 10 * MINUTE_IN_SECONDS );
+	return $data;
+}
+
+/** Retrieves public published product imagery from local WooCommerce when available. */
+function empire_king_get_local_home_menu_glimpse() {
+	if ( ! function_exists( 'wc_get_products' ) ) return array();
+	$products = array();
+	foreach ( wc_get_products( array( 'status' => 'publish', 'limit' => 100, 'orderby' => 'menu_order', 'order' => 'ASC' ) ) as $product ) {
+		$image = wp_get_attachment_image_url( $product->get_image_id(), 'large' );
+		$categories = array();
+		foreach ( $product->get_category_ids() as $term_id ) {
+			$term = get_term( $term_id, 'product_cat' );
+			if ( $term && ! is_wp_error( $term ) ) $categories[] = array( 'name' => $term->name, 'slug' => $term->slug );
+		}
+		$products[] = array( 'name' => $product->get_name(), 'image' => $image, 'categories' => $categories );
+	}
+	return empire_king_normalize_home_menu_glimpse( $products );
+}
+
+/** Resolves canonical, local, or intentional empty data for the Home Menu Glimpse. */
+function empire_king_get_home_menu_glimpse() {
+	$source = empire_king_get_home_menu_source_url();
+	$items  = $source ? empire_king_get_remote_home_menu_glimpse( $source ) : array();
+	$mode   = $items ? 'canonical' : 'local';
+	if ( ! $items ) $items = empire_king_get_local_home_menu_glimpse();
+	if ( ! $items ) $mode = 'empty';
+	return array( 'mode' => $mode, 'categories' => $items );
 }
 
 /**
