@@ -15,11 +15,13 @@ document.addEventListener('DOMContentLoaded', () => {
 		index = (index + cards.length) % cards.length;
 		const count = Math.min(cards.length, phone.matches ? 1 : tablet.matches ? 2 : 3);
 		const visible = Array.from({ length: count }, (_, slot) => cards[(index + slot) % cards.length]);
-		const focused = cards.find((card) => card.contains(document.activeElement));
+		const activeElement = document.activeElement;
+		const focused = cards.find((card) => card.contains(activeElement));
 		if (focused && !visible.includes(focused)) dots[index].focus();
 		// Reorder the existing nodes so reading/tab order matches the visual order.
 		cards.forEach((card) => { card.hidden = !visible.includes(card); });
 		visible.forEach((card) => card.parentElement.appendChild(card));
+		if (focused && visible.includes(focused)) activeElement.focus({ preventScroll: true });
 		dots.forEach((dot, slot) => dot.setAttribute('aria-current', String(slot === index)));
 		if (announce) status.textContent = visible.map((card) => card.querySelector('h3').textContent).join(', ');
 	};
