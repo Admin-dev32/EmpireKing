@@ -114,3 +114,6 @@ add_filter( 'woocommerce_return_to_shop_redirect', static function ( $url ) {
 add_filter( 'woocommerce_return_to_shop_text', static function ( $text ) {
 	return is_cart() ? __( 'Browse Menu', 'empire-king' ) : $text;
 } );
+
+/** Keep product title clean on variable items and let WooCommerce render variation attributes in cart item metadata. */
+add_filter( 'woocommerce_product_variation_title_include_attributes', '__return_false' );
