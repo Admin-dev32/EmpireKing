@@ -36,19 +36,24 @@ html.ek-deals-welcome-open, body.ek-deals-welcome-open { overflow: hidden; }
 .ek-deals__pills a { flex: 0 0 auto; display: inline-flex; align-items: center; min-height: 44px; padding: 0.55rem 0.8rem; color: #63131d; font-weight: 850; text-decoration: none; border: 0; border-bottom: 3px solid transparent; background: transparent; }
 .ek-deals__pills a:first-child { padding-inline: 1rem; color: var(--ek-color-black); background: var(--ek-color-yellow); border-radius: 999px; }
 .ek-deals__pills a:not(:first-child):hover { color: #381016; border-bottom-color: #9e1d2a; background: rgb(255 227 75 / 20%); }
-.ek-deals__card { min-width: 0; overflow: hidden; border-radius: 1rem; background: white; border: 1px solid #e5d8c6; scroll-margin-top: var(--ek-deals-scroll-offset); }
-.ek-deals__art { background: #f1e6d5; }
-.ek-deals__art img { display: block; width: 100%; height: auto; max-height: 30rem; object-fit: contain; }
-.ek-deals__copy { padding: 1.25rem; }
-.ek-deals__copy h2, .ek-deals__copy h3 { margin: 0; font-size: 1.6rem; }
-.ek-deals__card--lead { background: linear-gradient(140deg, var(--ek-color-red), #60121c); border: 0; color: white; box-shadow: 0 12px 30px #53101918; }
+.ek-deals__card { min-width: 0; overflow: hidden; border: 1px solid #e5d8c6; border-radius: 1.15rem; background: #fffdf8; box-shadow: 0 0.65rem 1.6rem rgb(73 39 22 / 10%); scroll-margin-top: var(--ek-deals-scroll-offset); }
+.ek-deals__card:not(.ek-deals__card--lead) { display: flex; flex-direction: column; }
+.ek-deals__art { aspect-ratio: 1 / 1; overflow: hidden; background: #f1e6d5; }
+.ek-deals__art img { display: block; width: 100%; height: 100%; max-height: none; object-fit: cover; }
+.ek-deals__copy { display: flex; flex: 1; flex-direction: column; padding: clamp(1.25rem, 3.5vw, 1.65rem); }
+.ek-deals__copy h2, .ek-deals__copy h3 { margin: 0; color: #381016; font-size: clamp(1.65rem, 5vw, 2rem); }
+.ek-deals__card:not(.ek-deals__card--lead) .ek-deals__copy > p { margin: 0.65rem 0 0; }
+.ek-deals__card--lead { background: linear-gradient(140deg, var(--ek-color-red), #60121c); border: 0; color: white; box-shadow: 0 0.75rem 1.9rem rgb(83 16 25 / 18%); }
+.ek-deals__card--lead .ek-deals__copy h2 { color: white; }
 .ek-deals__card--lead h2 { font-size: clamp(2rem, 4vw, 3.4rem); }
 .ek-deals__badge { display: inline-block; padding: 0.35rem 0.6rem; margin-bottom: 0.8rem; background: var(--ek-color-yellow); color: var(--ek-color-black); font-size: 0.8rem; font-weight: 900; letter-spacing: 0.08em; }
-.ek-deals__offer { margin: 0.7rem 0; font-size: clamp(1.5rem, 4vw, 2.25rem); font-weight: 900; }
+.ek-deals__offer { margin: 0.65rem 0 0; color: #6b131d; font-size: clamp(1.55rem, 4vw, 2.25rem); font-weight: 900; line-height: 1.15; }
 .ek-deals__card--lead .ek-deals__offer { color: var(--ek-color-yellow); }
-.ek-deals__availability, .ek-deals__fine { font-size: 0.9rem; }
+.ek-deals__availability, .ek-deals__fine { color: #6d5b4d; font-size: 0.9rem; }
+.ek-deals__fine { font-size: 0.82rem; }
+.ek-deals__card--lead .ek-deals__availability, .ek-deals__card--lead .ek-deals__fine { color: rgb(255 255 255 / 78%); }
 .ek-deals__order { display: inline-flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 48px; padding: 0.8rem 1rem; border-radius: 0.65rem; background: var(--ek-color-yellow); color: var(--ek-color-black); font-weight: 850; text-decoration: none; }
-.ek-deals__copy .ek-deals__order { width: 100%; margin-top: 0.5rem; }
+.ek-deals__copy .ek-deals__order { width: 100%; margin-top: auto; transform: translateY(0.65rem); }
 .ek-deals__group, #all-deals { margin-top: 2.5rem; scroll-margin-top: var(--ek-deals-scroll-offset); }
 #all-deals { margin-top: 0; }
 .ek-deals__group > h2 { font-size: 2rem; margin: 0 0 1.2rem; }
@@ -63,7 +68,7 @@ html.ek-deals-welcome-open, body.ek-deals-welcome-open { overflow: hidden; }
 .ek-deals__travel .ek-deals__order { min-width: min(100%, 15rem); }
 .ek-deals a:focus-visible, .ek-deals-welcome a:focus-visible, .ek-deals__full-menu:focus-visible { outline: 3px solid var(--ek-color-focus); outline-offset: 3px; }
 .ek-deals__card--lead a:focus-visible, .ek-deals__travel a:focus-visible { outline-color: white; }
-@media (min-width: 30rem) and (max-width: 47.99rem) { html { --ek-deals-scroll-offset: 17rem; } .ek-deals__grid .ek-deals__card--has-art { display: grid; grid-template-columns: 35% minmax(0, 1fr); } .ek-deals__grid .ek-deals__art { align-content: center; } }
+@media (min-width: 30rem) and (max-width: 47.99rem) { html { --ek-deals-scroll-offset: 17rem; } }
 @media (min-width: 48rem) { html { --ek-deals-scroll-offset: 16rem; } .ek-deals-welcome__inner { grid-template-columns: minmax(0, 0.9fr) minmax(20rem, 1.1fr); align-items: center; column-gap: clamp(2rem, 6vw, 7rem); padding-bottom: 5rem; } .ek-deals-welcome__showcase { grid-column: 2; grid-row: 1 / span 2; margin: 0; } .ek-deals-welcome__deals-link { grid-column: 1; } .ek-deals-welcome__logo { width: clamp(7rem, 12vw, 10rem); height: clamp(7rem, 12vw, 10rem); } .ek-deals__full-menu { right: max(1.5rem, env(safe-area-inset-right)); bottom: max(1.5rem, env(safe-area-inset-bottom)); left: auto; min-width: 19rem; padding-inline: 1.35rem; border-radius: 999px; box-shadow: 0 0.7rem 1.8rem rgb(30 7 9 / 30%); } .ek-deals { padding-bottom: 4rem; } .ek-deals__card--lead { display: grid; grid-template-columns: 1.15fr 1fr; align-items: center; } .ek-deals__card--lead .ek-deals__copy { padding: 2.5rem; } .ek-deals__card--lead .ek-deals__copy:only-child { grid-column: 1 / -1; } .ek-deals__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ek-deals__travel { min-height: clamp(25rem, 52vh, 38rem); grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: clamp(2rem, 5vw, 4rem); } .ek-deals__travel svg { width: clamp(5rem, 8vw, 7rem); } }
 @media (hover: hover) and (pointer: fine) { .ek-deals__full-menu, .ek-deals-welcome__deals-link { transition: transform 180ms ease, box-shadow 180ms ease; } .ek-deals__full-menu:hover { transform: translateY(-2px); box-shadow: 0 1rem 2rem rgb(30 7 9 / 36%); } .ek-deals-welcome__deals-link:hover { transform: translateY(-1px); } }
 @media (prefers-reduced-motion: reduce) { .ek-deals-welcome { transition-duration: 1ms; } .ek-deals__full-menu, .ek-deals-welcome__deals-link { transition: none; } .ek-deals__full-menu:hover, .ek-deals-welcome__deals-link:hover { transform: none; } }
