@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	const cta = welcome.querySelector('.ek-deals-welcome__deals-link');
 	const heading = target.querySelector('h1');
+	const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 	const underlying = [document.querySelector('.site-header'), document.querySelector('.ek-deals'), document.querySelector('.site-footer')].filter(Boolean);
 	let isClosing = false;
 	let closeTimer;
@@ -35,6 +36,10 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (isClosing) return;
 		isClosing = true;
 		target.scrollIntoView({ block: 'start' });
+		if (reducedMotion) {
+			finishClose();
+			return;
+		}
 		welcome.classList.remove('is-open');
 		welcome.classList.add('is-closing');
 		closeTimer = window.setTimeout(finishClose, 800);
@@ -48,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	};
 
 	welcome.addEventListener('transitionend', (event) => {
-		if (event.target !== welcome) return;
+		if (event.target !== welcome || event.propertyName !== 'transform') return;
 		if (isClosing) finishClose();
 	});
 	cta?.addEventListener('click', (event) => {
@@ -64,6 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		welcome.classList.add('is-open');
 		window.setTimeout(() => {
 			if (!isClosing && !welcome.hidden) cta?.focus({ preventScroll: true });
-		}, 750);
+		}, reducedMotion ? 0 : 750);
 	});
 });
