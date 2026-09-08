@@ -82,6 +82,9 @@ function empire_king_enqueue_styles() {
 			wp_localize_script( 'empire-king-order-now', 'empireKingOrderNow', array( 'sheetUrl' => WC_AJAX::get_endpoint( 'empire_king_product_sheet' ), 'cartUrl' => WC_AJAX::get_endpoint( 'add_to_cart' ) ) );
 		}
 	}
+	if ( is_cart() ) {
+		wp_enqueue_style( 'empire-king-cart', get_theme_file_uri( 'assets/css/cart.css' ), array( 'empire-king-style', 'empire-king-header' ), wp_get_theme()->get( 'Version' ) );
+	}
 	if ( is_singular( 'post' ) || is_page( 'deals' ) ) {
 		empire_king_enqueue_order_gateway_assets( array( 'empire-king-style' ) );
 	}

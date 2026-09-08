@@ -58,15 +58,15 @@ function empire_king_order_now_checkout_bar() {
 	$cart = function_exists( 'WC' ) && WC()->cart ? WC()->cart : null;
 	$count = $cart ? $cart->get_cart_contents_count() : 0;
 	$item_label = sprintf( _n( '%d item', '%d items', $count, 'empire-king' ), $count );
-	$label = sprintf( __( 'Your Cart, %s', 'empire-king' ), $item_label );
+	$label = sprintf( __( 'Your Order, %s', 'empire-king' ), $item_label );
 	ob_start();
 	?>
 	<div class="ek-order-now__checkout-bar" data-order-now-checkout<?php echo $count ? '' : ' hidden'; ?>>
 		<a class="ek-order-now__checkout-cart" href="<?php echo esc_url( wc_get_cart_url() ); ?>" aria-label="<?php echo esc_attr( $label ); ?>">
 			<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M3 4h2l2 11h10l2-8H6" /><circle cx="9" cy="19" r="1" /><circle cx="17" cy="19" r="1" /></svg>
-			<span class="ek-order-now__checkout-summary"><strong><?php esc_html_e( 'Your Cart', 'empire-king' ); ?></strong><small><span><?php echo esc_html( $item_label ); ?></span><b aria-hidden="true">&middot;</b><span class="ek-order-now__checkout-subtotal"><?php echo wp_kses_post( $cart ? $cart->get_cart_subtotal() : '' ); ?></span></small></span>
+			<span class="ek-order-now__checkout-summary"><strong><?php esc_html_e( 'Your Order', 'empire-king' ); ?></strong><small><span><?php echo esc_html( $item_label ); ?></span><b aria-hidden="true">&middot;</b><span class="ek-order-now__checkout-subtotal"><?php echo wp_kses_post( $cart ? $cart->get_cart_subtotal() : '' ); ?></span></small></span>
 		</a>
-		<a class="ek-order-now__checkout-action" href="<?php echo esc_url( wc_get_checkout_url() ); ?>"><?php esc_html_e( 'Checkout', 'empire-king' ); ?></a>
+		<a class="ek-order-now__checkout-action" href="<?php echo esc_url( wc_get_cart_url() ); ?>"><?php esc_html_e( 'Review Order', 'empire-king' ); ?></a>
 	</div>
 	<?php
 	return ob_get_clean();
@@ -81,3 +81,20 @@ function empire_king_order_now_cart_fragment( $fragments ) {
 	return $fragments;
 }
 add_filter( 'woocommerce_add_to_cart_fragments', 'empire_king_order_now_cart_fragment' );
+
+/** Add review-page context around the existing WooCommerce Cart Block. */
+function empire_king_cart_review_intro( $content ) {
+	if ( ! is_cart() || ! in_the_loop() || ! is_main_query() ) {
+		return $content;
+	}
+
+	$intro = sprintf(
+		'<div class="ek-cart-page__intro"><a class="ek-cart-page__back-link" href="%1$s">%2$s</a><h1>%3$s</h1></div>',
+		esc_url( home_url( '/order-now/' ) ),
+		esc_html__( '&larr; Back to Menu', 'empire-king' ),
+		esc_html__( 'Review Your Order', 'empire-king' )
+	);
+
+	return $intro . $content;
+}
+add_filter( 'the_content', 'empire_king_cart_review_intro', 20 );
