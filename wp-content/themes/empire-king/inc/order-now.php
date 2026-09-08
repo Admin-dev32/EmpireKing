@@ -38,6 +38,7 @@ function empire_king_order_now_product_sheet() {
 		<?php if ( $product->get_short_description() ) : ?><div class="ek-order-now__sheet-description"><?php echo wp_kses_post( wpautop( $product->get_short_description() ) ); ?></div><?php endif; ?>
 		<?php
 		if ( $product->is_type( 'variable' ) ) {
+			?><h3 class="ek-order-now__customize-heading"><?php esc_html_e( 'Customize your order', 'empire-king' ); ?></h3><?php
 			woocommerce_variable_add_to_cart();
 		} else {
 			woocommerce_simple_add_to_cart();
