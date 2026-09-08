@@ -10,13 +10,11 @@ if ([string]::IsNullOrWhiteSpace($Code)) {
     throw 'PHP code cannot be empty.'
 }
 
-# Multiline PHP does not survive PowerShell -> npm -> wp-env reliably.
-# Encode it into one shell-safe argument, then decode inside PHP.
 $encoded = [Convert]::ToBase64String(
     [System.Text.Encoding]::UTF8.GetBytes($Code)
 )
 
-$wrapped = "eval(base64_decode('$encoded'));"
+$wrapped = "try { eval(base64_decode('$encoded')); } catch (\ParseError `$e) { fwrite(STDERR, 'PHP syntax error: ' . `$e->getMessage() . PHP_EOL); exit(2); } catch (\Throwable `$e) { fwrite(STDERR, 'PHP runtime error: ' . `$e->getMessage() . PHP_EOL); exit(3); }"
 
 & npm.cmd run wp -- eval $wrapped
 
