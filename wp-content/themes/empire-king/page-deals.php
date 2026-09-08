@@ -19,12 +19,16 @@ if ( $deals ) {
 }
 ?>
 <div class="ek-deals" data-deals-page>
-	<header class="ek-deals__intro"><p>Lancaster, California</p><h1>Deals &amp; Specials in Lancaster</h1><p>Browse current Empire King Burger offers and choose your restaurant to order online.</p></header>
-	<?php if ( $deals ) : ?>
+	<div class="ek-deals__sticky">
+		<header class="ek-deals__intro"><p>Lancaster, California</p><h1>Deals &amp; Specials in Lancaster</h1><p>Browse current Empire King Burger offers and choose your restaurant to order online.</p></header>
+		<?php if ( $deals ) : ?>
 		<nav class="ek-deals__pills" aria-label="Deal categories"><a href="#all-deals">All Deals</a>
 		<?php foreach ( $groups as $group ) : $anchor = $group['deals'] ? 'deal-category-' . $group['term']->term_id : $lead['anchor']; ?>
 			<a href="#<?php echo esc_attr( $anchor ); ?>"><?php echo esc_html( $group['term']->name ); ?></a>
 		<?php endforeach; ?></nav>
+		<?php endif; ?>
+	</div>
+	<?php if ( $deals ) : ?>
 		<div id="all-deals"><?php get_template_part( 'template-parts/deal-card', null, array( 'deal' => $lead, 'lead' => true ) ); ?></div>
 		<?php foreach ( $groups as $group ) : if ( ! $group['deals'] ) continue; ?>
 			<section class="ek-deals__group" id="deal-category-<?php echo esc_attr( $group['term']->term_id ); ?>"><h2><?php echo esc_html( $group['term']->name ); ?></h2><div class="ek-deals__grid">

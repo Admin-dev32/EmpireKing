@@ -5,7 +5,7 @@ $lead = ! empty( $args['lead'] );
 $image_id = get_post_thumbnail_id( $deal['id'] );
 $alt = $image_id ? get_post_meta( $image_id, '_wp_attachment_image_alt', true ) : '';
 ?>
-<article class="ek-deals__card<?php echo $lead ? ' ek-deals__card--lead' : ''; ?>" id="<?php echo esc_attr( $deal['anchor'] ); ?>">
+<article class="ek-deals__card<?php echo $lead ? ' ek-deals__card--lead' : ''; ?><?php echo $image_id ? ' ek-deals__card--has-art' : ''; ?>" id="<?php echo esc_attr( $deal['anchor'] ); ?>">
 	<?php if ( $image_id ) : ?><div class="ek-deals__art"><?php echo wp_get_attachment_image( $image_id, $lead ? 'large' : 'medium_large', false, array( 'alt' => $alt ?: $deal['title'], 'loading' => $lead ? 'eager' : 'lazy', 'fetchpriority' => $lead ? 'high' : 'auto' ) ); ?></div><?php endif; ?>
 	<div class="ek-deals__copy">
 		<?php if ( $lead && $deal['featured'] ) : ?><span class="ek-deals__badge">FEATURED</span><?php endif; ?>
