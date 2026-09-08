@@ -24,6 +24,9 @@ if ( $deals ) {
 	<?php if ( $deals_landing_media['background'] ) : ?>
 		<img class="ek-deals-welcome__background" src="<?php echo esc_url( $deals_landing_media['background'] ); ?>" alt="" fetchpriority="high" decoding="async">
 	<?php endif; ?>
+	<?php if ( $deals_landing_media['hero_product'] ) : ?>
+		<img class="ek-deals-welcome__hero-product" src="<?php echo esc_url( $deals_landing_media['hero_product'] ); ?>" alt="" aria-hidden="true" fetchpriority="high" decoding="async">
+	<?php endif; ?>
 	<div class="ek-deals-welcome__inner">
 		<div class="ek-deals-welcome__copy">
 			<?php if ( $welcome_logo_url ) : ?>

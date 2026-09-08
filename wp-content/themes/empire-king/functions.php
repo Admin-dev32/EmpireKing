@@ -485,8 +485,10 @@ function empire_king_get_deals_landing_media() {
 	$directory       = get_theme_file_path( 'assets/images/deals-landing' );
 	$background_path = $directory . '/background';
 	$foreground_path = $directory . '/foreground';
+	$hero_product_path = $directory . '/hero-product';
 	$backgrounds     = glob( $background_path . '/*' );
 	$foregrounds     = glob( $foreground_path . '/*.png' );
+	$hero_products   = glob( $hero_product_path . '/*' );
 	$backgrounds     = false === $backgrounds ? array() : array_filter(
 		$backgrounds,
 		static function ( $file ) {
@@ -494,12 +496,24 @@ function empire_king_get_deals_landing_media() {
 		}
 	);
 	$foregrounds = false === $foregrounds ? array() : array_filter( $foregrounds, 'is_file' );
+	$hero_products = false === $hero_products ? array() : array_filter(
+		$hero_products,
+		static function ( $file ) {
+			return is_file( $file ) && in_array( strtolower( pathinfo( $file, PATHINFO_EXTENSION ) ), array( 'png', 'webp' ), true );
+		}
+	);
 	natcasesort( $backgrounds );
 	natcasesort( $foregrounds );
+	natcasesort( $hero_products );
 	$background = reset( $backgrounds );
+	$hero_product = reset( $hero_products );
+	if ( count( $hero_products ) > 1 && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		error_log( 'Empire King Deals hero-product accepts one image; using the first filename in natural order.' );
+	}
 
 	$media = array(
 		'background'  => $background ? get_theme_file_uri( 'assets/images/deals-landing/background/' . rawurlencode( basename( $background ) ) ) : false,
+		'hero_product' => $hero_product ? get_theme_file_uri( 'assets/images/deals-landing/hero-product/' . rawurlencode( basename( $hero_product ) ) ) : false,
 		'foregrounds' => array_map(
 			static function ( $file ) {
 				return get_theme_file_uri( 'assets/images/deals-landing/foreground/' . rawurlencode( basename( $file ) ) );
