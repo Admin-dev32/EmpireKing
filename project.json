@@ -59,7 +59,8 @@
     "productAndOperationalMedia": "CMS-managed WordPress/WooCommerce media; do not hardcode production uploads",
     "temporaryPlaceholders": "Clearly identify any temporary development placeholder when one is introduced",
     "mediaCounts": "Not established; do not invent counts",
-    "dealPromotionalMedia": "User-managed WordPress Media Library featured images; no seeded offers or source-controlled promotional artwork"
+    "dealPromotionalMedia": "User-managed WordPress Media Library featured images; no seeded offers or source-controlled promotional artwork",
+    "dealsLandingHeroMedia": "Repository-owned, user-supplied media under wp-content/themes/empire-king/assets/images/deals-landing/; one naturally selected background slot and a naturally ordered transparent PNG foreground collection; no generated imagery"
   },
   "validation": ["parse JSON manifests", "git diff --check", "update wp-env", "verify WordPress and WooCommerce versions", "verify and activate theme", "lint theme PHP", "verify local HTTP response"]
 }

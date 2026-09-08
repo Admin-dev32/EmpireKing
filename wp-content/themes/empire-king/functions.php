@@ -473,6 +473,43 @@ function empire_king_get_home_menu_glimpse() {
 	return array( 'mode' => $categories ? 'curated' : 'empty', 'categories' => $categories );
 }
 
+/** Gets optional user-supplied media for the Deals landing hero. */
+function empire_king_get_deals_landing_media() {
+	static $media = null;
+
+	if ( null !== $media ) {
+		return $media;
+	}
+
+	$directory       = get_theme_file_path( 'assets/images/deals-landing' );
+	$background_path = $directory . '/background';
+	$foreground_path = $directory . '/foreground';
+	$backgrounds     = glob( $background_path . '/*' );
+	$foregrounds     = glob( $foreground_path . '/*.png' );
+	$backgrounds     = false === $backgrounds ? array() : array_filter(
+		$backgrounds,
+		static function ( $file ) {
+			return is_file( $file ) && in_array( strtolower( pathinfo( $file, PATHINFO_EXTENSION ) ), array( 'webp', 'jpg', 'jpeg', 'png' ), true );
+		}
+	);
+	$foregrounds = false === $foregrounds ? array() : array_filter( $foregrounds, 'is_file' );
+	natcasesort( $backgrounds );
+	natcasesort( $foregrounds );
+	$background = reset( $backgrounds );
+
+	$media = array(
+		'background'  => $background ? get_theme_file_uri( 'assets/images/deals-landing/background/' . rawurlencode( basename( $background ) ) ) : false,
+		'foregrounds' => array_map(
+			static function ( $file ) {
+				return get_theme_file_uri( 'assets/images/deals-landing/foreground/' . rawurlencode( basename( $file ) ) );
+			},
+			array_values( $foregrounds )
+		),
+	);
+
+	return $media;
+}
+
 /**
  * Gets the Maps JavaScript API key from the local environment.
  *
