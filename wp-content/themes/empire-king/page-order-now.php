@@ -32,5 +32,6 @@ get_header();
 		<div data-order-now-sheet-content></div>
 		<p class="ek-order-now__sheet-status" data-order-now-sheet-status role="status" aria-live="polite" aria-atomic="true"></p>
 	</dialog>
+	<?php echo empire_king_order_now_checkout_bar(); // WooCommerce escapes cart values in its own formatted subtotal markup. ?>
 </div>
 <?php get_footer(); ?>

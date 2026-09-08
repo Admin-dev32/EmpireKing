@@ -53,11 +53,30 @@ function empire_king_order_now_product_sheet() {
 }
 add_action( 'wc_ajax_empire_king_product_sheet', 'empire_king_order_now_product_sheet' );
 
-/** Include the existing header badge in WooCommerce's normal fragment response. */
+/** Render the page-local Woo checkout bar from the authoritative cart session. */
+function empire_king_order_now_checkout_bar() {
+	$cart = function_exists( 'WC' ) && WC()->cart ? WC()->cart : null;
+	$count = $cart ? $cart->get_cart_contents_count() : 0;
+	$label = sprintf( _n( '%d item in cart', '%d items in cart', $count, 'empire-king' ), $count );
+	ob_start();
+	?>
+	<div class="ek-order-now__checkout-bar" data-order-now-checkout<?php echo $count ? '' : ' hidden'; ?>>
+		<a class="ek-order-now__checkout-cart" href="<?php echo esc_url( wc_get_cart_url() ); ?>" aria-label="<?php echo esc_attr( $label ); ?>">
+			<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M3 4h2l2 11h10l2-8H6" /><circle cx="9" cy="19" r="1" /><circle cx="17" cy="19" r="1" /></svg>
+			<span><strong><?php esc_html_e( 'View Cart', 'empire-king' ); ?></strong><small><?php echo esc_html( $label ); ?> <b aria-hidden="true">·</b> <?php echo wp_kses_post( $cart ? $cart->get_cart_subtotal() : '' ); ?></small></span>
+		</a>
+		<a class="ek-order-now__checkout-action" href="<?php echo esc_url( wc_get_checkout_url() ); ?>"><?php esc_html_e( 'Checkout Now', 'empire-king' ); ?></a>
+	</div>
+	<?php
+	return ob_get_clean();
+}
+
+/** Include page-local cart controls in WooCommerce's normal fragment response. */
 function empire_king_order_now_cart_fragment( $fragments ) {
 	$count = WC()->cart->get_cart_contents_count();
 	$label = sprintf( _n( '%d item in cart', '%d items in cart', $count, 'empire-king' ), $count );
 	$fragments['.header-cart-link__count'] = '<span class="header-cart-link__count" aria-hidden="true" data-cart-label="' . esc_attr( $label ) . '">' . esc_html( $count ) . '</span>';
+	$fragments['.ek-order-now__checkout-bar'] = empire_king_order_now_checkout_bar();
 	return $fragments;
 }
 add_filter( 'woocommerce_add_to_cart_fragments', 'empire_king_order_now_cart_fragment' );
