@@ -139,8 +139,10 @@ do_action( 'woocommerce_before_cart' ); ?>
 						</td>
 
 						<td class="product-quantity" data-title="<?php esc_attr_e( 'Quantity', 'woocommerce' ); ?>">
+						<span class="ek-cart-quantity-label"><?php esc_html_e( 'Quantity', 'woocommerce' ); ?></span>
 						<?php
 						if ( $_product->is_sold_individually() ) {
+							echo '<span class="ek-cart-quantity-fixed">1</span>';
 							$min_quantity = 1;
 							$max_quantity = 1;
 						} else {
