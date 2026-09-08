@@ -23,7 +23,7 @@ $terms_url       = $terms_page && 'publish' === get_post_status( $terms_page ) ?
 			</a>
 			<p class="site-footer__tagline"><?php esc_html_e( 'Burgers, sandwiches, fries & more.', 'empire-king' ); ?></p>
 			<div class="site-footer__actions">
-				<a class="site-footer__order" href="<?php echo esc_url( home_url( '/#order' ) ); ?>" data-direct-order>
+				<a class="site-footer__order" href="<?php echo esc_url( home_url( '/order-now/' ) ); ?>">
 					<span><?php esc_html_e( 'Order Now', 'empire-king' ); ?></span>
 					<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13m-5-5 5 5-5 5" /></svg>
 				</a>
@@ -37,7 +37,7 @@ $terms_url       = $terms_page && 'publish' === get_post_status( $terms_page ) ?
 			<ul class="site-footer__links">
 				<li><a href="<?php echo esc_url( home_url( '/deals/' ) ); ?>"><?php esc_html_e( 'Deals', 'empire-king' ); ?></a></li>
 				<li><a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'Home', 'empire-king' ); ?></a></li>
-				<li><a href="<?php echo esc_url( home_url( '/#order' ) ); ?>"><?php esc_html_e( 'Order', 'empire-king' ); ?></a></li>
+				<li><a href="<?php echo esc_url( home_url( '/order-now/' ) ); ?>"><?php esc_html_e( 'Order', 'empire-king' ); ?></a></li>
 				<li><a href="<?php echo esc_url( home_url( '/#favorites' ) ); ?>"><?php esc_html_e( 'Featured Favorites', 'empire-king' ); ?></a></li>
 				<li><a href="<?php echo esc_url( home_url( '/#latest-stories' ) ); ?>"><?php esc_html_e( 'Latest Stories', 'empire-king' ); ?></a></li>
 				<li><a href="<?php echo esc_url( home_url( '/#locations' ) ); ?>"><?php esc_html_e( 'Locations', 'empire-king' ); ?></a></li>

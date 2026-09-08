@@ -106,7 +106,7 @@ $home_menu_glimpse        = empire_king_get_home_menu_glimpse();
 							<span class="featured-favorites__tag"><?php echo esc_html( $item['tag'] ); ?></span>
 						<?php endif; ?>
 						<h3><?php echo esc_html( $item['name'] ); ?></h3>
-						<a class="featured-favorites__order" href="#order">Order Now</a>
+						<a class="featured-favorites__order" href="<?php echo esc_url( home_url( '/order-now/' ) ); ?>">Order Now</a>
 					</article>
 				<?php endforeach; ?>
 			<?php endforeach; ?>

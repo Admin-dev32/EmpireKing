@@ -69,6 +69,9 @@ function empire_king_enqueue_styles() {
 		wp_enqueue_style( 'empire-king-deals', get_theme_file_uri( 'assets/css/deals.css' ), array( 'empire-king-style' ), wp_get_theme()->get( 'Version' ) );
 		wp_enqueue_script( 'empire-king-deals-landing', get_theme_file_uri( 'assets/js/deals-landing.js' ), array(), wp_get_theme()->get( 'Version' ), array( 'in_footer' => true, 'strategy' => 'defer' ) );
 	}
+	if ( is_page( 'order-now' ) ) {
+		wp_enqueue_style( 'empire-king-order-now', get_theme_file_uri( 'assets/css/order-now.css' ), array( 'empire-king-style', 'empire-king-header' ), wp_get_theme()->get( 'Version' ) );
+	}
 	if ( is_singular( 'post' ) || is_page( 'deals' ) ) {
 		empire_king_enqueue_order_gateway_assets( array( 'empire-king-style' ) );
 	}
@@ -139,7 +142,7 @@ add_action( 'wp_head', function () {
 /** Pickup routes are shared by the Home gateway and Blog direct-order flow. */
 function empire_king_get_order_gateway_routes() {
 	return array(
-		'Avenue H' => array( 'pickup' => 'https://empireking3aveh.com/order-now/' ),
+		'Avenue H' => array( 'pickup' => home_url( '/order-now/' ) ),
 		'Avenue I' => array( 'pickup' => 'https://empireking2avei.com/order-now/' ),
 	);
 }
@@ -564,7 +567,7 @@ function empire_king_primary_nav_fallback( $args = array() ) {
 	$menu_class = isset( $args['menu_class'] ) ? $args['menu_class'] : 'primary-menu';
 	?>
 	<ul class="<?php echo esc_attr( $menu_class ); ?>">
-		<li><a href="<?php echo esc_url( home_url( '/#order' ) ); ?>"><?php esc_html_e( 'Menu', 'empire-king' ); ?></a></li>
+		<li><a href="<?php echo esc_url( home_url( '/order-now/' ) ); ?>"><?php esc_html_e( 'Menu', 'empire-king' ); ?></a></li>
 		<li><a href="<?php echo esc_url( home_url( '/deals/' ) ); ?>"><?php esc_html_e( 'Deals', 'empire-king' ); ?></a></li>
 		<li><a href="<?php echo esc_url( home_url( '/#locations' ) ); ?>"><?php esc_html_e( 'Locations', 'empire-king' ); ?></a></li>
 		<li><a href="<?php echo esc_url( home_url( '/#about' ) ); ?>"><?php esc_html_e( 'About', 'empire-king' ); ?></a></li>

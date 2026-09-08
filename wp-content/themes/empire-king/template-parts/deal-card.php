@@ -15,6 +15,6 @@ $alt = $image_id ? get_post_meta( $image_id, '_wp_attachment_image_alt', true ) 
 		<p class="ek-deals__availability"><?php echo esc_html( 'both' === $deal['location'] ? 'Available at both Lancaster locations.' : 'Available at ' . $deal['location'] . '.' ); ?></p>
 		<?php if ( $deal['end'] ) : ?><p class="ek-deals__fine">Available through <time datetime="<?php echo esc_attr( $deal['end'] ); ?>"><?php echo esc_html( $deal['end'] ); ?></time>.</p><?php endif; ?>
 		<?php if ( $deal['fine_print'] ) : ?><p class="ek-deals__fine"><?php echo esc_html( $deal['fine_print'] ); ?></p><?php endif; ?>
-		<a class="ek-deals__order" href="<?php echo esc_url( home_url( '/#order' ) ); ?>" data-direct-order data-order-category="<?php echo esc_attr( $deal['destination'] ); ?>"<?php if ( 'both' !== $deal['location'] ) : ?> data-order-location="<?php echo esc_attr( $deal['location'] ); ?>"<?php endif; ?>>Order This Deal <span aria-hidden="true">→</span></a>
+		<a class="ek-deals__order" href="<?php echo esc_url( home_url( '/order-now/' ) ); ?>" data-direct-order data-order-category="<?php echo esc_attr( $deal['destination'] ); ?>"<?php if ( 'both' !== $deal['location'] ) : ?> data-order-location="<?php echo esc_attr( $deal['location'] ); ?>"<?php endif; ?>>Order This Deal <span aria-hidden="true">→</span></a>
 	</div>
 </article>

@@ -13,6 +13,11 @@
 </head>
 <body <?php body_class(); ?>>
 <?php wp_body_open(); ?>
+<?php
+$is_order_now_page = is_page( 'order-now' );
+$cart_url          = function_exists( 'wc_get_cart_url' ) ? wc_get_cart_url() : home_url( '/cart/' );
+$cart_count        = function_exists( 'WC' ) && WC()->cart ? WC()->cart->get_cart_contents_count() : 0;
+?>
 <header class="site-header" data-header>
 	<div class="site-header__inner">
 		<button class="header-icon-button header-menu-toggle" type="button" aria-label="<?php esc_attr_e( 'Open navigation menu', 'empire-king' ); ?>" aria-expanded="false" aria-controls="mobile-navigation">
@@ -31,10 +36,17 @@
 		<nav class="primary-navigation" aria-label="<?php esc_attr_e( 'Primary navigation', 'empire-king' ); ?>">
 			<?php empire_king_render_primary_navigation( 'primary-menu' ); ?>
 		</nav>
-		<a class="header-order-link" href="<?php echo esc_url( home_url( '/#order' ) ); ?>">Order Now</a>
-		<a class="header-icon-button header-location-link" href="<?php echo esc_url( home_url( '/#locations' ) ); ?>" aria-label="<?php esc_attr_e( 'Choose a location', 'empire-king' ); ?>">
-			<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12Z" /><circle cx="12" cy="9" r="2.25" /></svg>
-		</a>
+		<a class="header-order-link" href="<?php echo esc_url( home_url( '/order-now/' ) ); ?>">Order Now</a>
+		<?php if ( $is_order_now_page ) : ?>
+			<a class="header-icon-button header-location-link header-cart-link" href="<?php echo esc_url( $cart_url ); ?>" aria-label="<?php echo esc_attr( sprintf( _n( '%d item in cart', '%d items in cart', $cart_count, 'empire-king' ), $cart_count ) ); ?>">
+				<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M3 4h2l2.2 10.2h10.9l2-7.2H7.2" /><circle cx="9" cy="19" r="1.25" /><circle cx="18" cy="19" r="1.25" /></svg>
+				<span class="header-cart-link__count" aria-hidden="true"><?php echo esc_html( $cart_count ); ?></span>
+			</a>
+		<?php else : ?>
+			<a class="header-icon-button header-location-link" href="<?php echo esc_url( home_url( '/#locations' ) ); ?>" aria-label="<?php esc_attr_e( 'Choose a location', 'empire-king' ); ?>">
+				<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12Z" /><circle cx="12" cy="9" r="2.25" /></svg>
+			</a>
+		<?php endif; ?>
 	</div>
 	<dialog id="mobile-navigation" class="mobile-navigation" aria-label="<?php esc_attr_e( 'Mobile navigation', 'empire-king' ); ?>">
 		<div class="mobile-navigation__topbar">
@@ -49,7 +61,7 @@
 		<nav class="mobile-navigation__nav" aria-label="<?php esc_attr_e( 'Mobile primary navigation', 'empire-king' ); ?>">
 			<?php empire_king_render_primary_navigation( 'mobile-primary-menu' ); ?>
 		</nav>
-		<a class="button button--primary mobile-navigation__order" href="<?php echo esc_url( home_url( '/#order' ) ); ?>">Order Now</a>
+		<a class="button button--primary mobile-navigation__order" href="<?php echo esc_url( home_url( '/order-now/' ) ); ?>">Order Now</a>
 	</dialog>
 </header>
 <main id="primary" class="site-content">
