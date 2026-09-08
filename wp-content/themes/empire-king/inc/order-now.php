@@ -91,10 +91,13 @@ function empire_king_cart_review_intro( $content ) {
 	$intro = sprintf(
 		'<div class="ek-cart-page__intro"><a class="ek-cart-page__back-link" href="%1$s">%2$s</a><h1>%3$s</h1></div>',
 		esc_url( home_url( '/order-now/' ) ),
-		esc_html__( '&larr; Back to Menu', 'empire-king' ),
+		esc_html__( '← Back to Menu', 'empire-king' ),
 		esc_html__( 'Review Your Order', 'empire-king' )
 	);
 
-	return $intro . $content;
+	$empty_heading = '<h2 class="wp-block-heading has-text-align-center with-empty-cart-icon wc-block-cart__empty-cart__title">Your cart is currently empty!</h2>';
+	$empty_replacement = '<h2 class="wp-block-heading has-text-align-center with-empty-cart-icon wc-block-cart__empty-cart__title">' . esc_html__( 'Your order is empty', 'empire-king' ) . '</h2><a class="ek-cart-empty__browse" href="' . esc_url( home_url( '/order-now/' ) ) . '">' . esc_html__( 'Browse Menu', 'empire-king' ) . '</a>';
+
+	return $intro . str_replace( $empty_heading, $empty_replacement, $content );
 }
 add_filter( 'the_content', 'empire_king_cart_review_intro', 20 );

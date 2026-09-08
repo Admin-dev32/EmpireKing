@@ -45,10 +45,10 @@ body.woocommerce-cart .entry-header { display: none; }
 .wc-block-components-totals-coupon-link { color: #8f1b27; font-weight: 850; }
 
 .wc-block-cart__empty-cart, .wp-block-woocommerce-empty-cart-block { padding: clamp(1.5rem, 7vw, 3rem) 1rem; text-align: center; background: #fff; border: 1px solid #dbe0e3; border-radius: 1rem; box-shadow: 0 0.3rem 0.9rem rgb(34 42 48 / 8%); }
-.wc-block-cart__empty-cart .wc-block-cart__empty-cart__title, .wp-block-woocommerce-empty-cart-block .wc-block-cart__empty-cart__title { margin: 0; color: #171717; font: 900 0/1 var(--ek-font-display); text-transform: uppercase; }
-.wc-block-cart__empty-cart .wc-block-cart__empty-cart__title::after, .wp-block-woocommerce-empty-cart-block .wc-block-cart__empty-cart__title::after { content: 'Your order is empty'; font-size: clamp(1.65rem, 7vw, 2.35rem); }
+.wc-block-cart__empty-cart .wc-block-cart__empty-cart__title, .wp-block-woocommerce-empty-cart-block .wc-block-cart__empty-cart__title { margin: 0; color: #171717; font: 900 clamp(1.65rem, 7vw, 2.35rem) / 1.1 var(--ek-font-display); text-transform: uppercase; }
 .wc-block-cart__empty-cart .is-style-dots, .wp-block-woocommerce-empty-cart-block .is-style-dots, .wc-block-cart__empty-cart h2:not(.wc-block-cart__empty-cart__title), .wp-block-woocommerce-empty-cart-block h2:not(.wc-block-cart__empty-cart__title), .wc-block-cart__empty-cart .wp-block-woocommerce-product-collection, .wp-block-woocommerce-empty-cart-block .wp-block-woocommerce-product-collection { display: none; }
-.wc-block-cart__empty-cart::after, .wp-block-woocommerce-empty-cart-block::after { display: inline-flex; min-height: 3.25rem; align-items: center; justify-content: center; margin-top: 1.25rem; padding: 0.6rem 1.15rem; color: #fff; content: 'Browse Menu'; background: var(--ek-color-red); border-radius: 0.7rem; font-weight: 900; }
+.ek-cart-empty__browse { display: inline-flex; min-height: 3.25rem; align-items: center; justify-content: center; margin-top: 1.25rem; padding: 0.6rem 1.15rem; color: #fff; text-decoration: none; background: var(--ek-color-red); border-radius: 0.7rem; box-shadow: var(--ek-shadow-action); font-weight: 900; }
+.ek-cart-empty__browse:hover { color: #fff; background: var(--ek-color-action-hover); }
 
 @media (min-width: 48rem) {
 	.wc-block-cart { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(18rem, 0.85fr); gap: 1.5rem; align-items: start; }
