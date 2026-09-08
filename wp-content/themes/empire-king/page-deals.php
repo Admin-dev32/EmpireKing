@@ -2,7 +2,7 @@
 /** Public Deals landing page; durable records are supplied by Empire King Deals. */
 get_header();
 $deals_landing_media = empire_king_get_deals_landing_media();
-$hero_logo_url       = empire_king_get_footer_logo_url();
+$welcome_logo_url    = empire_king_get_footer_logo_url();
 $deals = function_exists( 'ek_deals_live' ) ? ek_deals_live() : array();
 $lead = null;
 $groups = array();
@@ -26,8 +26,8 @@ if ( $deals ) {
 	<?php endif; ?>
 	<div class="ek-deals-welcome__inner">
 		<div class="ek-deals-welcome__copy">
-			<?php if ( $hero_logo_url ) : ?>
-				<img class="ek-deals-welcome__logo" src="<?php echo esc_url( $hero_logo_url ); ?>" alt="Empire King Burger">
+			<?php if ( $welcome_logo_url ) : ?>
+				<img class="ek-deals-welcome__logo" src="<?php echo esc_url( $welcome_logo_url ); ?>" alt="Empire King Burger">
 			<?php else : ?>
 				<p class="ek-deals-welcome__wordmark">Empire King Burger</p>
 			<?php endif; ?>

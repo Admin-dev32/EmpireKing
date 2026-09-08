@@ -1,4 +1,4 @@
-# Deals landing hero media
+# Deals welcome overlay media
 
 This folder owns the `/deals/` welcome overlay media. Files are user-supplied and repository-owned; image generation is not part of this implementation.
 
