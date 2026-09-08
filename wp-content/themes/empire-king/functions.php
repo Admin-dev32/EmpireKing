@@ -71,6 +71,7 @@ function empire_king_enqueue_styles() {
 	}
 	if ( is_page( 'order-now' ) ) {
 		wp_enqueue_style( 'empire-king-order-now', get_theme_file_uri( 'assets/css/order-now.css' ), array( 'empire-king-style', 'empire-king-header' ), wp_get_theme()->get( 'Version' ) );
+		wp_enqueue_script( 'empire-king-order-now', get_theme_file_uri( 'assets/js/order-now.js' ), array(), wp_get_theme()->get( 'Version' ), array( 'in_footer' => true, 'strategy' => 'defer' ) );
 	}
 	if ( is_singular( 'post' ) || is_page( 'deals' ) ) {
 		empire_king_enqueue_order_gateway_assets( array( 'empire-king-style' ) );
