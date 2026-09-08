@@ -63,6 +63,30 @@ html.ek-order-sheet-open { overflow: hidden; }
 .ek-order-now__controls-skeleton span { display: block; height: 3.25rem; background: linear-gradient(90deg, #edf0f1 15%, #f8f9f9 45%, #edf0f1 75%); background-size: 220% 100%; border-radius: 0.65rem; animation: ek-order-skeleton 1.15s linear infinite; }
 .ek-order-now__controls-skeleton span:first-child { width: 44%; height: 1rem; margin-bottom: 0.15rem; }
 .ek-order-now__customize-heading { margin: 1.5rem 0 0.15rem; font-size: 1.15rem; line-height: 1.2; }
+.ek-order-now__sheet .wapf-wrapper { margin-top: 1.25rem; }
+.ek-order-now__sheet .wapf-field-container { margin: 1.5rem 0 0; padding-top: 1.4rem; border-top: 1px solid #e2e5e7; }
+.ek-order-now__sheet .wapf-field-container:first-child { margin-top: 0; }
+.ek-order-now__sheet .wapf-field-label { margin-bottom: 0.7rem; color: #1b1c1d; font-size: 1.05rem; font-weight: 900; line-height: 1.2; }
+.ek-order-now__sheet .wapf-field-label label { display: inline-flex; align-items: baseline; gap: 0.3rem; }
+.ek-order-now__sheet .wapf-field-label .required { color: var(--ek-color-red); font-size: 1rem; font-weight: 900; text-decoration: none; }
+.ek-order-now__sheet .wapf-checkboxes { display: grid; gap: 0.5rem; }
+.ek-order-now__sheet .wapf-checkable { margin: 0; }
+.ek-order-now__sheet .wapf-input-label { position: relative; display: grid; grid-template-columns: 1.35rem minmax(0, 1fr); gap: 0.75rem; min-height: 3.2rem; align-items: center; padding: 0.65rem 0.75rem; color: #25272a; background: #fff; border: 1px solid #d7dde0; border-radius: 0.7rem; cursor: pointer; transition: border-color 120ms ease, background-color 120ms ease, box-shadow 120ms ease; }
+.ek-order-now__sheet .wapf-input-label::before { display: grid; width: 1.25rem; height: 1.25rem; box-sizing: border-box; place-items: center; color: #fff; content: ''; background: #fff; border: 2px solid #8f989f; border-radius: 0.32rem; font-size: 0.9rem; font-weight: 900; line-height: 1; }
+.ek-order-now__sheet .wapf-input-label:has(.wapf-input:checked) { background: #fff6f6; border-color: var(--ek-color-red); box-shadow: 0 0 0 1px rgb(166 42 45 / 12%); }
+.ek-order-now__sheet .wapf-input-label:has(.wapf-input:checked)::before { content: '✓'; background: var(--ek-color-red); border-color: var(--ek-color-red); }
+.ek-order-now__sheet .wapf-input-label:focus-within { outline: 3px solid var(--ek-color-focus); outline-offset: 2px; }
+.ek-order-now__sheet .wapf-input { font: inherit; }
+.ek-order-now__sheet input.wapf-input[type='checkbox'] { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+.ek-order-now__sheet .wapf-label-text { display: flex; min-width: 0; align-items: baseline; justify-content: space-between; gap: 0.65rem; font-size: 0.97rem; font-weight: 750; line-height: 1.25; }
+.ek-order-now__sheet .wapf-pricing-hint { flex: 0 0 auto; color: #6b7379; font-size: 0.9rem; font-weight: 750; white-space: nowrap; }
+.ek-order-now__sheet .wapf-field-select .wapf-field-input { position: relative; }
+.ek-order-now__sheet select.wapf-input { width: 100%; min-height: 3.25rem; padding: 0.7rem 2.7rem 0.7rem 0.85rem; color: #25272a; font: inherit; font-size: 1rem; font-weight: 700; line-height: 1.2; background: #fff; border: 1px solid #b8c0c5; border-radius: 0.7rem; appearance: auto; }
+.ek-order-now__sheet select.wapf-input:focus-visible { outline: 3px solid var(--ek-color-focus); outline-offset: 2px; border-color: var(--ek-color-red); }
+.ek-order-now__sheet .wapf-product-totals { display: grid; gap: 0.35rem; margin-top: 1.25rem; padding: 0.85rem; color: #34383c; background: #f3f5f6; border-radius: 0.7rem; font-size: 0.94rem; }
+.ek-order-now__sheet .wapf-product-totals .wapf-grand-total { color: #1b1c1d; font-size: 1.1rem; font-weight: 900; }
+.ek-order-now__sheet .wapf-product-totals .woocommerce-Price-amount { white-space: nowrap; }
+.ek-order-now__sheet .wapf-wrapper + .cart, .ek-order-now__sheet .wapf-wrapper ~ .single_add_to_cart_button { margin-top: 1.4rem; }
 .ek-order-now__sheet .cart { margin-top: 1.25rem; }
 .ek-order-now__sheet .variations { width: 100%; border: 0; }
 .ek-order-now__sheet .variations tr, .ek-order-now__sheet .variations th, .ek-order-now__sheet .variations td { display: block; padding: 0; border: 0; text-align: left; }
