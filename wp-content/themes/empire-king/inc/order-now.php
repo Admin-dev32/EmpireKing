@@ -91,7 +91,7 @@ function empire_king_cart_review_intro( $content ) {
 	$intro = sprintf(
 		'<div class="ek-cart-page__intro"><a class="ek-cart-page__back-link" href="%1$s">%2$s</a><h1>%3$s</h1></div>',
 		esc_url( home_url( '/order-now/' ) ),
-		esc_html__( '← Back to Menu', 'empire-king' ),
+		esc_html__( 'Back to Menu', 'empire-king' ),
 		esc_html__( 'Review Your Order', 'empire-king' )
 	);
 
