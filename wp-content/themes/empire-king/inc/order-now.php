@@ -82,22 +82,35 @@ function empire_king_order_now_cart_fragment( $fragments ) {
 }
 add_filter( 'woocommerce_add_to_cart_fragments', 'empire_king_order_now_cart_fragment' );
 
-/** Add review-page context around the existing WooCommerce Cart Block. */
-function empire_king_cart_review_intro( $content ) {
-	if ( ! is_cart() || ! in_the_loop() || ! is_main_query() ) {
+/** Use the assigned commerce pages' classic shortcodes in memory, before asset detection. */
+add_filter( 'the_posts', static function ( $posts, $query ) {
+	if ( is_admin() || ! $query->is_main_query() || ! $query->is_page() || ! function_exists( 'wc_get_page_id' ) ) {
+		return $posts;
+	}
+	foreach ( $posts as $index => $page ) {
+		foreach ( array( 'cart', 'checkout' ) as $kind ) {
+			if ( (int) $page->ID === wc_get_page_id( $kind ) ) {
+				$posts[ $index ] = clone $page;
+				$posts[ $index ]->post_content = '[woocommerce_' . $kind . ']';
+			}
+		}
+	}
+	return $posts;
+}, 10, 2 );
+
+/** Review-page heading; the shortcode continues to own all cart output. */
+add_filter( 'the_content', static function ( $content ) {
+	if ( ! function_exists( 'is_cart' ) || ! is_cart() || ! in_the_loop() || ! is_main_query() ) {
 		return $content;
 	}
-
-	$intro = sprintf(
-		'<div class="ek-cart-page__intro"><a class="ek-cart-page__back-link" href="%1$s">%2$s</a><h1>%3$s</h1></div>',
-		esc_url( home_url( '/order-now/' ) ),
-		esc_html__( 'Back to Menu', 'empire-king' ),
-		esc_html__( 'Review Your Order', 'empire-king' )
-	);
-
-	$empty_heading = '<h2 class="wp-block-heading has-text-align-center with-empty-cart-icon wc-block-cart__empty-cart__title">Your cart is currently empty!</h2>';
-	$empty_replacement = '<h2 class="wp-block-heading has-text-align-center with-empty-cart-icon wc-block-cart__empty-cart__title">' . esc_html__( 'Your order is empty', 'empire-king' ) . '</h2><a class="ek-cart-empty__browse" href="' . esc_url( home_url( '/order-now/' ) ) . '">' . esc_html__( 'Browse Menu', 'empire-king' ) . '</a>';
-
-	return $intro . str_replace( $empty_heading, $empty_replacement, $content );
-}
-add_filter( 'the_content', 'empire_king_cart_review_intro', 20 );
+	return '<div class="ek-cart-page__intro"><a class="ek-cart-page__back-link" href="' . esc_url( home_url( '/order-now/' ) ) . '">' . esc_html__( 'Back to Menu', 'empire-king' ) . '</a><h1>' . esc_html__( 'Review Your Order', 'empire-king' ) . '</h1></div>' . $content;
+}, 20 );
+add_filter( 'wc_empty_cart_message', static function ( $text ) {
+	return is_cart() ? __( 'Your order is empty', 'empire-king' ) : $text;
+} );
+add_filter( 'woocommerce_return_to_shop_redirect', static function ( $url ) {
+	return is_cart() ? home_url( '/order-now/' ) : $url;
+} );
+add_filter( 'woocommerce_return_to_shop_text', static function ( $text ) {
+	return is_cart() ? __( 'Browse Menu', 'empire-king' ) : $text;
+} );
