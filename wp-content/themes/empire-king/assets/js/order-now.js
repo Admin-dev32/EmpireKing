@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		loadRequest?.abort();
 		document.documentElement.classList.remove('ek-order-sheet-open');
 		document.documentElement.style.removeProperty('--ek-order-scroll-y');
-		window.scrollTo({ ...scrollPosition, left: scrollPosition.x, top: scrollPosition.y, behavior: 'instant' });
+		window.scrollTo({ left: scrollPosition.x, top: scrollPosition.y, behavior: 'instant' });
 		opener?.focus({ preventScroll: true });
 	});
 
