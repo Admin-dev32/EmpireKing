@@ -58,6 +58,10 @@ html.ek-order-sheet-open { overflow: hidden; }
 .ek-order-now__sheet-image { min-height: 0; height: min(55vw, 16rem); overflow: hidden; border-radius: 0.85rem; }
 .ek-order-now__sheet-image img { width: 100%; height: 100%; object-fit: contain; }
 .ek-order-now__sheet-description { margin-block: 1rem; line-height: 1.5; color: #596067; }
+.ek-order-now__controls-skeleton { display: grid; gap: 0.7rem; margin-top: 1.25rem; }
+.ek-order-now__controls-skeleton span { display: block; height: 3.25rem; background: linear-gradient(90deg, #edf0f1 15%, #f8f9f9 45%, #edf0f1 75%); background-size: 220% 100%; border-radius: 0.65rem; animation: ek-order-skeleton 1.15s linear infinite; }
+.ek-order-now__controls-skeleton span:first-child { width: 44%; height: 1rem; margin-bottom: 0.15rem; }
+.ek-order-now__customize-heading { margin: 1.5rem 0 0.15rem; font-size: 1.15rem; line-height: 1.2; }
 .ek-order-now__sheet .cart { margin-top: 1.25rem; }
 .ek-order-now__sheet .variations { width: 100%; border: 0; }
 .ek-order-now__sheet .variations tr, .ek-order-now__sheet .variations th, .ek-order-now__sheet .variations td { display: block; padding: 0; border: 0; text-align: left; }
@@ -70,11 +74,23 @@ html.ek-order-sheet-open { overflow: hidden; }
 .ek-order-now__sheet .woocommerce-variation-price { font-size: 1.25rem; font-weight: 900; }
 .ek-order-now__sheet .single_add_to_cart_button { display: block; width: 100%; min-height: 3.25rem; padding: 0.85rem 1rem; color: #fff; background: var(--ek-color-red); border: 0; border-radius: 0.65rem; font: inherit; font-weight: 850; cursor: pointer; }
 .ek-order-now__sheet .single_add_to_cart_button:disabled { opacity: 0.5; cursor: not-allowed; }
+.ek-order-now__sheet .single_add_to_cart_button.is-busy { position: relative; color: transparent; pointer-events: none; }
+.ek-order-now__sheet .single_add_to_cart_button.is-busy::after { position: absolute; inset: 0; width: 1.1rem; height: 1.1rem; margin: auto; content: ''; border: 2px solid rgb(255 255 255 / 45%); border-top-color: #fff; border-radius: 50%; animation: ek-order-spinner 700ms linear infinite; }
 .ek-order-now__sheet :is(button, select, input, a):focus-visible { outline: 3px solid #a62a2d; outline-offset: 3px; }
 .ek-order-now__sheet-status { margin: 1rem 0 0; line-height: 1.4; font-weight: 700; }
 .ek-order-now__sheet-status:empty { margin: 0; }
+.ek-order-now__success { display: grid; min-height: min(52dvh, 28rem); align-content: center; justify-items: center; padding: 1.5rem 0; text-align: center; animation: ek-order-success-in 180ms ease-out both; }
+.ek-order-now__success svg { width: 4.25rem; height: 4.25rem; margin-bottom: 1.15rem; fill: #a62a2d; }
+.ek-order-now__success svg circle { fill: #f8e7e7; stroke: #a62a2d; stroke-width: 2; }
+.ek-order-now__success svg path { fill: none; stroke: #a62a2d; stroke-linecap: round; stroke-linejoin: round; stroke-width: 3.5; }
+.ek-order-now__success h2 { margin: 0; color: #1b1c1d; font-size: clamp(1.7rem, 7vw, 2.25rem); text-transform: uppercase; }
+.ek-order-now__success p { max-width: 18rem; margin: 0.6rem 0 1.5rem; color: #596067; font-weight: 700; line-height: 1.45; }
+.ek-order-now__success button { min-height: 2.9rem; padding: 0.7rem 1rem; color: #a62a2d; font: inherit; font-weight: 850; background: #f8e7e7; border: 0; border-radius: 0.55rem; cursor: pointer; }
 @keyframes ek-product-sheet-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes ek-order-skeleton { to { background-position: -220% 0; } }
+@keyframes ek-order-spinner { to { transform: rotate(360deg); } }
+@keyframes ek-order-success-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 @media (min-width: 48rem) { .ek-order-now__sheet { margin: auto; border-radius: 1.5rem; padding-inline: 1.75rem; } }
-@media (prefers-reduced-motion: reduce) { .ek-order-now__sheet[open] { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .ek-order-now__sheet[open], .ek-order-now__success { animation: none; } .ek-order-now__controls-skeleton span, .ek-order-now__sheet .single_add_to_cart_button.is-busy::after { animation: none; } }
 @media (min-width: 30rem) { .ek-order-now__product { grid-template-columns: 8rem minmax(0, 1fr); } .ek-order-now__product-image { min-height: 8rem; } }
 @media (min-width: 48rem) { .ek-order-now__hero { min-height: 22rem; padding-inline: max(2rem, calc((100% - var(--ek-content-width)) / 2)); } .ek-order-now__hero-copy { max-width: 31rem; } .ek-order-now__menu-surface { margin-top: -2rem; border-radius: 2rem 2rem 0 0; } .ek-order-now__categories { max-width: var(--ek-content-width); padding-inline: 0; margin-inline: auto; } }
