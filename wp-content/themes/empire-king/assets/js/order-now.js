@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	let addRequest = null;
 	let successTimer = null;
 	let adding = false;
+	let disposeApf = () => {};
 
 	const updateCartLabel = () => {
 		const badge = document.querySelector('.header-cart-link__count[data-cart-label]');
@@ -66,14 +67,41 @@ document.addEventListener('DOMContentLoaded', () => {
 		loadRequest?.abort();
 		addRequest?.abort();
 		clearSuccessTimer();
+		disposeApf();
 		document.documentElement.classList.remove('ek-order-sheet-open');
 		document.documentElement.style.removeProperty('--ek-order-scroll-y');
 		window.scrollTo({ left: scrollPosition.x, top: scrollPosition.y, behavior: 'instant' });
 		opener?.focus({ preventScroll: true });
 	});
 
+	const initializeApf = () => {
+		const root = content.querySelector('.product');
+		if (!root?.querySelector('.wapf-wrapper') || typeof window._wapf !== 'function') return;
+		// APF 1.7.1 accepts jQuery but queries globally. Scope its queries to this
+		// product, including its delegated quantity listener on .woocommerce.
+		const scopedJQuery = Object.assign((selector) => {
+			if (selector === '.woocommerce') return $(root);
+			return typeof selector === 'string' ? $(root).find(selector) : $(selector);
+		}, $);
+		// Its AJAX-variation path binds directly to document and has no teardown.
+		// Track only handlers added by this synchronous initializer; never remove
+		// Woo's or another component's found_variation handlers.
+		const documentHandlers = () => $._data(document, 'events')?.found_variation || [];
+		const before = new Set(documentHandlers().map((entry) => entry.handler));
+		window._wapf(scopedJQuery);
+		const added = documentHandlers().filter((entry) => !before.has(entry.handler));
+		disposeApf = () => {
+			added.forEach((entry) => $(document).off('found_variation', entry.handler));
+			$(root).find('*').addBack().off();
+			disposeApf = () => {};
+		};
+	};
+
 	const renderProductSheet = (html) => {
+		disposeApf();
+		$(content).empty();
 		content.innerHTML = html;
+		initializeApf();
 		const variationForm = content.querySelector('.variations_form');
 		if (!variationForm) return;
 		const button = variationForm.querySelector('.single_add_to_cart_button');

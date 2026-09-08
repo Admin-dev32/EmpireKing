@@ -74,6 +74,9 @@ function empire_king_enqueue_styles() {
 	if ( is_page( 'order-now' ) ) {
 		wp_enqueue_style( 'empire-king-order-now', get_theme_file_uri( 'assets/css/order-now.css' ), array( 'empire-king-style', 'empire-king-header' ), wp_get_theme()->get( 'Version' ) );
 		$order_dependencies = class_exists( 'WooCommerce' ) ? array( 'jquery', 'wc-add-to-cart', 'wc-add-to-cart-variation', 'wc-cart-fragments' ) : array();
+		if ( class_exists( '\SW_WAPF\Includes\Classes\Woocommerce_Service' ) ) {
+			$order_dependencies[] = 'wapf-frontend-js';
+		}
 		wp_enqueue_script( 'empire-king-order-now', get_theme_file_uri( 'assets/js/order-now.js' ), $order_dependencies, wp_get_theme()->get( 'Version' ), array( 'in_footer' => true, 'strategy' => 'defer' ) );
 		if ( class_exists( 'WC_AJAX' ) ) {
 			wp_localize_script( 'empire-king-order-now', 'empireKingOrderNow', array( 'sheetUrl' => WC_AJAX::get_endpoint( 'empire_king_product_sheet' ), 'cartUrl' => WC_AJAX::get_endpoint( 'add_to_cart' ) ) );
@@ -138,6 +141,16 @@ function empire_king_enqueue_styles() {
 	}
 }
 add_action( 'wp_enqueue_scripts', 'empire_king_enqueue_styles' );
+
+// APF normally supplies these settings only on canonical product pages.
+add_action( 'wp_enqueue_scripts', static function () {
+	if ( is_page( 'order-now' ) && wp_script_is( 'wapf-frontend-js', 'enqueued' ) && class_exists( '\SW_WAPF\Includes\Classes\Woocommerce_Service' ) ) {
+		wp_localize_script( 'wapf-frontend-js', 'wapf_config', array(
+			'page_type' => 'product',
+			'display_options' => \SW_WAPF\Includes\Classes\Woocommerce_Service::get_price_display_options(),
+		) );
+	}
+}, 20 );
 
 add_filter( 'pre_get_document_title', function ( $title ) {
 	return is_page( 'deals' ) ? 'Deals & Specials in Lancaster, CA | Empire King Burger' : $title;
