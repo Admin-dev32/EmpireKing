@@ -10,6 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 require_once get_theme_file_path( 'inc/order-now.php' );
+require_once get_theme_file_path( 'inc/order-upsell.php' );
 
 function empire_king_setup() {
 	add_theme_support( 'title-tag' );
@@ -91,6 +92,18 @@ function empire_king_enqueue_styles() {
 				)
 			);
 		}
+	}
+	if ( is_page( 'order-now' ) && class_exists( 'WC_AJAX' ) ) {
+		wp_enqueue_style( 'empire-king-order-upsell', get_theme_file_uri( 'assets/css/order-upsell.css' ), array( 'empire-king-order-now' ), wp_get_theme()->get( 'Version' ) );
+		wp_enqueue_script( 'empire-king-order-upsell', get_theme_file_uri( 'assets/js/order-upsell.js' ), array( 'empire-king-order-now' ), wp_get_theme()->get( 'Version' ), array( 'in_footer' => true, 'strategy' => 'defer' ) );
+		wp_localize_script(
+			'empire-king-order-upsell',
+			'empireKingOrderUpsell',
+			array(
+				'recommendationsUrl' => WC_AJAX::get_endpoint( 'empire_king_order_upsell' ),
+				'cartUrl'            => wc_get_cart_url(),
+			)
+		);
 	}
 	if ( is_cart() ) {
 		wp_enqueue_style( 'empire-king-cart', get_theme_file_uri( 'assets/css/cart.css' ), array( 'empire-king-style', 'empire-king-header', 'empire-king-order-now' ), wp_get_theme()->get( 'Version' ) );

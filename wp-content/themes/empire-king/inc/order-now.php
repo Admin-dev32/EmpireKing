@@ -196,7 +196,7 @@ function empire_king_order_now_checkout_bar() {
 			<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M3 4h2l2 11h10l2-8H6" /><circle cx="9" cy="19" r="1" /><circle cx="17" cy="19" r="1" /></svg>
 			<span class="ek-order-now__checkout-summary"><strong><?php esc_html_e( 'Your Order', 'empire-king' ); ?></strong><small><span><?php echo esc_html( $item_label ); ?></span><b aria-hidden="true">&middot;</b><span class="ek-order-now__checkout-subtotal"><?php echo wp_kses_post( $cart ? $cart->get_cart_subtotal() : '' ); ?></span></small></span>
 		</a>
-		<a class="ek-order-now__checkout-action" href="<?php echo esc_url( wc_get_cart_url() ); ?>"><?php esc_html_e( 'Review Order', 'empire-king' ); ?></a>
+		<a class="ek-order-now__checkout-action" href="<?php echo esc_url( wc_get_cart_url() ); ?>" data-order-upsell-trigger><?php esc_html_e( 'Review Order', 'empire-king' ); ?></a>
 	</div>
 	<?php
 	return ob_get_clean();

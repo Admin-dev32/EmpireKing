@@ -28,6 +28,7 @@ get_header();
 		<p class="screen-reader-text" data-order-now-status role="status" aria-atomic="true"></p>
 	</section>
 	<?php get_template_part( 'template-parts/product-sheet' ); ?>
+	<?php get_template_part( 'template-parts/order-upsell' ); ?>
 	<?php echo empire_king_order_now_checkout_bar(); // WooCommerce escapes cart values in its own formatted subtotal markup. ?>
 </div>
 <?php get_footer(); ?>
