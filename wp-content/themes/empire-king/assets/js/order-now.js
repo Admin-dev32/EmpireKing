@@ -44,6 +44,25 @@ document.addEventListener('DOMContentLoaded', () => {
 		const badge = document.querySelector('.header-cart-link__count[data-cart-label]');
 		if (badge) badge.closest('a')?.setAttribute('aria-label', badge.dataset.cartLabel);
 	};
+	const consumeSheetErrors = async () => {
+		if (!config.noticeUrl || !config.noticeNonce) return '';
+		try {
+			const body = new URLSearchParams({ security: config.noticeNonce });
+			const response = await fetch(config.noticeUrl, {
+				method: 'POST',
+				credentials: 'same-origin',
+				headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+				body,
+			});
+			const result = await response.json();
+			if (response.ok && result.success && Array.isArray(result.data?.messages) && result.data.messages.length) {
+				return result.data.messages.join(' ');
+			}
+		} catch (error) {
+			// The generic failure message remains available if notice retrieval is unavailable.
+		}
+		return '';
+	};
 	$(document.body).on('added_to_cart wc_fragments_refreshed wc_fragments_loaded', updateCartLabel);
 	updateCartLabel();
 	const clearSuccessTimer = () => {
@@ -342,7 +361,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				return;
 			}
 
-			if (!response.ok || result.error || !result.fragments) throw new Error('Cart rejected');
+			if (!response.ok || result.error || !result.fragments) {
+				throw new Error((await consumeSheetErrors()) || 'Cart rejected');
+			}
 			$(document.body).trigger('added_to_cart', [result.fragments, result.cart_hash]);
 			updateCartLabel();
 			if (sheet.open && content.contains(form)) {

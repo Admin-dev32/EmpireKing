@@ -76,6 +76,28 @@ function empire_king_order_now_product_sheet() {
 }
 add_action( 'wc_ajax_empire_king_product_sheet', 'empire_king_order_now_product_sheet' );
 
+/** Return and consume errors handled by the custom product sheet only. */
+function empire_king_order_now_sheet_error_notices() {
+	check_ajax_referer( 'empire_king_sheet_error_notices', 'security' );
+
+	$notices = wc_get_notices();
+	$errors  = isset( $notices['error'] ) ? $notices['error'] : array();
+	$messages = array();
+	foreach ( $errors as $error ) {
+		$message = is_array( $error ) && isset( $error['notice'] ) ? $error['notice'] : $error;
+		if ( $message ) {
+			$messages[] = wp_strip_all_tags( $message );
+		}
+	}
+
+	// The sheet renders these errors itself, so retain non-error notices but prevent a later cart-page leak.
+	unset( $notices['error'] );
+	wc_set_notices( $notices );
+
+	wp_send_json_success( array( 'messages' => $messages ) );
+}
+add_action( 'wc_ajax_empire_king_sheet_error_notices', 'empire_king_order_now_sheet_error_notices' );
+
 /**
  * Safely updates an existing cart item with modified variations, APF add-ons, or quantity.
  *

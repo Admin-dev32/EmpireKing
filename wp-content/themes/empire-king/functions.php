@@ -86,6 +86,8 @@ function empire_king_enqueue_styles() {
 				array(
 					'sheetUrl'    => WC_AJAX::get_endpoint( 'empire_king_product_sheet' ),
 					'cartUrl'     => WC_AJAX::get_endpoint( 'add_to_cart' ),
+					'noticeUrl'   => WC_AJAX::get_endpoint( 'empire_king_sheet_error_notices' ),
+					'noticeNonce' => wp_create_nonce( 'empire_king_sheet_error_notices' ),
 					'editCartUrl' => WC_AJAX::get_endpoint( 'empire_king_edit_cart_item' ),
 					'editNonce'   => wp_create_nonce( 'empire_king_edit_cart_item' ),
 					'isCart'      => is_cart(),
