@@ -27,11 +27,7 @@ get_header();
 		</div>
 		<p class="screen-reader-text" data-order-now-status role="status" aria-atomic="true"></p>
 	</section>
-	<dialog class="ek-order-now__sheet" data-order-now-sheet aria-labelledby="order-now-product-title">
-		<button class="ek-order-now__sheet-close" type="button" data-order-now-close aria-label="Close product details" autofocus>&times;</button>
-		<div data-order-now-sheet-content></div>
-		<p class="ek-order-now__sheet-status" data-order-now-sheet-status role="status" aria-live="polite" aria-atomic="true"></p>
-	</dialog>
+	<?php get_template_part( 'template-parts/product-sheet' ); ?>
 	<?php echo empire_king_order_now_checkout_bar(); // WooCommerce escapes cart values in its own formatted subtotal markup. ?>
 </div>
 <?php get_footer(); ?>
