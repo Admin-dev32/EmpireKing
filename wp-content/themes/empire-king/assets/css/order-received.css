@@ -1,7 +1,626 @@
 /*
  * Empire King Burger — Order Received / Digital Restaurant Receipt
- * Loaded conditionally and exclusively on is_order_received_page().
+ * Loaded exclusively on is_order_received_page().
+ *
+ * Architecture: ONE unified receipt sheet using .woocommerce-order as the
+ * single visual container. No nested card soup.
  */
+
+/* ============================================================
+ * PAGE WRAPPER
+ * ============================================================ */
+
+body.woocommerce-order-received {
+	background-color: #f5f0ea;
+	color: #1a1714;
+}
+
+body.woocommerce-order-received .entry-header {
+	display: none;
+}
+
+body.woocommerce-order-received .site-content {
+	box-sizing: border-box;
+	max-width: 860px;
+	margin: 0 auto;
+	padding: 32px 16px 56px;
+}
+
+/* ============================================================
+ * THE ONE RECEIPT SHEET
+ * .woocommerce-order is the single white card
+ * ============================================================ */
+
+.woocommerce-order-received .woocommerce-order {
+	background: #ffffff;
+	border: 1px solid #e2d9ce;
+	border-radius: 20px;
+	box-shadow: 0 6px 28px rgba(50, 38, 28, 0.08);
+	overflow: hidden;
+	/* Top red accent bar */
+	border-top: 4px solid #b82424;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+/* ============================================================
+ * 1. SUCCESS HEADER — inside the receipt sheet
+ * ============================================================ */
+
+.woocommerce-notice--success.woocommerce-thankyou-order-received {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	padding: 32px 32px 28px;
+	border-bottom: 1px solid #ede6dc;
+	margin: 0;
+	background: transparent;
+	border-radius: 0;
+	box-shadow: none;
+	box-sizing: border-box;
+}
+
+/* Check badge */
+.woocommerce-notice--success.woocommerce-thankyou-order-received::before {
+	content: "";
+	display: block;
+	width: 50px;
+	height: 50px;
+	margin-bottom: 14px;
+	border-radius: 50%;
+	background-color: #eef7ee;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232e7d32' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+	background-size: 24px 24px;
+	background-repeat: no-repeat;
+	background-position: center;
+	border: 1.5px solid rgba(46, 125, 50, 0.25);
+	flex-shrink: 0;
+}
+
+.ek-order-received__eyebrow {
+	display: block;
+	font-size: 0.72rem;
+	font-weight: 800;
+	letter-spacing: 0.15em;
+	text-transform: uppercase;
+	color: #b82424;
+	margin-bottom: 5px;
+}
+
+.ek-order-received__title {
+	display: block;
+	font-family: var(--ek-font-display, "Arial Black", sans-serif);
+	font-size: clamp(1.6rem, 3.5vw, 2.1rem);
+	font-weight: 900;
+	line-height: 1.15;
+	letter-spacing: -0.02em;
+	color: #1a1714;
+	margin-bottom: 6px;
+}
+
+.ek-order-received__subcopy {
+	display: block;
+	font-size: 0.95rem;
+	font-weight: 400;
+	line-height: 1.5;
+	color: #7a6e65;
+}
+
+/* ============================================================
+ * 2. ORDER SUMMARY — compact rows inside receipt
+ * NO separate tile cards. Typography-only hierarchy.
+ * ============================================================ */
+
+.woocommerce-order-overview.woocommerce-thankyou-order-details {
+	list-style: none;
+	margin: 0;
+	padding: 20px 32px;
+	border-bottom: 1px solid #ede6dc;
+	/* Two-column grid: label in natural text, value in strong */
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0;
+	border-left: 0 !important;
+	border-right: 0 !important;
+	border-top: 0 !important;
+}
+
+/* Order number gets its own full-width prominent row */
+.woocommerce-order-overview li.woocommerce-order-overview__order {
+	grid-column: 1 / -1;
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	padding: 0 0 14px 0;
+	margin: 0 0 14px 0;
+	border-bottom: 1px solid #ede6dc;
+	font-size: 0;  /* hide native text node "Order number:" visually */
+}
+
+/* The "Order number:" text node — make it readable again as a label */
+.woocommerce-order-overview li.woocommerce-order-overview__order {
+	font-size: 0.78rem;
+	font-weight: 700;
+	color: #7a6e65;
+	letter-spacing: 0.02em;
+}
+
+.woocommerce-order-overview li.woocommerce-order-overview__order strong {
+	font-family: var(--ek-font-display, "Arial Black", sans-serif);
+	font-size: 1.5rem;
+	font-weight: 900;
+	color: #b82424;
+	letter-spacing: -0.01em;
+	margin-left: auto;
+}
+
+/* Override the font-size: 0 trick — we want label visible */
+.woocommerce-order-overview li.woocommerce-order-overview__order::before {
+	/* NO ::before — native "Order number:" text is the label */
+	display: none;
+}
+
+/* Non-order items: left label text + right bold value, stacked column pair */
+.woocommerce-order-overview li:not(.woocommerce-order-overview__order) {
+	display: flex;
+	flex-direction: column;
+	padding: 6px 0;
+	margin: 0;
+	float: none !important;
+	font-size: 0.8rem;
+	font-weight: 600;
+	color: #7a6e65;
+	line-height: 1.3;
+	min-width: 0;
+}
+
+/* Even items (Total, Payment) align text right */
+.woocommerce-order-overview li.woocommerce-order-overview__total,
+.woocommerce-order-overview li.woocommerce-order-overview__payment-method {
+	text-align: right;
+}
+
+/* All secondary item strong values */
+.woocommerce-order-overview li:not(.woocommerce-order-overview__order) strong {
+	display: block;
+	font-size: 0.97rem;
+	font-weight: 700;
+	color: #1a1714;
+	margin-top: 2px;
+	overflow-wrap: break-word;
+	word-break: break-word;
+}
+
+/* Email: full-width row below the grid */
+.woocommerce-order-overview li.woocommerce-order-overview__email {
+	grid-column: 1 / -1;
+	flex-direction: row;
+	align-items: baseline;
+	gap: 8px;
+	padding-top: 10px;
+	margin-top: 6px;
+	border-top: 1px solid #ede6dc;
+}
+
+.woocommerce-order-overview li.woocommerce-order-overview__email strong {
+	margin-top: 0;
+	font-size: 0.9rem;
+}
+
+/* Remove all WooCommerce default border/pipe/float styling */
+.woocommerce-order-overview li,
+.woocommerce-order-overview li::before,
+.woocommerce-order-overview li::after {
+	border: 0 !important;
+}
+
+.woocommerce ul.order_details li {
+	border-right: 0 !important;
+}
+
+/* ============================================================
+ * 3. PAYMENT INSTRUCTION — inline, not another card
+ * ============================================================ */
+
+.woocommerce-order-overview + p {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin: 0;
+	padding: 12px 32px;
+	background: #fbf6ee;
+	border-bottom: 1px solid #ede6dc;
+	font-size: 0.88rem;
+	font-weight: 500;
+	color: #5a4d43;
+	line-height: 1.4;
+	box-sizing: border-box;
+}
+
+.woocommerce-order-overview + p::before {
+	content: "";
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	flex-shrink: 0;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23b82424'%3E%3Cpath d='M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: contain;
+}
+
+/* ============================================================
+ * 4. ORDER DETAILS — receipt item styling, no table look
+ * ============================================================ */
+
+.woocommerce-order-details {
+	padding: 0 32px;
+	background: transparent;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+	margin: 0;
+	box-sizing: border-box;
+}
+
+.woocommerce-order-details__title {
+	font-size: 0.72rem;
+	font-weight: 800;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+	color: #7a6e65;
+	margin: 20px 0 14px 0;
+	padding-bottom: 10px;
+	border-bottom: 2px solid #1a1714;
+}
+
+/* Table resets — strip the spreadsheet */
+.woocommerce-table--order-details {
+	width: 100%;
+	table-layout: fixed;
+	border-collapse: collapse;
+	border-spacing: 0;
+	border: 0;
+	margin: 0;
+	background: transparent;
+}
+
+.woocommerce-table--order-details thead {
+	display: none; /* "Product" / "Total" column headers hidden */
+}
+
+.woocommerce-table--order-details tbody tr.order_item {
+	border-bottom: 1px solid #ede6dc;
+}
+
+.woocommerce-table--order-details tbody tr.order_item:last-child {
+	border-bottom: 0;
+}
+
+.woocommerce-table--order-details tbody td {
+	padding: 16px 0;
+	border: 0;
+	background: transparent;
+	vertical-align: top;
+}
+
+/* Product name column */
+.woocommerce-table--order-details tbody td.product-name {
+	padding-right: 16px;
+}
+
+.woocommerce-table--order-details tbody td.product-name a {
+	display: block;
+	font-size: 1.02rem;
+	font-weight: 700;
+	color: #1a1714;
+	text-decoration: none;
+	line-height: 1.3;
+	transition: color 0.12s;
+}
+
+.woocommerce-table--order-details tbody td.product-name a:hover {
+	color: #b82424;
+}
+
+/* Quantity — muted line below name */
+.woocommerce-table--order-details .product-quantity {
+	display: block;
+	font-size: 0.82rem;
+	font-weight: 500;
+	color: #9a8e84;
+	margin-top: 3px;
+}
+
+/* Price column — right-aligned, stays narrow */
+.woocommerce-table--order-details tbody td.product-total {
+	text-align: right;
+	font-size: 1.02rem;
+	font-weight: 700;
+	color: #1a1714;
+	white-space: nowrap;
+	width: 90px;
+	padding-left: 0;
+	vertical-align: top;
+	padding-top: 16px;
+}
+
+/* ============================================================
+ * 5. APF / CUSTOMIZATION METADATA — clean label + value pairs
+ * No pills, no borders, no tiny text.
+ * ============================================================ */
+
+.woocommerce-table--order-details .wc-item-meta {
+	list-style: none;
+	margin: 10px 0 0 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.woocommerce-table--order-details .wc-item-meta li {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	margin: 0;
+	padding: 0;
+}
+
+/* Label — small uppercase muted */
+.woocommerce-table--order-details .wc-item-meta strong.wc-item-meta-label {
+	display: block;
+	font-size: 0.68rem;
+	font-weight: 800;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	color: #9a8e84;
+	margin: 0;
+}
+
+/* Remove the colon from native labels via override */
+.woocommerce-table--order-details .wc-item-meta strong.wc-item-meta-label {
+	/* The native Woo label includes ":" — we can't remove it without JS/PHP
+	   so we just style it to look intentional */
+}
+
+/* Value — clear readable text */
+.woocommerce-table--order-details .wc-item-meta p {
+	display: block;
+	margin: 0;
+	font-size: 0.92rem;
+	font-weight: 500;
+	color: #2b2520;
+	line-height: 1.45;
+}
+
+/* ============================================================
+ * 6. TOTALS — receipt-style bottom rows
+ * ============================================================ */
+
+.woocommerce-table--order-details tfoot {
+	border-top: 1px solid #ede6dc;
+}
+
+.woocommerce-table--order-details tfoot tr {
+	border: 0;
+}
+
+.woocommerce-table--order-details tfoot th,
+.woocommerce-table--order-details tfoot td {
+	padding: 10px 0;
+	border: 0;
+	font-size: 0.9rem;
+	font-weight: 500;
+	color: #5a4d43;
+	background: transparent;
+}
+
+.woocommerce-table--order-details tfoot th {
+	text-align: left;
+}
+
+.woocommerce-table--order-details tfoot td {
+	text-align: right;
+	font-weight: 600;
+	color: #1a1714;
+	white-space: nowrap;
+}
+
+/* The last tfoot row is the TOTAL */
+.woocommerce-table--order-details tfoot tr:last-child {
+	border-top: 2px solid #1a1714;
+}
+
+.woocommerce-table--order-details tfoot tr:last-child th {
+	font-size: 0.78rem;
+	font-weight: 800;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	color: #1a1714;
+	padding-top: 14px;
+}
+
+.woocommerce-table--order-details tfoot tr:last-child td {
+	font-size: 1.25rem;
+	font-weight: 900;
+	color: #b82424;
+	padding-top: 14px;
+}
+
+/* ============================================================
+ * 7. BILLING DETAILS — final section of receipt
+ * ============================================================ */
+
+.woocommerce-customer-details {
+	padding: 0 32px 32px;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+	background: transparent;
+	margin: 0;
+	box-sizing: border-box;
+}
+
+.woocommerce-customer-details .woocommerce-column__title {
+	font-size: 0.72rem;
+	font-weight: 800;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+	color: #7a6e65;
+	margin: 20px 0 12px 0;
+	padding-top: 20px;
+	border-top: 1px solid #ede6dc;
+}
+
+.woocommerce-customer-details address {
+	font-style: normal;
+	font-size: 0.92rem;
+	line-height: 1.65;
+	color: #3b3530;
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+/* Phone and email — plain inline, no icons */
+.woocommerce-customer-details .woocommerce-customer-details--phone,
+.woocommerce-customer-details .woocommerce-customer-details--email {
+	display: block;
+	margin: 2px 0 0 0;
+	font-size: 0.92rem;
+	font-weight: 500;
+	color: #3b3530;
+}
+
+/* Strip any decorative icons from previous passes */
+.woocommerce-customer-details .woocommerce-customer-details--phone::before,
+.woocommerce-customer-details .woocommerce-customer-details--email::before {
+	display: none;
+}
+
+/* ============================================================
+ * 8. FAILED ORDER STATE PROTECTION
+ * ============================================================ */
+
+.woocommerce-notice--error.woocommerce-thankyou-order-failed {
+	background: #fff6f6;
+	border-left: 4px solid #b82424;
+	border-radius: 0;
+	padding: 20px 32px;
+	color: #7d1520;
+	font-size: 1rem;
+	font-weight: 600;
+	line-height: 1.5;
+	margin: 0;
+}
+
+.woocommerce-thankyou-order-failed-actions {
+	display: flex;
+	gap: 12px;
+	padding: 16px 32px;
+	border-top: 1px solid #ede6dc;
+}
+
+.woocommerce-thankyou-order-failed-actions .button.pay {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 44px;
+	padding: 10px 24px;
+	font-size: 0.95rem;
+	font-weight: 700;
+	color: #ffffff;
+	background: #b82424;
+	border: 0;
+	border-radius: 8px;
+	text-decoration: none;
+	cursor: pointer;
+	transition: background-color 0.15s;
+}
+
+.woocommerce-thankyou-order-failed-actions .button.pay:hover {
+	background: #961a26;
+}
+
+/* ============================================================
+ * 9. RESPONSIVE — 615px PRIMARY TARGET
+ * ============================================================ */
+
+/* At tablet/narrow screen: tighten padding, keep 2-col summary */
+@media (max-width: 680px) {
+	body.woocommerce-order-received .site-content {
+		padding: 16px 12px 40px;
+	}
+
+	.woocommerce-notice--success.woocommerce-thankyou-order-received {
+		padding: 24px 20px 20px;
+	}
+
+	.woocommerce-notice--success.woocommerce-thankyou-order-received::before {
+		width: 44px;
+		height: 44px;
+		margin-bottom: 12px;
+	}
+
+	.ek-order-received__title {
+		font-size: 1.5rem;
+	}
+
+	.woocommerce-order-overview.woocommerce-thankyou-order-details {
+		padding: 16px 20px;
+	}
+
+	.woocommerce-order-overview + p {
+		padding: 10px 20px;
+	}
+
+	.woocommerce-order-details {
+		padding: 0 20px;
+	}
+
+	.woocommerce-customer-details {
+		padding: 0 20px 24px;
+	}
+
+	.woocommerce-thankyou-order-failed-actions {
+		padding: 14px 20px;
+	}
+
+	.woocommerce-notice--error.woocommerce-thankyou-order-failed {
+		padding: 18px 20px;
+	}
+
+	.woocommerce-table--order-details tbody td.product-total {
+		width: 80px;
+		font-size: 0.97rem;
+	}
+}
+
+/* Below 420px: stack summary to single column */
+@media (max-width: 420px) {
+	.woocommerce-order-overview.woocommerce-thankyou-order-details {
+		grid-template-columns: 1fr;
+	}
+
+	.woocommerce-order-overview li.woocommerce-order-overview__total,
+	.woocommerce-order-overview li.woocommerce-order-overview__payment-method {
+		text-align: left;
+	}
+
+	.woocommerce-order-received .woocommerce-order {
+		border-radius: 14px;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.woocommerce-table--order-details tbody td.product-name a,
+	.woocommerce-thankyou-order-failed-actions .button.pay {
+		transition: none !important;
+	}
+}
+
 
 body.woocommerce-order-received {
 	background-color: #f7f5f0;
