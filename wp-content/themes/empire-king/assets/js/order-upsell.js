@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const products = dialog.querySelector('[data-order-upsell-products]');
 	const status = dialog.querySelector('[data-order-upsell-status]');
 	const close = dialog.querySelector('[data-order-upsell-close]');
+	const scrollArea = dialog.querySelector('.ek-order-upsell__scroll-area');
 	let trigger = null;
 	let loading = false;
 	let handingOff = false;
@@ -16,6 +17,18 @@ document.addEventListener('DOMContentLoaded', () => {
 	dialog.addEventListener('cancel', (event) => {
 		event.preventDefault();
 		closeDialog();
+	});
+	let backdropPress = false;
+	const outsideDialog = (event) => {
+		const bounds = dialog.getBoundingClientRect();
+		return event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom;
+	};
+	dialog.addEventListener('pointerdown', (event) => {
+		backdropPress = event.target === dialog && outsideDialog(event);
+	});
+	dialog.addEventListener('click', (event) => {
+		if (backdropPress && event.target === dialog && outsideDialog(event)) closeDialog();
+		backdropPress = false;
 	});
 	dialog.addEventListener('close', () => {
 		document.documentElement.classList.remove('ek-order-upsell-open');
@@ -46,6 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 			products.innerHTML = result.data.html;
 			status.textContent = `${result.data.count} recommendations ready.`;
+			if (scrollArea) scrollArea.scrollTop = 0;
 			document.documentElement.classList.add('ek-order-upsell-open');
 			dialog.showModal();
 			close.focus({ preventScroll: true });
