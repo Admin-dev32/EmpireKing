@@ -97,35 +97,127 @@ document.addEventListener('DOMContentLoaded', () => {
 		};
 	};
 
-	const renderProductSheet = (html) => {
+	const renderProductSheet = (html, editData = null) => {
 		disposeApf();
 		$(content).empty();
 		content.innerHTML = html;
 		initializeApf();
+
+		const form = content.querySelector('form.cart');
 		const variationForm = content.querySelector('.variations_form');
-		if (!variationForm) return;
-		const button = variationForm.querySelector('.single_add_to_cart_button');
-		if (button) button.disabled = true;
-		$(variationForm).on('show_variation', (variationEvent, variation, purchasable) => {
-			if (button) button.disabled = !purchasable || adding;
-		}).on('hide_variation reset_data', () => { if (button) button.disabled = true; });
-		$(variationForm).wc_variation_form();
+		const button = form?.querySelector('.single_add_to_cart_button');
+
+		if (variationForm) {
+			if (button && !editData) button.disabled = true;
+			$(variationForm).on('show_variation', (variationEvent, variation, purchasable) => {
+				if (button) {
+					button.disabled = !purchasable || adding;
+					if (form?.dataset.cartItemKey) button.textContent = 'Save Changes';
+				}
+			}).on('hide_variation reset_data', () => {
+				if (button) button.disabled = true;
+			});
+			$(variationForm).wc_variation_form();
+		}
+
+		if (editData) {
+			if (form) {
+				form.dataset.cartItemKey = editData.cart_item_key;
+			}
+			if (button) {
+				button.textContent = 'Save Changes';
+				button.disabled = false;
+				button.classList.remove('disabled');
+			}
+
+			// 1. Restore saved quantity
+			if (editData.quantity && form) {
+				const qtyInput = form.querySelector('input.qty, input[name="quantity"]');
+				if (qtyInput) {
+					qtyInput.value = editData.quantity;
+					qtyInput.dispatchEvent(new Event('change', { bubbles: true }));
+					$(qtyInput).trigger('change');
+				}
+			}
+
+			// 2. Restore saved variation attributes
+			if (variationForm && editData.variation) {
+				Object.entries(editData.variation).forEach(([attrName, attrVal]) => {
+					const select = variationForm.querySelector(`select[name="${attrName}"]`);
+					if (select) {
+						select.value = attrVal;
+						select.dispatchEvent(new Event('change', { bubbles: true }));
+						$(select).trigger('change');
+					}
+				});
+				$(variationForm).trigger('check_variations');
+				if (button) {
+					button.textContent = 'Save Changes';
+				}
+			}
+
+			// 3. Restore saved APF modifier options
+			if (editData.wapf && Array.isArray(editData.wapf)) {
+				editData.wapf.forEach((field) => {
+					if (!field.id || field.raw === undefined || field.raw === null) return;
+					const fieldId = field.id;
+					const rawVal = field.raw;
+
+					const inputs = Array.from(content.querySelectorAll(
+						`[data-field-id="${fieldId}"], [name="wapf[field_${fieldId}]"], [name="wapf[field_${fieldId}][]"]`
+					));
+
+					inputs.forEach((input) => {
+						const tag = input.tagName.toLowerCase();
+						const type = input.type ? input.type.toLowerCase() : '';
+
+						if (type === 'radio') {
+							if (input.value === String(rawVal)) {
+								input.checked = true;
+								input.dispatchEvent(new Event('change', { bubbles: true }));
+								$(input).trigger('change');
+							}
+						} else if (type === 'checkbox') {
+							const isChecked = Array.isArray(rawVal)
+								? rawVal.map(String).includes(input.value)
+								: (String(rawVal) === input.value || rawVal === true || rawVal === 'yes' || rawVal === '1');
+							input.checked = isChecked;
+							if (isChecked) {
+								input.dispatchEvent(new Event('change', { bubbles: true }));
+								$(input).trigger('change');
+							}
+						} else if (tag === 'select') {
+							input.value = String(rawVal);
+							input.dispatchEvent(new Event('change', { bubbles: true }));
+							$(input).trigger('change');
+						} else if (tag === 'textarea' || type === 'text' || type === 'number') {
+							input.value = String(rawVal);
+							input.dispatchEvent(new Event('input', { bubbles: true }));
+							input.dispatchEvent(new Event('change', { bubbles: true }));
+							$(input).trigger('change');
+						}
+					});
+				});
+			}
+		}
 	};
 
-	const makePreview = (link) => {
-		const card = link.closest('[data-order-now-product]');
+	const makePreview = (trigger) => {
+		const card = trigger.closest('[data-order-now-product], .ek-cart-card');
 		const preview = document.createElement('div');
 		preview.className = 'product ek-order-now__sheet-product ek-order-now__sheet-preview';
-		const image = card?.querySelector('.ek-order-now__product-image')?.cloneNode(true);
-		if (image) {
-			image.classList.add('ek-order-now__sheet-image');
-			preview.append(image);
+		const imgEl = card?.querySelector('.ek-order-now__product-image img, .ek-cart-card__image img');
+		if (imgEl) {
+			const imageContainer = document.createElement('div');
+			imageContainer.className = 'ek-order-now__sheet-image';
+			imageContainer.append(imgEl.cloneNode(true));
+			preview.append(imageContainer);
 		}
 		const title = document.createElement('h2');
 		title.id = 'order-now-product-title';
-		title.textContent = link.textContent.trim();
+		title.textContent = card?.querySelector('.ek-cart-card__title, [data-order-now-open]')?.textContent.trim() || trigger.textContent.trim();
 		preview.append(title);
-		const price = card?.querySelector('.ek-order-now__product-price');
+		const price = card?.querySelector('.ek-order-now__product-price, .ek-cart-card__price');
 		if (price) preview.append(price.cloneNode(true));
 		const description = card?.querySelector('.ek-order-now__product-description');
 		if (description) {
@@ -141,46 +233,60 @@ document.addEventListener('DOMContentLoaded', () => {
 		return preview;
 	};
 
-	document.querySelectorAll('[data-order-now-open]').forEach((link) => {
-		link.setAttribute('aria-haspopup', 'dialog');
-		link.addEventListener('click', async (event) => {
-			if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
-			event.preventDefault();
-			if (sheet.open) return;
-			opener = link;
-			feedback.textContent = '';
-			content.replaceChildren(makePreview(link));
-			scrollPosition = { x: window.scrollX, y: window.scrollY };
-			document.documentElement.style.setProperty('--ek-order-scroll-y', `-${scrollPosition.y}px`);
-			document.documentElement.classList.add('ek-order-sheet-open');
-			sheet.showModal();
-			sheet.scrollTop = 0;
-			closeButton.focus({ preventScroll: true });
-			const productId = link.dataset.orderNowOpen;
-			if (productSheets.has(productId)) {
-				renderProductSheet(productSheets.get(productId));
-				return;
-			}
-			loadRequest?.abort();
-			const request = new AbortController();
-			loadRequest = request;
-			const timeout = window.setTimeout(() => request.abort(), 15000);
-			try {
-				const url = new URL(config.sheetUrl, window.location.href);
-				url.searchParams.set('product_id', productId);
-				const response = await fetch(url, { signal: request.signal, credentials: 'same-origin' });
-				const result = await response.json();
-				if (!response.ok || !result.success) throw new Error('Product unavailable');
-				if (!sheet.open || loadRequest !== request) return;
+	const openProductSheet = async (trigger) => {
+		if (sheet.open) return;
+		opener = trigger;
+		feedback.textContent = '';
+		content.replaceChildren(makePreview(trigger));
+		scrollPosition = { x: window.scrollX, y: window.scrollY };
+		document.documentElement.style.setProperty('--ek-order-scroll-y', `-${scrollPosition.y}px`);
+		document.documentElement.classList.add('ek-order-sheet-open');
+		sheet.showModal();
+		sheet.scrollTop = 0;
+		closeButton.focus({ preventScroll: true });
+
+		const productId = trigger.dataset.orderNowOpen || trigger.dataset.productId;
+		const cartItemKey = trigger.dataset.cartEditItem || null;
+
+		if (!cartItemKey && productSheets.has(productId)) {
+			renderProductSheet(productSheets.get(productId));
+			return;
+		}
+
+		loadRequest?.abort();
+		const request = new AbortController();
+		loadRequest = request;
+		const timeout = window.setTimeout(() => request.abort(), 15000);
+		try {
+			const url = new URL(config.sheetUrl, window.location.href);
+			if (productId) url.searchParams.set('product_id', productId);
+			if (cartItemKey) url.searchParams.set('cart_item_key', cartItemKey);
+			const response = await fetch(url, { signal: request.signal, credentials: 'same-origin' });
+			const result = await response.json();
+			if (!response.ok || !result.success) throw new Error('Product unavailable');
+			if (!sheet.open || loadRequest !== request) return;
+			if (!cartItemKey) {
 				productSheets.set(productId, result.data.html);
-				renderProductSheet(result.data.html);
-			} catch (error) {
-				if (sheet.open && loadRequest === request) feedback.textContent = 'Product details could not be loaded. Close and try again.';
-			} finally {
-				window.clearTimeout(timeout);
-				if (loadRequest === request) loadRequest = null;
 			}
-		});
+			renderProductSheet(result.data.html, result.data.edit_data || null);
+		} catch (error) {
+			if (sheet.open && loadRequest === request) feedback.textContent = 'Product details could not be loaded. Close and try again.';
+		} finally {
+			window.clearTimeout(timeout);
+			if (loadRequest === request) loadRequest = null;
+		}
+	};
+
+	document.querySelectorAll('[data-order-now-open], [data-cart-edit-item]').forEach((el) => {
+		el.setAttribute('aria-haspopup', 'dialog');
+	});
+
+	document.addEventListener('click', (event) => {
+		if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+		const trigger = event.target.closest('[data-order-now-open], [data-cart-edit-item]');
+		if (!trigger) return;
+		event.preventDefault();
+		openProductSheet(trigger);
 	});
 
 	sheet.addEventListener('submit', async (event) => {
@@ -191,24 +297,50 @@ document.addEventListener('DOMContentLoaded', () => {
 		const button = form.querySelector('.single_add_to_cart_button');
 		const data = new FormData(form);
 		const variable = form.classList.contains('variations_form');
-		const productId = variable ? Number(data.get('variation_id')) : Number(form.closest('[data-product-id]').dataset.productId);
+		const parentId = Number(form.closest('[data-product-id]')?.dataset.productId || 0);
+		const variationId = variable ? Number(data.get('variation_id') || 0) : 0;
+		const productId = variable ? variationId : parentId;
+
 		if (!productId || !button || button.disabled || button.classList.contains('disabled') || !form.reportValidity()) {
 			feedback.textContent = 'Please choose the available product options before adding to cart.';
 			return;
 		}
+
 		data.delete('add-to-cart');
-		data.set('product_id', String(productId));
+		data.set('product_id', String(parentId || productId));
+		if (variable && variationId) {
+			data.set('variation_id', String(variationId));
+		}
+
+		const isEdit = Boolean(form.dataset.cartItemKey);
+		if (isEdit) {
+			data.set('cart_item_key', form.dataset.cartItemKey);
+			if (config.editNonce) {
+				data.set('security', config.editNonce);
+			}
+		}
+
 		adding = true;
 		button.disabled = true;
 		button.classList.add('is-busy');
-		button.setAttribute('aria-label', 'Adding to cart');
+		button.setAttribute('aria-label', isEdit ? 'Saving changes' : 'Adding to cart');
 		form.setAttribute('aria-busy', 'true');
 		const controller = new AbortController();
 		addRequest = controller;
 		const timeout = window.setTimeout(() => controller.abort(), 20000);
 		try {
-			const response = await fetch(config.cartUrl, { method: 'POST', body: data, credentials: 'same-origin', signal: controller.signal });
+			const targetUrl = isEdit ? config.editCartUrl : config.cartUrl;
+			const response = await fetch(targetUrl, { method: 'POST', body: data, credentials: 'same-origin', signal: controller.signal });
 			const result = await response.json();
+
+			if (isEdit) {
+				if (!response.ok || !result.success) {
+					throw new Error(result.data?.message || 'Could not update item.');
+				}
+				window.location.reload();
+				return;
+			}
+
 			if (!response.ok || result.error || !result.fragments) throw new Error('Cart rejected');
 			$(document.body).trigger('added_to_cart', [result.fragments, result.cart_hash]);
 			updateCartLabel();
@@ -223,7 +355,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				successTimer = window.setTimeout(closeSheet, 1900);
 			}
 		} catch (error) {
-			if (sheet.open && content.contains(form)) feedback.textContent = 'Could not add this item. Availability or quantity may have changed.';
+			if (sheet.open && content.contains(form)) {
+				feedback.textContent = error.message || (isEdit ? 'Could not update this item.' : 'Could not add this item. Availability or quantity may have changed.');
+			}
 		} finally {
 			window.clearTimeout(timeout);
 			if (addRequest === controller) addRequest = null;
@@ -236,4 +370,16 @@ document.addEventListener('DOMContentLoaded', () => {
 			if (currentVariationForm) $(currentVariationForm).trigger('check_variations');
 		}
 	});
+
+	// Auto-open product customization sheet when directed to /order-now/?product_id=ID
+	const searchParams = new URLSearchParams(window.location.search);
+	const autoProductId = searchParams.get('product_id');
+	if (autoProductId) {
+		const autoTrigger = document.querySelector(`[data-order-now-open="${autoProductId}"]`);
+		if (autoTrigger) {
+			window.setTimeout(() => {
+				autoTrigger.click();
+			}, 100);
+		}
+	}
 });
