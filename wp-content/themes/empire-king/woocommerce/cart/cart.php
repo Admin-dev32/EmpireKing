@@ -69,24 +69,22 @@ do_action( 'woocommerce_before_cart' ); ?>
 								<div class="ek-cart-card__image">
 									<?php
 									$thumbnail = apply_filters( 'woocommerce_cart_item_thumbnail', $_product->get_image(), $cart_item, $cart_item_key );
-									if ( ! $product_permalink ) {
-										echo $thumbnail; // PHPCS: XSS ok.
-									} else {
-										printf( '<a href="%s" tabindex="-1" aria-hidden="true">%s</a>', esc_url( $product_permalink ), $thumbnail ); // PHPCS: XSS ok.
-									}
+									printf(
+										'<button type="button" class="ek-cart-card__edit-trigger ek-cart-card__edit-trigger--image" data-cart-edit-item="%s" data-product-id="%s" aria-label="%s">%s</button>',
+										esc_attr( $cart_item_key ),
+										esc_attr( $product_id ),
+										esc_attr( sprintf( __( 'Customize %s', 'empire-king' ), wp_strip_all_tags( $product_name ) ) ),
+										$thumbnail
+									);
 									?>
 								</div>
 
 								<div class="ek-cart-card__body">
 									<div class="ek-cart-card__header">
 										<h2 class="ek-cart-card__title product-name">
-											<?php
-											if ( ! $product_permalink ) {
-												echo wp_kses_post( $product_name );
-											} else {
-												printf( '<a href="%s">%s</a>', esc_url( $product_permalink ), wp_kses_post( $product_name ) );
-											}
-											?>
+											<button type="button" class="ek-cart-card__edit-trigger ek-cart-card__edit-trigger--title" data-cart-edit-item="<?php echo esc_attr( $cart_item_key ); ?>" data-product-id="<?php echo esc_attr( $product_id ); ?>">
+												<?php echo wp_kses_post( $product_name ); ?>
+											</button>
 										</h2>
 
 										<div class="ek-cart-card__price product-subtotal" data-title="<?php esc_attr_e( 'Subtotal', 'woocommerce' ); ?>">
@@ -217,3 +215,8 @@ do_action( 'woocommerce_before_cart' ); ?>
 </div>
 
 <?php do_action( 'woocommerce_after_cart' ); ?>
+
+<?php
+// Shared product customization sheet for editing cart line items.
+get_template_part( 'template-parts/product-sheet' );
+?>
