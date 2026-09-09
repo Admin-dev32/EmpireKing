@@ -1,3 +1,7 @@
+.ek-order-upsell-open {
+	overflow: hidden;
+}
+
 .ek-order-upsell {
 	width: min(960px, calc(100% - 32px));
 	max-height: min(820px, calc(100dvh - 32px));
