@@ -71,7 +71,7 @@ function empire_king_enqueue_styles() {
 		wp_enqueue_style( 'empire-king-deals', get_theme_file_uri( 'assets/css/deals.css' ), array( 'empire-king-style' ), wp_get_theme()->get( 'Version' ) );
 		wp_enqueue_script( 'empire-king-deals-landing', get_theme_file_uri( 'assets/js/deals-landing.js' ), array(), wp_get_theme()->get( 'Version' ), array( 'in_footer' => true, 'strategy' => 'defer' ) );
 	}
-	if ( is_page( 'order-now' ) ) {
+	if ( is_page( 'order-now' ) || is_cart() ) {
 		wp_enqueue_style( 'empire-king-order-now', get_theme_file_uri( 'assets/css/order-now.css' ), array( 'empire-king-style', 'empire-king-header' ), wp_get_theme()->get( 'Version' ) );
 		$order_dependencies = class_exists( 'WooCommerce' ) ? array( 'jquery', 'wc-add-to-cart', 'wc-add-to-cart-variation', 'wc-cart-fragments' ) : array();
 		if ( class_exists( '\SW_WAPF\Includes\Classes\Woocommerce_Service' ) ) {
@@ -79,11 +79,21 @@ function empire_king_enqueue_styles() {
 		}
 		wp_enqueue_script( 'empire-king-order-now', get_theme_file_uri( 'assets/js/order-now.js' ), $order_dependencies, wp_get_theme()->get( 'Version' ), array( 'in_footer' => true, 'strategy' => 'defer' ) );
 		if ( class_exists( 'WC_AJAX' ) ) {
-			wp_localize_script( 'empire-king-order-now', 'empireKingOrderNow', array( 'sheetUrl' => WC_AJAX::get_endpoint( 'empire_king_product_sheet' ), 'cartUrl' => WC_AJAX::get_endpoint( 'add_to_cart' ) ) );
+			wp_localize_script(
+				'empire-king-order-now',
+				'empireKingOrderNow',
+				array(
+					'sheetUrl'    => WC_AJAX::get_endpoint( 'empire_king_product_sheet' ),
+					'cartUrl'     => WC_AJAX::get_endpoint( 'add_to_cart' ),
+					'editCartUrl' => WC_AJAX::get_endpoint( 'empire_king_edit_cart_item' ),
+					'editNonce'   => wp_create_nonce( 'empire_king_edit_cart_item' ),
+					'isCart'      => is_cart(),
+				)
+			);
 		}
 	}
 	if ( is_cart() ) {
-		wp_enqueue_style( 'empire-king-cart', get_theme_file_uri( 'assets/css/cart.css' ), array( 'empire-king-style', 'empire-king-header' ), wp_get_theme()->get( 'Version' ) );
+		wp_enqueue_style( 'empire-king-cart', get_theme_file_uri( 'assets/css/cart.css' ), array( 'empire-king-style', 'empire-king-header', 'empire-king-order-now' ), wp_get_theme()->get( 'Version' ) );
 	}
 	if ( function_exists( 'is_checkout' ) && is_checkout() && ! is_wc_endpoint_url() ) {
 		wp_enqueue_style( 'empire-king-checkout', get_theme_file_uri( 'assets/css/checkout.css' ), array( 'empire-king-style', 'empire-king-header' ), wp_get_theme()->get( 'Version' ) );
@@ -150,7 +160,7 @@ add_action( 'wp_enqueue_scripts', 'empire_king_enqueue_styles' );
 
 // APF normally supplies these settings only on canonical product pages.
 add_action( 'wp_enqueue_scripts', static function () {
-	if ( is_page( 'order-now' ) && wp_script_is( 'wapf-frontend-js', 'enqueued' ) && class_exists( '\SW_WAPF\Includes\Classes\Woocommerce_Service' ) ) {
+	if ( ( is_page( 'order-now' ) || is_cart() ) && wp_script_is( 'wapf-frontend-js', 'enqueued' ) && class_exists( '\SW_WAPF\Includes\Classes\Woocommerce_Service' ) ) {
 		wp_localize_script( 'wapf-frontend-js', 'wapf_config', array(
 			'page_type' => 'product',
 			'display_options' => \SW_WAPF\Includes\Classes\Woocommerce_Service::get_price_display_options(),
