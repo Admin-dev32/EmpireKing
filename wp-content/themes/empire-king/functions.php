@@ -113,6 +113,9 @@ function empire_king_enqueue_styles() {
 	if ( function_exists( 'is_checkout' ) && is_checkout() && ! is_wc_endpoint_url() ) {
 		wp_enqueue_style( 'empire-king-checkout', get_theme_file_uri( 'assets/css/checkout.css' ), array( 'empire-king-style', 'empire-king-header' ), wp_get_theme()->get( 'Version' ) );
 	}
+	if ( function_exists( 'is_order_received_page' ) && is_order_received_page() ) {
+		wp_enqueue_style( 'empire-king-order-received', get_theme_file_uri( 'assets/css/order-received.css' ), array( 'empire-king-style', 'empire-king-header' ), wp_get_theme()->get( 'Version' ) );
+	}
 	if ( is_singular( 'post' ) || is_page( 'deals' ) ) {
 		empire_king_enqueue_order_gateway_assets( array( 'empire-king-style' ) );
 	}
@@ -663,3 +666,48 @@ function empire_king_checkout_billing_address_label( $fields ) {
 }
 add_filter( 'woocommerce_checkout_fields', 'empire_king_checkout_billing_address_label', 20 );
 add_filter( 'woocommerce_billing_fields', 'empire_king_checkout_billing_address_label', 20 );
+
+/**
+ * Refines the Order Received success hero message with an authoritative confirmed eyebrow
+ * and prominent title for the digital receipt header.
+ *
+ * Failed orders are strictly bypassed so they never display confirmed status or success styling.
+ *
+ * @param string         $text  The default order received message text.
+ * @param WC_Order|false $order The order object, or false if not available.
+ * @return string Filtered hero HTML markup.
+ */
+function empire_king_order_received_hero_text( $text, $order ) {
+	if ( ! $order || ( method_exists( $order, 'has_status' ) && $order->has_status( 'failed' ) ) ) {
+		return $text;
+	}
+
+	return '<span class="ek-order-received__eyebrow">' . esc_html__( 'Order Confirmed', 'empire-king' ) . '</span>'
+		. '<span class="ek-order-received__title">' . esc_html__( 'Order Received', 'empire-king' ) . '</span>'
+		. '<span class="ek-order-received__subcopy">' . $text . '</span>';
+}
+add_filter( 'woocommerce_thankyou_order_received_text', 'empire_king_order_received_hero_text', 10, 2 );
+
+/**
+ * Reorders Order Received totals so Total is the authoritative final line,
+ * and wraps the amount in a distinctive receipt total hook class.
+ *
+ * @param array    $total_rows Array of order total rows.
+ * @param WC_Order $order      Order instance.
+ * @return array Modified totals rows.
+ */
+function empire_king_order_received_totals_reorder( $total_rows, $order ) {
+	if ( ! function_exists( 'is_order_received_page' ) || ! is_order_received_page() ) {
+		return $total_rows;
+	}
+
+	if ( isset( $total_rows['order_total'] ) ) {
+		$total_row = $total_rows['order_total'];
+		$total_row['value'] = '<span class="ek-receipt-total-amount">' . $total_row['value'] . '</span>';
+		unset( $total_rows['order_total'] );
+		$total_rows['order_total'] = $total_row;
+	}
+
+	return $total_rows;
+}
+add_filter( 'woocommerce_get_order_item_totals', 'empire_king_order_received_totals_reorder', 20, 2 );
