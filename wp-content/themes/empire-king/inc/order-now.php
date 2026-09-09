@@ -19,6 +19,24 @@ function empire_king_order_now_background() {
 /** Public read-only presentation endpoint, limited to published menu products. */
 function empire_king_order_now_product_sheet() {
 	$product_id = isset( $_GET['product_id'] ) ? absint( $_GET['product_id'] ) : 0;
+	$cart_item_key = isset( $_GET['cart_item_key'] ) ? sanitize_text_field( wp_unslash( $_GET['cart_item_key'] ) ) : '';
+	$edit_data = null;
+
+	// When opened in edit mode from Review Your Order, retrieve current line configuration
+	if ( $cart_item_key && function_exists( 'WC' ) && WC()->cart ) {
+		$cart_item = WC()->cart->get_cart_item( $cart_item_key );
+		if ( $cart_item ) {
+			$product_id = ! empty( $cart_item['product_id'] ) ? $cart_item['product_id'] : $product_id;
+			$edit_data  = array(
+				'cart_item_key' => $cart_item_key,
+				'quantity'      => isset( $cart_item['quantity'] ) ? $cart_item['quantity'] : 1,
+				'variation_id'  => isset( $cart_item['variation_id'] ) ? $cart_item['variation_id'] : 0,
+				'variation'     => isset( $cart_item['variation'] ) && is_array( $cart_item['variation'] ) ? $cart_item['variation'] : array(),
+				'wapf'          => isset( $cart_item['wapf'] ) && is_array( $cart_item['wapf'] ) ? $cart_item['wapf'] : array(),
+			);
+		}
+	}
+
 	$selected_product = wc_get_product( $product_id );
 	if ( ! $selected_product || 'publish' !== $selected_product->get_status() || ! $selected_product->is_visible() || ! $selected_product->is_type( array( 'simple', 'variable' ) ) ) {
 		wp_send_json_error( array( 'message' => __( 'This item is not available here right now.', 'empire-king' ) ), 404 );
@@ -49,9 +67,121 @@ function empire_king_order_now_product_sheet() {
 	$html = ob_get_clean();
 	$product = $previous_product;
 	$post = $previous_post;
-	wp_send_json_success( array( 'html' => $html ) );
+
+	$response_data = array( 'html' => $html );
+	if ( $edit_data ) {
+		$response_data['edit_data'] = $edit_data;
+	}
+	wp_send_json_success( $response_data );
 }
 add_action( 'wc_ajax_empire_king_product_sheet', 'empire_king_order_now_product_sheet' );
+
+/**
+ * Safely updates an existing cart item with modified variations, APF add-ons, or quantity.
+ *
+ * Order integrity guarantee:
+ * 1. Validates nonces and checks that the targeted cart item exists in the current session.
+ * 2. Tests the replacement configuration against native WooCommerce & APF validation hooks.
+ * 3. Retains an in-memory snapshot of the cart prior to removing the old item, preventing
+ *    duplicate cart lines while ensuring zero-loss rollback if the replacement fails.
+ * 4. Adds the validated replacement through native WC()->cart->add_to_cart(), ensuring APF's
+ *    hooks attach add-on metadata and calculate prices authoritatively.
+ * 5. Recalculates authoritative totals and responds with redirect to refresh the cart.
+ */
+function empire_king_ajax_edit_cart_item() {
+	check_ajax_referer( 'empire_king_edit_cart_item', 'security' );
+
+	$cart = function_exists( 'WC' ) && WC()->cart ? WC()->cart : null;
+	if ( ! $cart ) {
+		wp_send_json_error( array( 'message' => __( 'Cart unavailable.', 'empire-king' ) ), 400 );
+	}
+
+	$cart_item_key = isset( $_POST['cart_item_key'] ) ? sanitize_text_field( wp_unslash( $_POST['cart_item_key'] ) ) : '';
+	$original_item = $cart->get_cart_item( $cart_item_key );
+	if ( ! $original_item ) {
+		wp_send_json_error( array( 'message' => __( 'This item is no longer in your cart.', 'empire-king' ) ), 404 );
+	}
+
+	$product_id   = isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ) : $original_item['product_id'];
+	$quantity     = isset( $_POST['quantity'] ) ? wc_stock_amount( wp_unslash( $_POST['quantity'] ) ) : $original_item['quantity'];
+	$variation_id = isset( $_POST['variation_id'] ) ? absint( $_POST['variation_id'] ) : $original_item['variation_id'];
+	$variations   = array();
+
+	foreach ( $_POST as $key => $value ) {
+		if ( 0 === strpos( $key, 'attribute_' ) ) {
+			$variations[ sanitize_text_field( $key ) ] = wp_unslash( $value );
+		}
+	}
+
+	// Clear previous notices to isolate errors from this validation pass
+	wc_clear_notices();
+
+	// Validate the replacement item with WooCommerce and APF filters
+	$passed_validation = apply_filters( 'woocommerce_add_to_cart_validation', true, $product_id, $quantity, $variation_id, $variations );
+
+	if ( ! $passed_validation ) {
+		$notices = wc_get_notices( 'error' );
+		$message = ! empty( $notices ) ? wp_strip_all_tags( $notices[0]['notice'] ) : __( 'Could not validate your product options.', 'empire-king' );
+		wc_clear_notices();
+		wp_send_json_error( array( 'message' => $message ) );
+	}
+
+	// Rollback snapshot: preserve entire cart contents in case add_to_cart fails
+	$cart_snapshot = $cart->cart_contents;
+
+	// Unset old line item before adding replacement to ensure only ONE line remains
+	unset( $cart->cart_contents[ $cart_item_key ] );
+
+	// Native add_to_cart triggers APF's woocommerce_add_cart_item_data to parse $_REQUEST['wapf']
+	$new_cart_item_key = $cart->add_to_cart( $product_id, $quantity, $variation_id, $variations );
+
+	if ( ! $new_cart_item_key ) {
+		// Rollback: restore previous cart contents intact
+		$cart->cart_contents = $cart_snapshot;
+		$cart->calculate_totals();
+		$notices = wc_get_notices( 'error' );
+		$message = ! empty( $notices ) ? wp_strip_all_tags( $notices[0]['notice'] ) : __( 'Could not update item. Original item has been preserved.', 'empire-king' );
+		wc_clear_notices();
+		wp_send_json_error( array( 'message' => $message ) );
+	}
+
+	// Authoritatively calculate totals and persist session
+	$cart->calculate_totals();
+	WC()->session->set( 'cart', $cart->get_cart_for_session() );
+
+	wc_add_notice( __( 'Cart updated.', 'woocommerce' ), 'success' );
+
+	wp_send_json_success( array(
+		'message'           => __( 'Cart updated.', 'empire-king' ),
+		'new_cart_item_key' => $new_cart_item_key,
+		'redirect'          => wc_get_cart_url(),
+	) );
+}
+add_action( 'wc_ajax_empire_king_edit_cart_item', 'empire_king_ajax_edit_cart_item' );
+
+/**
+ * Redirect direct visits from generic WooCommerce single-product pages to the
+ * interactive transactional menu on /order-now/, preserving the product ID so the
+ * menu sheet can automatically open that item for customization.
+ *
+ * Uses a temporary 302 redirect for development. Avoids admin product editing,
+ * AJAX requests, REST API, cron, and redirect loops.
+ */
+function empire_king_redirect_single_product_pages() {
+	if ( is_admin() || wp_doing_ajax() || wp_doing_cron() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
+		return;
+	}
+	if ( function_exists( 'is_product' ) && is_product() ) {
+		$product_id = get_queried_object_id();
+		$target_url = home_url( '/order-now/' );
+		if ( $product_id ) {
+			$target_url = add_query_arg( 'product_id', $product_id, $target_url );
+		}
+		wp_safe_redirect( $target_url, 302 );
+		exit;
+	}
+}
+add_action( 'template_redirect', 'empire_king_redirect_single_product_pages' );
 
 /** Render the page-local Woo checkout bar from the authoritative cart session. */
 function empire_king_order_now_checkout_bar() {
