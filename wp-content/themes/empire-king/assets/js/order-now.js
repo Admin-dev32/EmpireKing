@@ -307,12 +307,13 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		data.delete('add-to-cart');
-		data.set('product_id', String(parentId || productId));
+		const isEdit = Boolean(form.dataset.cartItemKey);
+		// Woo's add_to_cart resolves a variable product only when product_id is its selected variation ID.
+		data.set('product_id', String(isEdit ? parentId : productId));
 		if (variable && variationId) {
 			data.set('variation_id', String(variationId));
 		}
 
-		const isEdit = Boolean(form.dataset.cartItemKey);
 		if (isEdit) {
 			data.set('cart_item_key', form.dataset.cartItemKey);
 			if (config.editNonce) {
