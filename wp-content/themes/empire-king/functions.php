@@ -687,27 +687,3 @@ function empire_king_order_received_hero_text( $text, $order ) {
 		. '<span class="ek-order-received__subcopy">' . $text . '</span>';
 }
 add_filter( 'woocommerce_thankyou_order_received_text', 'empire_king_order_received_hero_text', 10, 2 );
-
-/**
- * Reorders Order Received totals so Total is the authoritative final line,
- * and wraps the amount in a distinctive receipt total hook class.
- *
- * @param array    $total_rows Array of order total rows.
- * @param WC_Order $order      Order instance.
- * @return array Modified totals rows.
- */
-function empire_king_order_received_totals_reorder( $total_rows, $order ) {
-	if ( ! function_exists( 'is_order_received_page' ) || ! is_order_received_page() ) {
-		return $total_rows;
-	}
-
-	if ( isset( $total_rows['order_total'] ) ) {
-		$total_row = $total_rows['order_total'];
-		$total_row['value'] = '<span class="ek-receipt-total-amount">' . $total_row['value'] . '</span>';
-		unset( $total_rows['order_total'] );
-		$total_rows['order_total'] = $total_row;
-	}
-
-	return $total_rows;
-}
-add_filter( 'woocommerce_get_order_item_totals', 'empire_king_order_received_totals_reorder', 20, 2 );
