@@ -117,3 +117,40 @@ add_filter( 'woocommerce_return_to_shop_text', static function ( $text ) {
 
 /** Keep product title clean on variable items and let WooCommerce render variation attributes in cart item metadata. */
 add_filter( 'woocommerce_product_variation_title_include_attributes', '__return_false' );
+
+/** Base checkout intro; classic shortcode continues to own all checkout output. */
+add_filter( 'the_content', static function ( $content ) {
+	if ( ! function_exists( 'is_checkout' ) || ! is_checkout() || is_wc_endpoint_url() || ! in_the_loop() || ! is_main_query() ) {
+		return $content;
+	}
+	$cart_url = function_exists( 'wc_get_cart_url' ) ? wc_get_cart_url() : home_url( '/cart/' );
+	$intro = '<div class="ek-checkout-page__intro">'
+		. '<a class="ek-checkout-page__back-link" href="' . esc_url( $cart_url ) . '">' . esc_html__( 'Back to Review Order', 'empire-king' ) . '</a>'
+		. '<h1>' . esc_html__( 'Checkout', 'empire-king' ) . '</h1>'
+		. '</div>';
+	return $intro . $content;
+}, 20 );
+
+/** Distinct body class for base checkout page to scope styling away from endpoints. */
+add_filter( 'body_class', static function ( $classes ) {
+	if ( function_exists( 'is_checkout' ) && is_checkout() && ! is_wc_endpoint_url() ) {
+		$classes[] = 'ek-base-checkout';
+	}
+	return $classes;
+} );
+
+/** Wrap order review heading and order review container into a unified column for layout and sticky positioning. */
+add_action( 'woocommerce_checkout_before_order_review_heading', static function () {
+	echo '<div class="ek-checkout-summary-col">';
+}, 5 );
+add_action( 'woocommerce_checkout_after_order_review', static function () {
+	echo '</div>';
+}, 50 );
+
+/** Use 'Order Summary' heading on base checkout to match Review Order terminology. */
+add_filter( 'gettext', static function ( $translation, $text, $domain ) {
+	if ( 'woocommerce' === $domain && 'Your order' === $text && function_exists( 'is_checkout' ) && is_checkout() && ! is_wc_endpoint_url() ) {
+		return __( 'Order Summary', 'empire-king' );
+	}
+	return $translation;
+}, 10, 3 );
