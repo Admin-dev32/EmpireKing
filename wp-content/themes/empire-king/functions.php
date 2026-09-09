@@ -617,3 +617,24 @@ function empire_king_render_primary_navigation( $menu_class ) {
 		)
 	);
 }
+
+/**
+ * Changes the visible label for billing_address_1 on checkout to "Billing address".
+ *
+ * Preserves the actual field key, required state, autocomplete, validation,
+ * country/state relationships, checkout AJAX, and gateway compatibility.
+ *
+ * @param array<string, mixed> $fields Checkout or billing fields.
+ * @return array<string, mixed>
+ */
+function empire_king_checkout_billing_address_label( $fields ) {
+	if ( isset( $fields['billing']['billing_address_1'] ) ) {
+		$fields['billing']['billing_address_1']['label'] = esc_html__( 'Billing address', 'empire-king' );
+	}
+	if ( isset( $fields['billing_address_1'] ) ) {
+		$fields['billing_address_1']['label'] = esc_html__( 'Billing address', 'empire-king' );
+	}
+	return $fields;
+}
+add_filter( 'woocommerce_checkout_fields', 'empire_king_checkout_billing_address_label', 20 );
+add_filter( 'woocommerce_billing_fields', 'empire_king_checkout_billing_address_label', 20 );

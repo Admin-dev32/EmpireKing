@@ -188,7 +188,7 @@ do_action( 'woocommerce_before_cart' ); ?>
 						</details>
 					<?php } ?>
 
-					<button type="submit" class="button ek-cart-update-btn" name="update_cart" value="<?php esc_attr_e( 'Update cart', 'woocommerce' ); ?>" disabled aria-disabled="true"><?php esc_html_e( 'Update Cart', 'empire-king' ); ?></button>
+					<button type="submit" class="button ek-cart-update-btn" name="update_cart" value="<?php esc_attr_e( 'Update cart', 'woocommerce' ); ?>" disabled><?php esc_html_e( 'Update Cart', 'empire-king' ); ?></button>
 
 					<?php do_action( 'woocommerce_cart_actions' ); ?>
 
