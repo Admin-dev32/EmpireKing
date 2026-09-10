@@ -2,7 +2,7 @@
   "project": {
     "name": "Empire King Burger",
     "repository": "Admin-dev32/EmpireKing",
-    "phase": "Deals landing-page system implementation"
+    "phase": "Avenue H WordPress/WooCommerce site"
   },
   "sourcesOfTruth": [
     "README.md",
@@ -12,16 +12,17 @@
     "AGENTS.md"
   ],
   "architecture": {
-    "corporateSite": "One shared corporate website",
-    "locationStores": "Two independent WordPress and WooCommerce installations; no WordPress Multisite",
-    "theme": "Reusable Empire King theme shared by the corporate site and location stores",
-    "commerce": "WooCommerce owns product, cart, and checkout behavior on location stores",
+    "currentSite": "Avenue H at empireking3aveh.com",
+    "avenueI": "Independent site at empireking2avei.com",
+    "locationStores": "Avenue H and Avenue I are independent WordPress and WooCommerce installations; no WordPress Multisite",
+    "theme": "Reusable Empire King theme; this repository is the Avenue H implementation",
+    "commerce": "Each site owns its own WooCommerce database, cart, session, orders, payments, and operational tablet",
     "durableBusinessLogic": "empire-king-deals plugin owns private Deal records/categories, scheduling, eligibility, featured selection, and owner access",
-    "futureCorporateRouting": "Shared theme pickup routes and location selector; single-location Deals route directly to their eligible store"
+    "avenueHOrdering": "All Avenue H ordering links route locally to /order-now/; there is no shared Avenue H/Avenue I order selector or cross-store cart/session/order/payment routing"
   },
   "seo": {
     "architectureGate": "completed",
-    "home": "Corporate brand and discovery Home; prototype implementation, not approved final design",
+    "home": "Avenue H brand, ordering, and local-business Home",
     "deals": "/deals/ is the sole permanent indexable Deals landing page; no public Deal singles, category archives, or sitemap entries"
   },
   "localRuntime": {
@@ -43,7 +44,7 @@
   "readOrder": ["package.json", ".wp-env.json", ".gitignore", "README.md", "PROJECT-UPDATES.md"],
   "protectedPaths": ["index.php", "contact.php", "order.php", "visit.php", "includes/", "assets/", "WordPress core", "WooCommerce plugin/core"],
   "scope": {
-    "included": ["shared classic theme", "corporate Home", "shared location ordering UI", "private Deals management plugin and public /deals/ landing page", "local wp-env theme/plugin mapping", "documentation", "focused validation"],
+    "included": ["reusable classic theme", "Avenue H Home", "local Avenue H ordering UI", "private Deals management plugin and public /deals/ landing page", "local wp-env theme/plugin mapping", "documentation", "focused validation"],
     "excluded": ["legacy-site migration", "checkout or payment implementation", "production infrastructure", "Catering"]
   },
   "theme": {
@@ -52,7 +53,7 @@
   },
   "integrations": {
     "woocommerce": { "status": "local development dependency", "version": "11.1.0" },
-    "locationRouting": { "status": "Shared Order Gateway supports Home, Blog, Menu Glimpse, and Deals; verified categories and allowlisted Deals campaign parameters" }
+    "locationRouting": { "status": "Avenue H Order Now links route locally to /order-now/; Deal category targeting and allowlisted campaign parameters are rendered into local URLs" }
   },
   "mediaArchitecture": {
     "staticBrandAssets": "Repository-owned assets when intentionally supplied",

@@ -20,3 +20,5 @@
 - Added a responsive, development-only corporate Home template with structural sections, location-selection guidance, and replaceable media placeholders; no store routing or commerce behavior was added.
 
 - 2026-09-06: Git Live Sync dirty-at-launch acceptance test completed after startup-preflight repair.
+
+- 2026-09-09: Removed the shared H/I order selector and cross-store routing, converted Home/Deals/Blog/order-page UI to direct Avenue H ordering, and separated the Avenue H homepage map loader.

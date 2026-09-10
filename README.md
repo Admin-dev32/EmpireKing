@@ -1,10 +1,12 @@
 # Empire King Burger
 
-Production-oriented WordPress and WooCommerce foundation for Empire King Burger.
+Production-oriented WordPress and WooCommerce site for Empire King Burger — Avenue H.
 
 ## Architecture
 
-The project will have one corporate website and two operationally independent WordPress/WooCommerce location stores. It does not use WordPress Multisite. The reusable classic theme lives at `wp-content/themes/empire-king`; WooCommerce owns store product, cart, and checkout behavior. Durable business logic belongs in a plugin when needed.
+This repository is the Avenue H site at `empireking3aveh.com`. Avenue I runs independently at `empireking2avei.com`; each location has its own WordPress install, WooCommerce store, database, cart/session, orders, payments, and operational tablet. The sites do not use WordPress Multisite or shared commerce state. On Avenue H, ordering routes locally to `/order-now/` with no H/I location selector.
+
+The reusable classic theme lives at `wp-content/themes/empire-king`; WooCommerce owns product, cart, and checkout behavior. Durable business logic belongs in a plugin when needed.
 
 ## Local development
 
@@ -30,4 +32,4 @@ Work on `dev/jorge`; Git Live Sync Watcher manages ordinary checkpoint commits a
 
 The root legacy files (`index.php`, `contact.php`, `order.php`, `visit.php`, `includes/`, and `assets/`) are protected reference code. Catering is explicitly out of scope.
 
-The current phase is a **corporate Home visual-direction prototype**. It establishes responsive structure and hierarchy only; copy, media, routing, and final design approval remain future work.
+The current implementation is the **Avenue H WordPress/WooCommerce site**. Avenue H local-business content and order links remain local to this installation; Avenue I is maintained as a separate site.
