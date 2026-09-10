@@ -530,55 +530,73 @@ function empire_king_get_home_slideshow_images() {
 	return $slides;
 }
 
-/** Gets valid curated background and transparent foreground sequences for Home Menu Glimpse. */
+/** Gets Home Menu Glimpse categories and product imagery from WooCommerce. */
 function empire_king_get_home_menu_glimpse() {
-	$directory  = get_theme_file_path( 'assets/images/home-menu-glimpse' );
-	$folders    = glob( $directory . '/*', GLOB_ONLYDIR );
-	$categories = array();
-	$order_category_map = array(
-		'burgers'      => 'burger',
-		'sandwiches'   => 'sandwich',
-		'fries'        => 'fries',
-		'salads'       => 'salads',
-		'drinks'       => 'drinks',
-		'ice-cream'    => 'ice-cream',
-		'family-packs' => 'family-pack-combos',
+	if ( ! function_exists( 'wc_get_products' ) ) {
+		return array( 'mode' => 'empty', 'categories' => array() );
+	}
+
+	$default_category_id = (int) get_option( 'default_product_cat' );
+	$terms               = get_terms(
+		array(
+			'taxonomy'   => 'product_cat',
+			'hide_empty' => true,
+			'exclude'    => $default_category_id ? array( $default_category_id ) : array(),
+		)
 	);
-	foreach ( false === $folders ? array() : $folders as $folder ) {
-		$key         = sanitize_title( basename( $folder ) );
-		$backgrounds = array_merge(
-			glob( $folder . '/background/*.webp' ) ?: array(),
-			glob( $folder . '/background/*.jpg' ) ?: array(),
-			glob( $folder . '/background/*.jpeg' ) ?: array(),
-			glob( $folder . '/background/*.png' ) ?: array()
-		);
-		$foregrounds = glob( $folder . '/foreground/*.png' );
-		$backgrounds = false === $backgrounds ? array() : array_filter( $backgrounds, 'is_file' );
-		$foregrounds = false === $foregrounds ? array() : array_filter( $foregrounds, 'is_file' );
-		natsort( $backgrounds );
-		natsort( $foregrounds );
-		$foregrounds = array_slice( array_values( $foregrounds ), 0, 3 );
-		if ( ! $key || 1 !== count( $backgrounds ) || ! $foregrounds ) continue;
-		$label = ucwords( str_replace( '-', ' ', $key ) );
+	if ( is_wp_error( $terms ) || ! $terms ) {
+		return array( 'mode' => 'empty', 'categories' => array() );
+	}
+
+	usort(
+		$terms,
+		static function ( $a, $b ) {
+			if ( 'burger' === $a->slug ) return -1;
+			if ( 'burger' === $b->slug ) return 1;
+			return strnatcasecmp( $a->name, $b->name );
+		}
+	);
+
+	$products = wc_get_products(
+		array(
+			'status'  => 'publish',
+			'limit'   => -1,
+			'type'    => array( 'simple', 'variable', 'grouped', 'external' ),
+			'orderby' => 'menu_order',
+			'order'   => 'ASC',
+		)
+	);
+	$images_by_term_id = array();
+	foreach ( $products as $product ) {
+		if ( ! $product->is_visible() || ! $product->get_image_id() ) {
+			continue;
+		}
+		$product_term_ids = wp_get_post_terms( $product->get_id(), 'product_cat', array( 'fields' => 'ids' ) );
+		if ( is_wp_error( $product_term_ids ) ) {
+			continue;
+		}
+		foreach ( $product_term_ids as $term_id ) {
+			if ( isset( $images_by_term_id[ $term_id ] ) && count( $images_by_term_id[ $term_id ] ) >= 3 ) {
+				continue;
+			}
+			$images_by_term_id[ $term_id ][] = array(
+				'id'       => $product->get_id(),
+				'name'     => $product->get_name(),
+				'image_id' => $product->get_image_id(),
+			);
+		}
+	}
+
+	$categories = array();
+	foreach ( $terms as $term ) {
 		$categories[] = array(
-			'key'         => $key,
-			'name'        => $label,
-			'order_category' => isset( $order_category_map[ $key ] ) ? $order_category_map[ $key ] : '',
-			'background'  => get_theme_file_uri( 'assets/images/home-menu-glimpse/' . rawurlencode( basename( $folder ) ) . '/background/' . rawurlencode( basename( reset( $backgrounds ) ) ) ),
-			'foregrounds' => array_map( static function ( $file ) use ( $folder, $label ) {
-				return array( 'url' => get_theme_file_uri( 'assets/images/home-menu-glimpse/' . rawurlencode( basename( $folder ) ) . '/foreground/' . rawurlencode( basename( $file ) ) ), 'alt' => $label . ' food' );
-			}, array_values( $foregrounds ) ),
+			'key'      => $term->slug,
+			'name'     => $term->name,
+			'products' => isset( $images_by_term_id[ $term->term_id ] ) ? $images_by_term_id[ $term->term_id ] : array(),
 		);
 	}
-	$priority = array( 'burgers', 'sandwiches', 'chicken', 'fries', 'salads', 'drinks', 'ice-cream', 'family-packs' );
-	usort( $categories, static function ( $a, $b ) use ( $priority ) {
-		$a_rank = array_search( $a['key'], $priority, true );
-		$b_rank = array_search( $b['key'], $priority, true );
-		$a_rank = false === $a_rank ? count( $priority ) : $a_rank;
-		$b_rank = false === $b_rank ? count( $priority ) : $b_rank;
-		return $a_rank <=> $b_rank ?: strnatcasecmp( $a['name'], $b['name'] );
-	} );
-	return array( 'mode' => $categories ? 'curated' : 'empty', 'categories' => $categories );
+
+	return array( 'mode' => 'catalog', 'categories' => $categories );
 }
 
 /** Gets optional user-supplied media for the Deals landing hero. */
