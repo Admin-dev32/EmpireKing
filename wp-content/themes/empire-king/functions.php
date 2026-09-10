@@ -285,9 +285,9 @@ function empire_king_get_home_stories() {
 }
 
 /**
- * Gets homepage favorites from the same WooCommerce catalog as Order Now.
+ * Gets homepage featured picks from native WooCommerce Featured products.
  *
- * @return array Product categories containing published catalog products.
+ * @return array Product categories containing eligible Featured products.
  */
 function empire_king_get_featured_favorites() {
 	if ( ! function_exists( 'wc_get_products' ) ) {
@@ -318,55 +318,42 @@ function empire_king_get_featured_favorites() {
 	$products = wc_get_products(
 		array(
 			'status'  => 'publish',
+			'featured' => true,
 			'limit'   => -1,
 			'type'    => array( 'simple', 'variable', 'grouped', 'external' ),
 			'orderby' => 'menu_order',
 			'order'   => 'ASC',
 		)
 	);
-	$catalog_products = array();
+	$items_by_term_id = array();
 	foreach ( $products as $product ) {
+		if ( ! $product->is_featured() || ! $product->is_visible() ) {
+			continue;
+		}
 		$product_categories = wp_get_post_terms( $product->get_id(), 'product_cat', array( 'fields' => 'ids' ) );
-		if ( ! is_wp_error( $product_categories ) ) {
-			$catalog_products[] = array(
-				'product'    => $product,
-				'categories' => $product_categories,
+		if ( is_wp_error( $product_categories ) ) {
+			continue;
+		}
+		foreach ( $product_categories as $term_id ) {
+			if ( ! isset( $items_by_term_id[ $term_id ] ) ) {
+				$items_by_term_id[ $term_id ] = array();
+			}
+			$items_by_term_id[ $term_id ][] = array(
+				'id'       => $product->get_id(),
+				'name'     => $product->get_name(),
+				'image_id' => $product->get_image_id(),
 			);
 		}
 	}
 
 	$categories = array();
 	foreach ( $terms as $term ) {
-		$items = array();
-		foreach ( $catalog_products as $catalog_product ) {
-			if ( ! in_array( $term->term_id, $catalog_product['categories'], true ) ) {
-				continue;
-			}
-			$product = $catalog_product['product'];
-			$items[] = array(
-				'id'       => $product->get_id(),
-				'name'     => $product->get_name(),
-				'image_id' => $product->get_image_id(),
-				'featured' => $product->is_featured(),
-			);
-		}
-
-		if ( ! $items ) {
+		if ( empty( $items_by_term_id[ $term->term_id ] ) ) {
 			continue;
 		}
-		$category_image_id = (int) get_term_meta( $term->term_id, 'thumbnail_id', true );
-		if ( ! $category_image_id ) {
-			foreach ( $items as $item ) {
-				if ( $item['image_id'] ) {
-					$category_image_id = $item['image_id'];
-					break;
-				}
-			}
-		}
 		$categories[ $term->slug ] = array(
-			'label'    => $term->name,
-			'image_id' => $category_image_id,
-			'items'    => $items,
+			'label' => $term->name,
+			'items' => $items_by_term_id[ $term->term_id ],
 		);
 	}
 

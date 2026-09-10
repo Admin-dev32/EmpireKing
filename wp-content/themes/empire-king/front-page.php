@@ -64,13 +64,10 @@ $home_menu_glimpse        = empire_king_get_home_menu_glimpse();
 <?php $featured_categories = empire_king_get_featured_favorites(); ?>
 <?php if ( $featured_categories ) : ?>
 <section id="favorites" class="featured-favorites" aria-labelledby="favorites-title">
-	<h2 id="favorites-title">Featured Favorites</h2>
+	<h2 id="favorites-title">Featured Picks</h2>
 	<div class="featured-favorites__categories" role="group" aria-label="Featured categories">
 		<?php foreach ( $featured_categories as $key => $category ) : ?>
 			<button class="featured-favorites__category" type="button" data-featured-category="<?php echo esc_attr( $key ); ?>" aria-pressed="<?php echo array_key_first( $featured_categories ) === $key ? 'true' : 'false'; ?>" aria-controls="favorites-products">
-				<span class="featured-favorites__thumbnail" aria-hidden="true">
-					<?php echo $category['image_id'] ? wp_get_attachment_image( $category['image_id'], 'woocommerce_thumbnail', false, array( 'alt' => '', 'loading' => 'lazy', 'decoding' => 'async' ) ) : wc_placeholder_img( 'woocommerce_thumbnail', array( 'alt' => '', 'loading' => 'lazy', 'decoding' => 'async' ) ); ?>
-				</span>
 				<span><?php echo esc_html( $category['label'] ); ?></span>
 			</button>
 		<?php endforeach; ?>
@@ -84,9 +81,7 @@ $home_menu_glimpse        = empire_king_get_home_menu_glimpse();
 						<div class="featured-favorites__image">
 							<?php echo $item['image_id'] ? wp_get_attachment_image( $item['image_id'], 'woocommerce_thumbnail', false, array( 'alt' => $item['name'], 'loading' => 'lazy', 'decoding' => 'async' ) ) : wc_placeholder_img( 'woocommerce_thumbnail', array( 'alt' => $item['name'], 'loading' => 'lazy', 'decoding' => 'async' ) ); ?>
 						</div>
-						<?php if ( $item['featured'] ) : ?>
-							<span class="featured-favorites__tag">Featured</span>
-						<?php endif; ?>
+						<span class="featured-favorites__tag">Featured</span>
 						<h3><?php echo esc_html( $item['name'] ); ?></h3>
 						<a class="featured-favorites__order" href="<?php echo esc_url( add_query_arg( 'product_id', $item['id'], home_url( '/order-now/' ) ) ); ?>">Order Now</a>
 					</article>
