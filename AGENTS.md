@@ -23,4 +23,4 @@ Use `npm run env:start`, `npm run env:stop`, `npm run env:status`, and `npm run 
 
 ## Architecture
 
-`wp-content/themes/empire-king` is the reusable shared theme for the corporate site and independent location stores. WooCommerce owns product, cart, and checkout behavior on location stores. Business logic that must survive a theme change belongs in a dedicated plugin, not theme code.
+This repository is the Avenue H site; Avenue I is a separate WordPress/WooCommerce installation with no shared cart, session, order, or payment routing. `wp-content/themes/empire-king` is the reusable theme, and Avenue H order links remain local to `/order-now/` with no H/I selector. WooCommerce owns product, cart, and checkout behavior. Business logic that must survive a theme change belongs in a dedicated plugin, not theme code.
