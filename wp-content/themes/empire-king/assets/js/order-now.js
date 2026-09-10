@@ -2,7 +2,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	const rail = document.querySelector('[data-order-now-categories]');
 	const cards = Array.from(document.querySelectorAll('[data-order-now-product]'));
 	const status = document.querySelector('[data-order-now-status]');
-	const storeSelector = document.querySelector('[data-order-now-store]');
 
 	if (rail && cards.length) rail.addEventListener('click', (event) => {
 		const category = event.target.closest('[data-order-now-category]');
@@ -18,11 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 		if (status) status.textContent = `${count} ${count === 1 ? 'item' : 'items'} in ${category.textContent.trim()}.`;
 	});
-
-	if (storeSelector) {
-		storeSelector.querySelector('[data-order-now-current]')?.addEventListener('click', () => { storeSelector.open = false; });
-		storeSelector.addEventListener('keydown', (event) => { if (event.key === 'Escape') storeSelector.open = false; });
-	}
 
 	const sheet = document.querySelector('[data-order-now-sheet]');
 	const config = window.empireKingOrderNow;

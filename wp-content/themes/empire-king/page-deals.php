@@ -36,7 +36,7 @@ if ( $deals ) {
 			<?php endif; ?>
 			<p class="ek-deals-welcome__location">Lancaster, California</p>
 			<p id="deals-welcome" class="ek-deals-welcome__headline">Welcome to Empire King Burger</p>
-			<p class="ek-deals-welcome__description">Start with our current deals or choose a location to browse the full menu.</p>
+			<p class="ek-deals-welcome__description">Start with our current deals or browse the Avenue H menu.</p>
 		</div>
 		<?php if ( $deals_landing_media['foregrounds'] ) : ?>
 			<div class="ek-deals-welcome__showcase" aria-hidden="true">
@@ -51,7 +51,7 @@ if ( $deals ) {
 <a class="ek-deals__full-menu" href="<?php echo esc_url( home_url( '/order-now/' ) ); ?>">Check Out Our Full Menu <span aria-hidden="true">→</span></a>
 <div class="ek-deals" data-deals-page>
 	<div id="deals-start" class="ek-deals__sticky">
-		<header class="ek-deals__intro"><p>Lancaster, California</p><h1 tabindex="-1">Deals &amp; Specials in Lancaster</h1><p>Browse current Empire King Burger offers and choose your restaurant to order online.</p></header>
+		<header class="ek-deals__intro"><p>Lancaster, California</p><h1 tabindex="-1">Deals &amp; Specials in Lancaster</h1><p>Browse current Empire King Burger offers and order online from Avenue H.</p></header>
 		<?php if ( $deals ) : ?>
 		<nav class="ek-deals__pills" aria-label="Deal categories"><a href="#all-deals">All Deals</a>
 		<?php foreach ( $groups as $group ) : $anchor = $group['deals'] ? 'deal-category-' . $group['term']->term_id : $lead['anchor']; ?>
@@ -70,8 +70,8 @@ if ( $deals ) {
 			<?php foreach ( $standalone as $deal ) get_template_part( 'template-parts/deal-card', null, array( 'deal' => $deal, 'lead' => false ) ); ?>
 		</div></section><?php endif; ?>
 	<?php else : ?>
-		<section class="ek-deals__empty"><h2>Current deals are being updated.</h2><p>You can still browse the menu and order from your preferred Empire King Burger location.</p><a class="ek-deals__order" href="<?php echo esc_url( home_url( '/order-now/' ) ); ?>">Order Now <span aria-hidden="true">→</span></a></section>
+		<section class="ek-deals__empty"><h2>Current deals are being updated.</h2><p>You can still browse the Avenue H menu and order online.</p><a class="ek-deals__order" href="<?php echo esc_url( home_url( '/order-now/' ) ); ?>">Order Now <span aria-hidden="true">→</span></a></section>
 	<?php endif; ?>
-	<section class="ek-deals__travel"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 44S7 29 7 18a17 17 0 0 1 34 0c0 11-17 26-17 26Z"/><circle cx="24" cy="18" r="6"/></svg><div><h2>Passing Through Lancaster?</h2><p>Choose the Empire King Burger location that works best for your stop.</p><a class="ek-deals__order" href="<?php echo esc_url( home_url( '/#locations' ) ); ?>">View Locations <span aria-hidden="true">→</span></a></div></section>
+	<section class="ek-deals__travel"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 44S7 29 7 18a17 17 0 0 1 34 0c0 11-17 26-17 26Z"/><circle cx="24" cy="18" r="6"/></svg><div><h2>Passing Through Lancaster?</h2><p>Visit Empire King Burger on Avenue H.</p><a class="ek-deals__order" href="<?php echo esc_url( home_url( '/#locations' ) ); ?>">View Avenue H <span aria-hidden="true">→</span></a></div></section>
 </div>
-<?php empire_king_render_order_location_selector(); get_footer(); ?>
+<?php get_footer(); ?>
