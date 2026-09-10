@@ -11,6 +11,7 @@
 get_header();
 $order_gateway_background = empire_king_get_order_gateway_background_url();
 $order_gateway_combo      = empire_king_get_order_gateway_combo_url();
+$home_location_marker_logo = empire_king_get_footer_logo_url();
 $home_slides              = empire_king_get_home_slideshow_images();
 $home_menu_glimpse        = empire_king_get_home_menu_glimpse();
 ?>
@@ -149,7 +150,7 @@ $stories_blog_url = empire_king_get_blog_url();
 		<p>Find Empire King Burger on Avenue H in Lancaster.</p>
 	</div>
 	<div class="home-locations__stage">
-		<div id="home-locations-map" class="home-locations__map" aria-label="Map showing the Empire King Avenue H location" role="region">
+		<div id="home-locations-map" class="home-locations__map" aria-label="Map showing the Empire King Avenue H location" role="region"<?php if ( $home_location_marker_logo ) : ?> data-marker-logo-url="<?php echo esc_url( $home_location_marker_logo ); ?>"<?php endif; ?>>
 			<p class="home-locations__map-fallback">Interactive map unavailable. Avenue H location details are shown below.</p>
 		</div>
 		<article class="home-locations__detail">

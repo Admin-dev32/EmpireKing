@@ -23,8 +23,8 @@
 .home-locations__detail a:focus-visible { outline: 3px solid var(--ek-color-focus); outline-offset: 3px; }
 @media (max-width: 40rem) {
 	.home-locations { padding-top: var(--ek-space-4); }
-	.home-locations__stage { min-height: 36rem; }
-	.home-locations__detail { right: 0.75rem; bottom: 0.75rem; left: 0.75rem; padding: 0.9rem; }
+	.home-locations__stage { height: 100vh; height: 100dvh; min-height: 100svh; }
+	.home-locations__detail { right: 0.75rem; bottom: 0.75rem; bottom: calc(0.75rem + env(safe-area-inset-bottom)); left: 0.75rem; padding: 0.9rem; }
 	.home-locations__detail h3 { font-size: 1.8rem; }
 	.home-locations__detail address { font-size: 0.875rem; }
 	.home-locations__order { width: 100%; }

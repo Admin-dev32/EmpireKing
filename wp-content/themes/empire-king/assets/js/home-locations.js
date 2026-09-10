@@ -23,20 +23,21 @@ document.addEventListener('DOMContentLoaded', () => {
 		],
 	});
 
-	new window.google.maps.Marker({
-		icon: {
-			fillColor: '#b21f2d',
-			fillOpacity: 1,
-			path: window.google.maps.SymbolPath.CIRCLE,
-			scale: 16,
-			strokeColor: '#f4c842',
-			strokeWeight: 4,
-		},
-		label: { color: '#ffffff', fontSize: '12px', fontWeight: '800', text: 'H' },
+	const markerOptions = {
 		map,
 		position,
 		title: 'Empire King Burger — Avenue H',
-	});
+	};
+	const markerLogoUrl = mapElement.dataset.markerLogoUrl;
+	if (markerLogoUrl) {
+		const markerSize = 60;
+		markerOptions.icon = {
+			url: markerLogoUrl,
+			scaledSize: new window.google.maps.Size(markerSize, markerSize),
+			anchor: new window.google.maps.Point(markerSize / 2, markerSize / 2),
+		};
+	}
+	new window.google.maps.Marker(markerOptions);
 
 	mapElement.classList.add('is-ready');
 });
