@@ -16,3 +16,6 @@ yarn-error.log*
 # OS/editor noise
 .DS_Store
 Thumbs.db
+
+# Portable local menu export (generated data and referenced media).
+/production-migration-output/
