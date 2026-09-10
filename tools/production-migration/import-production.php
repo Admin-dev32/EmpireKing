@@ -115,7 +115,7 @@ final class EKM_Menu_Package {
     }
 
     public static function plan( $data ) {
-        $plan = array( 'products' => array(), 'retire' => array(), 'variations' => array(), 'deals' => array(), 'page' => 0, 'errors' => array() );
+        $plan = array( 'products' => array(), 'retire' => array(), 'retire_children' => array(), 'variations' => array(), 'deals' => array(), 'retire_deals' => array(), 'page' => 0, 'errors' => array() );
         $by_sku = array(); $by_name = array(); $by_slug = array(); $sku_owners = array(); $all = self::posts( array( 'product', 'product_variation' ) );
         foreach ( $all as $post ) {
             $sku = self::normalized( (string) get_post_meta( $post->ID, '_sku', true ) );
@@ -160,11 +160,17 @@ final class EKM_Menu_Package {
         foreach ( $all as $post ) {
             if ( $post->post_type === 'product' && $post->post_status === 'publish' && ! isset( $used[$post->ID] ) ) { $plan['retire'][$post->ID] = $post->post_title; }
         }
+        foreach ( $all as $post ) {
+            if ( $post->post_type === 'product_variation' && isset( $plan['retire'][$post->post_parent] ) && in_array( $post->post_status, array( 'publish', 'private', 'future' ), true ) ) { $plan['retire_children'][] = $post->ID; }
+        }
         $deals = self::posts( 'ek_deal' );
         foreach ( $data['deals'] as $deal ) {
             $matches = array_values( array_filter( $deals, static function ( $post ) use ( $deal ) { return $post->post_name === $deal['post']['post_name']; } ) );
             if ( count( $matches ) > 1 ) { $plan['errors'][] = 'Ambiguous Deal slug: ' . $deal['post']['post_name']; }
             $plan['deals'][$deal['post']['post_name']] = count( $matches ) === 1 ? $matches[0]->ID : 0;
+        }
+        foreach ( $deals as $deal ) {
+            if ( $deal->post_status === 'publish' && ! in_array( $deal->ID, $plan['deals'], true ) ) { $plan['retire_deals'][$deal->ID] = $deal->post_title; }
         }
         $pages = self::posts( 'page', array( 'name' => 'deals', 'post_parent' => 0 ) );
         if ( count( $pages ) > 1 ) { $plan['errors'][] = 'Multiple root /deals/ pages.'; }
@@ -193,10 +199,12 @@ final class EKM_Menu_Package {
             WP_CLI::log( '  Variations: preserve/update ' . count( array_filter( $v['keep'] ) ) . ', create ' . count( array_filter( $v['keep'], static function ( $n ) { return ! $n; } ) ) . ', retire [' . implode( ',', $v['retire'] ) . ']' );
         }
         foreach ( $plan['retire'] as $id => $name ) { WP_CLI::log( "RETIRE #$id $name (draft + hidden; retained for history)" ); }
+        if ( $plan['retire_children'] ) { WP_CLI::log( 'Retire variations of retired parents: ' . implode( ',', $plan['retire_children'] ) ); }
         foreach ( $data['deals'] as $deal ) {
             $key = $deal['product_key'];
             WP_CLI::log( 'DEAL ' . $deal['post']['post_name'] . ' -> ' . ( $key ? $key . ' -> ' . ( $plan['products'][$key] ?? 0 ?: 'NEW ID on apply' ) : 'menu destination' ) );
         }
+        foreach ( $plan['retire_deals'] as $id => $name ) { WP_CLI::log( "RETIRE DEAL #$id $name (draft)" ); }
         WP_CLI::log( '/deals/ page: ' . ( $plan['page'] ? 'update #' . $plan['page'] : 'create' ) );
         WP_CLI::log( 'Ambiguous matches / blockers: ' . count( $plan['errors'] ) );
         foreach ( $plan['errors'] as $error ) { WP_CLI::warning( $error ); }
@@ -309,6 +317,10 @@ final class EKM_Menu_Package {
             $product = wc_get_product( $id );
             self::check( (bool) $product, 'Cannot retire product ' . $id );
             $product->set_status( 'draft' ); $product->set_catalog_visibility( 'hidden' ); $product->save();
+        }
+        foreach ( array_merge( $plan['retire_children'], array_keys( $plan['retire_deals'] ) ) as $id ) {
+            $result = wp_update_post( array( 'ID' => $id, 'post_status' => 'draft' ), true );
+            self::check( ! is_wp_error( $result ), 'Could not retire menu record ' . $id );
         }
         foreach ( $data['deals'] as $deal ) {
             $post = $deal['post']; $post['post_type'] = 'ek_deal'; $post['ID'] = $plan['deals'][$post['post_name']];
