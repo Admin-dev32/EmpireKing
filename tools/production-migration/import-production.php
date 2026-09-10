@@ -61,11 +61,13 @@ final class EKM_Menu_Package {
         $data = json_decode( file_get_contents( $file ), true, 512, JSON_THROW_ON_ERROR );
         self::check( ( $data['version'] ?? 0 ) === self::VERSION, 'Unsupported package version.' );
         self::check( ( $data['apf_meta_key'] ?? '' ) === self::APF_META, 'Unsupported APF metadata key.' );
-        $keys = array(); $skus = array(); $counts = array( 'parents' => 0, 'variations' => 0, 'sold_individually' => 0, 'featured' => 0, 'deals' => count( $data['deals'] ) );
+        $keys = array(); $skus = array(); $slugs = array(); $counts = array( 'parents' => 0, 'variations' => 0, 'sold_individually' => 0, 'featured' => 0, 'deals' => count( $data['deals'] ) );
         foreach ( $data['products'] as $p ) {
             self::check( ! isset( $keys[$p['key']] ), 'Duplicate product key: ' . $p['key'] );
             self::check( $p['key'] === self::key( $p['props']['sku'], $p['props']['name'] ), 'Invalid stable product key.' );
             self::check( in_array( $p['type'], array( 'simple', 'variable' ), true ), 'Unsupported product type.' );
+            self::check( $p['props']['status'] === 'publish' && ! isset( $slugs[$p['props']['slug']] ), 'Non-published parent or duplicate product slug.' );
+            $slugs[$p['props']['slug']] = true;
             $keys[$p['key']] = true;
             ++$counts['parents'];
             $counts['featured'] += (int) $p['props']['featured'];
@@ -114,12 +116,13 @@ final class EKM_Menu_Package {
 
     public static function plan( $data ) {
         $plan = array( 'products' => array(), 'retire' => array(), 'variations' => array(), 'deals' => array(), 'page' => 0, 'errors' => array() );
-        $by_sku = array(); $by_name = array(); $sku_owners = array(); $all = self::posts( array( 'product', 'product_variation' ) );
+        $by_sku = array(); $by_name = array(); $by_slug = array(); $sku_owners = array(); $all = self::posts( array( 'product', 'product_variation' ) );
         foreach ( $all as $post ) {
             $sku = self::normalized( (string) get_post_meta( $post->ID, '_sku', true ) );
             if ( $sku ) { $sku_owners[$sku][] = $post->ID; }
             if ( $post->post_type !== 'product' ) { continue; }
             if ( $sku ) { $by_sku[$sku][] = $post->ID; }
+            $by_slug[$post->post_name][] = $post->ID;
             $by_name[self::normalized( $post->post_title )][] = $post->ID;
         }
         $used = array();
@@ -133,6 +136,7 @@ final class EKM_Menu_Package {
             }
             $id = $matches ? $matches[0] : 0;
             $plan['products'][$p['key']] = $id;
+            if ( array_diff( $by_slug[$p['props']['slug']] ?? array(), array( $id ) ) ) { $plan['errors'][] = 'Product slug collision: ' . $p['props']['slug']; }
             if ( $id ) { $used[$id] = true; }
             $current = $id ? self::posts( 'product_variation', array( 'post_parent' => $id ) ) : array();
             $combinations = array();
@@ -165,8 +169,19 @@ final class EKM_Menu_Package {
         $pages = self::posts( 'page', array( 'name' => 'deals', 'post_parent' => 0 ) );
         if ( count( $pages ) > 1 ) { $plan['errors'][] = 'Multiple root /deals/ pages.'; }
         $plan['page'] = count( $pages ) === 1 ? $pages[0]->ID : 0;
+        foreach ( $data['terms'] as $term ) {
+            if ( $term['taxonomy'] !== 'ek_deal_category' && ! taxonomy_exists( $term['taxonomy'] ) ) { $plan['errors'][] = 'Missing taxonomy: ' . $term['taxonomy']; }
+        }
         if ( self::posts( 'wapf_product', array( 'post_status' => 'publish' ) ) ) { $plan['errors'][] = 'Published global APF groups exist; this package replaces per-product APF only.'; }
         if ( ! function_exists( 'wapf' ) ) { $plan['errors'][] = 'The compatible Advanced Product Fields plugin must already be active.'; }
+        foreach ( $data['media'] as $hash => $m ) {
+            $existing = self::posts( 'attachment', array( 'meta_key' => '_ekm_media_sha256', 'meta_value' => $hash ) );
+            if ( count( $existing ) > 1 ) { $plan['errors'][] = 'Ambiguous imported media: ' . $hash; }
+            foreach ( $existing as $attachment ) {
+                $file = get_attached_file( $attachment->ID );
+                if ( ! $file || ! is_file( $file ) || hash_file( 'sha256', $file ) !== $hash ) { $plan['errors'][] = 'Existing imported media was changed or removed: ' . $attachment->ID; }
+            }
+        }
         return $plan;
     }
 
@@ -313,18 +328,32 @@ final class EKM_Menu_Package {
 
 if ( ! defined( 'EKM_EXPORT_LIBRARY' ) ) {
     WP_CLI::add_command( 'ek-menu-import', static function ( $args, $flags ) {
+        $read_only = null;
         try {
+            EKM_Menu_Package::check( ! $args, 'Unexpected positional arguments.' );
             EKM_Menu_Package::check( ! array_diff( array_keys( $flags ), array( 'dry-run', 'apply', 'package' ) ), 'Unknown option.' );
             EKM_Menu_Package::check( ! ( isset( $flags['apply'] ) && isset( $flags['dry-run'] ) ), 'Use either --apply or --dry-run.' );
+            EKM_Menu_Package::check( ! isset( $flags['apply'] ) || $flags['apply'] === true, '--apply takes no value.' );
             EKM_Menu_Package::check( function_exists( 'wc_get_product' ), 'WooCommerce must be active.' );
+            if ( ! isset( $flags['apply'] ) ) {
+                // Guard against incidental writes by product readers or plugin hooks during dry run.
+                $read_only = static function ( $sql ) {
+                    EKM_Menu_Package::check( ! preg_match( '/^\s*(INSERT|UPDATE|DELETE|REPLACE|ALTER|CREATE|DROP|TRUNCATE|RENAME)\b/i', $sql ), 'A plugin attempted a write during dry run; query blocked.' );
+                    return $sql;
+                };
+                add_filter( 'query', $read_only, PHP_INT_MAX );
+            }
             $directory = realpath( $flags['package'] ?? __DIR__ );
             EKM_Menu_Package::check( (bool) $directory, 'Package directory does not exist.' );
             $data = EKM_Menu_Package::load( $directory );
             $plan = EKM_Menu_Package::plan( $data );
             EKM_Menu_Package::report( $data, $plan );
             EKM_Menu_Package::check( ! $plan['errors'], 'Resolve all reported blockers before importing. No writes performed.' );
-            if ( ! isset( $flags['apply'] ) ) { WP_CLI::success( 'Dry run complete. No writes performed.' ); return; }
+            if ( ! isset( $flags['apply'] ) ) { remove_filter( 'query', $read_only, PHP_INT_MAX ); WP_CLI::success( 'Dry run complete. No writes performed.' ); return; }
             EKM_Menu_Package::apply( $data, $plan, $directory );
-        } catch ( Throwable $e ) { WP_CLI::error( $e->getMessage() ); }
+        } catch ( Throwable $e ) {
+            if ( $read_only ) { remove_filter( 'query', $read_only, PHP_INT_MAX ); }
+            WP_CLI::error( $e->getMessage() );
+        }
     } );
 }
