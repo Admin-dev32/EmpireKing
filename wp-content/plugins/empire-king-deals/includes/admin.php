@@ -38,7 +38,7 @@ function ek_deals_editor( $post ) {
 		foreach ( $field[1] as $value => $label ) echo '<option value="' . esc_attr( $value ) . '" ' . selected( $data[ $key ], $value, false ) . '>' . esc_html( $label ) . '</option>';
 		echo '</select></td></tr>';
 	}
-	$products = function_exists( 'wc_get_products' ) ? wc_get_products( array( 'status' => 'publish', 'limit' => -1, 'type' => array( 'simple', 'variable' ), 'orderby' => 'name', 'order' => 'ASC' ) ) : array();
+	$products = function_exists( 'wc_get_products' ) ? wc_get_products( array( 'status' => 'publish', 'limit' => -1, 'type' => array( 'simple', 'variable' ), 'orderby' => 'title', 'order' => 'ASC' ) ) : array();
 	echo '<tr><th><label for="ek-product-id">Linked Menu Product</label></th><td><select class="regular-text" id="ek-product-id" name="ek_deal[product_id]"><option value="0">No linked product / Use menu destination</option>';
 	foreach ( $products as $product ) {
 		if ( ! $product->is_visible() || $product->get_parent_id() ) continue;
