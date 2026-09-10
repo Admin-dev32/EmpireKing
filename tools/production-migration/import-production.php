@@ -115,28 +115,41 @@ final class EKM_Menu_Package {
     }
 
     public static function plan( $data ) {
-        $plan = array( 'products' => array(), 'retire' => array(), 'retire_children' => array(), 'variations' => array(), 'deals' => array(), 'retire_deals' => array(), 'page' => 0, 'errors' => array() );
-        $by_sku = array(); $by_name = array(); $by_slug = array(); $sku_owners = array(); $all = self::posts( array( 'product', 'product_variation' ) );
+        $plan = array( 'products' => array(), 'slug_reshuffle' => array(), 'retire' => array(), 'retire_children' => array(), 'variations' => array(), 'deals' => array(), 'retire_deals' => array(), 'retire_global_apf' => array(), 'page' => 0, 'errors' => array() );
+        $by_sku = array(); $by_name = array(); $by_slug = array(); $post_slugs = array(); $sku_owners = array(); $all = self::posts( array( 'product', 'product_variation' ) );
         foreach ( $all as $post ) {
             $sku = self::normalized( (string) get_post_meta( $post->ID, '_sku', true ) );
             if ( $sku ) { $sku_owners[$sku][] = $post->ID; }
             if ( $post->post_type !== 'product' ) { continue; }
             if ( $sku ) { $by_sku[$sku][] = $post->ID; }
             $by_slug[$post->post_name][] = $post->ID;
+            $post_slugs[$post->ID] = $post->post_name;
             $by_name[self::normalized( $post->post_title )][] = $post->ID;
         }
         $used = array();
         foreach ( $data['products'] as $p ) {
             $sku = self::normalized( $p['props']['sku'] );
             $matches = $sku ? ( $by_sku[$sku] ?? array() ) : array();
-            if ( ! $matches ) { $matches = $by_name[self::normalized( $p['props']['name'] )] ?? array(); }
+            if ( ! $matches ) {
+                $candidates = $by_name[self::normalized( $p['props']['name'] )] ?? array();
+                if ( count( $candidates ) > 1 ) {
+                    $slug_matches = array();
+                    foreach ( $candidates as $candidate_id ) {
+                        if ( ( $post_slugs[$candidate_id] ?? '' ) === $p['props']['slug'] ) {
+                            $slug_matches[] = $candidate_id;
+                        }
+                    }
+                    $matches = count( $slug_matches ) === 1 ? $slug_matches : $candidates;
+                } else {
+                    $matches = $candidates;
+                }
+            }
             if ( count( $matches ) > 1 || ( $matches && isset( $used[$matches[0]] ) ) ) {
                 $plan['errors'][] = 'Ambiguous product ' . $p['key'] . ': ' . implode( ',', $matches );
                 continue;
             }
             $id = $matches ? $matches[0] : 0;
             $plan['products'][$p['key']] = $id;
-            if ( array_diff( $by_slug[$p['props']['slug']] ?? array(), array( $id ) ) ) { $plan['errors'][] = 'Product slug collision: ' . $p['props']['slug']; }
             if ( $id ) { $used[$id] = true; }
             $current = $id ? self::posts( 'product_variation', array( 'post_parent' => $id ) ) : array();
             $combinations = array();
@@ -163,6 +176,27 @@ final class EKM_Menu_Package {
         foreach ( $all as $post ) {
             if ( $post->post_type === 'product_variation' && isset( $plan['retire'][$post->post_parent] ) && in_array( $post->post_status, array( 'publish', 'private', 'future' ), true ) ) { $plan['retire_children'][] = $post->ID; }
         }
+        $local_slugs = array();
+        foreach ( $data['products'] as $p ) {
+            $local_slugs[$p['key']] = $p['props']['slug'];
+        }
+        $slug_reshuffle = array();
+        foreach ( $data['products'] as $p ) {
+            $slug = $p['props']['slug'];
+            $id = $plan['products'][$p['key']] ?? 0;
+            $conflicts = array_diff( $by_slug[$slug] ?? array(), array( $id ) );
+            foreach ( $conflicts as $conflict_id ) {
+                $conflict_key = array_search( $conflict_id, $plan['products'], true );
+                $is_mapped_other = ( $conflict_key !== false && ( $local_slugs[$conflict_key] ?? '' ) !== $slug );
+                $is_retiring = isset( $plan['retire'][$conflict_id] );
+                if ( $is_mapped_other || $is_retiring ) {
+                    $slug_reshuffle[$conflict_id] = $conflict_id;
+                } else {
+                    $plan['errors'][] = 'Product slug collision: ' . $slug;
+                }
+            }
+        }
+        $plan['slug_reshuffle'] = array_values( $slug_reshuffle );
         $deals = self::posts( 'ek_deal' );
         foreach ( $data['deals'] as $deal ) {
             $matches = array_values( array_filter( $deals, static function ( $post ) use ( $deal ) { return $post->post_name === $deal['post']['post_name']; } ) );
@@ -178,7 +212,10 @@ final class EKM_Menu_Package {
         foreach ( $data['terms'] as $term ) {
             if ( $term['taxonomy'] !== 'ek_deal_category' && ! taxonomy_exists( $term['taxonomy'] ) ) { $plan['errors'][] = 'Missing taxonomy: ' . $term['taxonomy']; }
         }
-        if ( self::posts( 'wapf_product', array( 'post_status' => 'publish' ) ) ) { $plan['errors'][] = 'Published global APF groups exist; this package replaces per-product APF only.'; }
+        $global_apf = self::posts( 'wapf_product', array( 'post_status' => 'publish' ) );
+        foreach ( $global_apf as $post ) {
+            $plan['retire_global_apf'][$post->ID] = $post->post_title;
+        }
         if ( ! function_exists( 'wapf' ) ) { $plan['errors'][] = 'The compatible Advanced Product Fields plugin must already be active.'; }
         foreach ( $data['media'] as $hash => $m ) {
             $existing = self::posts( 'attachment', array( 'meta_key' => '_ekm_media_sha256', 'meta_value' => $hash ) );
@@ -205,6 +242,7 @@ final class EKM_Menu_Package {
             WP_CLI::log( 'DEAL ' . $deal['post']['post_name'] . ' -> ' . ( $key ? $key . ' -> ' . ( $plan['products'][$key] ?? 0 ?: 'NEW ID on apply' ) : 'menu destination' ) );
         }
         foreach ( $plan['retire_deals'] as $id => $name ) { WP_CLI::log( "RETIRE DEAL #$id $name (draft)" ); }
+        foreach ( $plan['retire_global_apf'] as $id => $title ) { WP_CLI::log( "RETIRE GLOBAL APF #$id $title" ); }
         WP_CLI::log( '/deals/ page: ' . ( $plan['page'] ? 'update #' . $plan['page'] : 'create' ) );
         WP_CLI::log( 'Ambiguous matches / blockers: ' . count( $plan['errors'] ) );
         foreach ( $plan['errors'] as $error ) { WP_CLI::warning( $error ); }
@@ -282,6 +320,10 @@ final class EKM_Menu_Package {
         $product->set_shipping_class_id( 0 );
         $saved = $product->save();
         self::check( $saved > 0, 'Product save failed: ' . $props['name'] );
+        if ( ! $parent ) {
+            $actual_slug = get_post_field( 'post_name', $saved );
+            self::check( $actual_slug === $props['slug'], 'Product saved with unexpected slug ' . $actual_slug . ' instead of ' . $props['slug'] );
+        }
         return $saved;
     }
 
@@ -291,6 +333,12 @@ final class EKM_Menu_Package {
         if ( ! taxonomy_exists( 'ek_deal_category' ) ) { register_taxonomy( 'ek_deal_category', 'ek_deal', array( 'public' => false ) ); }
         $media = self::media( $data, $directory ); $terms = array();
         foreach ( $data['terms'] as $key => $term ) { self::term( $key, $data, $terms ); }
+        foreach ( $plan['slug_reshuffle'] as $conflict_id ) {
+            $tmp_slug = 'ekm-tmp-' . $conflict_id;
+            $result = wp_update_post( array( 'ID' => $conflict_id, 'post_name' => $tmp_slug ), true );
+            self::check( ! is_wp_error( $result ), 'Could not assign temporary slug to product ' . $conflict_id );
+            clean_post_cache( $conflict_id );
+        }
         $products = array();
         foreach ( $data['products'] as $p ) {
             $products[$p['key']] = self::save_product( $p, $plan['products'][$p['key']], $media, $terms );
@@ -321,6 +369,10 @@ final class EKM_Menu_Package {
         foreach ( array_merge( $plan['retire_children'], array_keys( $plan['retire_deals'] ) ) as $id ) {
             $result = wp_update_post( array( 'ID' => $id, 'post_status' => 'draft' ), true );
             self::check( ! is_wp_error( $result ), 'Could not retire menu record ' . $id );
+        }
+        foreach ( array_keys( $plan['retire_global_apf'] ) as $id ) {
+            $result = wp_update_post( array( 'ID' => $id, 'post_status' => 'draft' ), true );
+            self::check( ! is_wp_error( $result ), 'Could not retire global APF group ' . $id );
         }
         foreach ( $data['deals'] as $deal ) {
             $post = $deal['post']; $post['post_type'] = 'ek_deal'; $post['ID'] = $plan['deals'][$post['post_name']];
