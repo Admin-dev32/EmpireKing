@@ -40,9 +40,17 @@ function ek_deals_date( $value ) {
 	$date = DateTimeImmutable::createFromFormat( '!Y-m-d', $value, wp_timezone() );
 	return $date && $date->format( 'Y-m-d' ) === $value ? $value : '';
 }
+function ek_deals_product_id( $value ) {
+	$product_id = absint( $value );
+	if ( ! $product_id || ! function_exists( 'wc_get_product' ) ) return 0;
+	$product = wc_get_product( $product_id );
+	return $product && ! $product->get_parent_id() && 'publish' === $product->get_status() && $product->is_visible() && $product->is_type( array( 'simple', 'variable' ) ) ? $product_id : 0;
+}
 function ek_deals_data( $id ) {
 	$data = (array) get_post_meta( $id, '_ek_deal', true );
-	return array_merge( array( 'label' => '', 'description' => '', 'fine_print' => '', 'active' => false, 'featured' => false, 'start' => '', 'end' => '', 'location' => 'both', 'destination' => '', 'order' => 0 ), $data );
+	$data = array_merge( array( 'label' => '', 'description' => '', 'fine_print' => '', 'active' => false, 'featured' => false, 'start' => '', 'end' => '', 'location' => 'both', 'destination' => '', 'product_id' => 0, 'order' => 0 ), $data );
+	$data['product_id'] = ek_deals_product_id( $data['product_id'] );
+	return $data;
 }
 function ek_deals_state( $id, $today = null ) {
 	if ( 'publish' !== get_post_status( $id ) ) return 'Draft';

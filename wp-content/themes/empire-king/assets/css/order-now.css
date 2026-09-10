@@ -47,7 +47,9 @@ html.ek-order-sheet-open { overflow: hidden; }
 .ek-order-now__sheet { box-sizing: border-box; inset: 4.25rem 0 0; width: min(100%, 36rem); max-width: 100%; max-height: calc(100dvh - 4.25rem); margin: auto auto 0; padding: 3.75rem 1.25rem max(1.25rem, env(safe-area-inset-bottom)); overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; color: #1b1c1d; background: #fff; border: 0; border-radius: 1.5rem 1.5rem 0 0; box-shadow: 0 -0.5rem 3rem rgb(0 0 0 / 20%); }
 .ek-order-now__sheet::backdrop { background: linear-gradient(to bottom, transparent 0 4.25rem, rgb(0 0 0 / 65%) 4.25rem); }
 .ek-order-now__sheet[open] { animation: ek-product-sheet-in 160ms ease-out both; }
-.ek-order-now__sheet-close { position: absolute; top: 0.6rem; right: 0.75rem; display: grid; place-items: center; width: 2.75rem; height: 2.75rem; padding: 0; color: #1b1c1d; background: #eef0f2; border: 0; border-radius: 50%; font: 2rem/1 sans-serif; cursor: pointer; }
+.ek-order-now__sheet-close { position: absolute; z-index: 5; top: 0.6rem; right: 0.75rem; display: grid; place-items: center; width: 2.75rem; height: 2.75rem; padding: 0; color: #fff; background: var(--ek-color-red); border: 2px solid #fff; border-radius: 50%; box-shadow: 0 0.2rem 0.65rem rgb(0 0 0 / 24%); font: 2rem/1 sans-serif; cursor: pointer; transition: background-color 120ms ease, box-shadow 120ms ease, transform 120ms ease; }
+.ek-order-now__sheet-close:hover { background: #8f1823; box-shadow: 0 0.3rem 0.8rem rgb(0 0 0 / 32%); transform: scale(1.04); }
+.ek-order-now__sheet-close:focus-visible { outline: 3px solid var(--ek-color-focus); outline-offset: 2px; }
 .ek-order-now__sheet h2 { margin: 1rem 0 0; font-size: clamp(1.65rem, 6vw, 2.1rem); line-height: 1.1; overflow-wrap: anywhere; }
 .ek-order-now__sheet-image { min-height: 0; height: min(55vw, 16rem); overflow: hidden; border-radius: 0.85rem; }
 .ek-order-now__sheet-image img { width: 100%; height: 100%; object-fit: contain; }

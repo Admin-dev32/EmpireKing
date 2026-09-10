@@ -38,6 +38,13 @@ function ek_deals_editor( $post ) {
 		foreach ( $field[1] as $value => $label ) echo '<option value="' . esc_attr( $value ) . '" ' . selected( $data[ $key ], $value, false ) . '>' . esc_html( $label ) . '</option>';
 		echo '</select></td></tr>';
 	}
+	$products = function_exists( 'wc_get_products' ) ? wc_get_products( array( 'status' => 'publish', 'limit' => -1, 'type' => array( 'simple', 'variable' ), 'orderby' => 'name', 'order' => 'ASC' ) ) : array();
+	echo '<tr><th><label for="ek-product-id">Linked Menu Product</label></th><td><select class="regular-text" id="ek-product-id" name="ek_deal[product_id]"><option value="0">No linked product / Use menu destination</option>';
+	foreach ( $products as $product ) {
+		if ( ! $product->is_visible() || $product->get_parent_id() ) continue;
+		echo '<option value="' . esc_attr( $product->get_id() ) . '" ' . selected( $data['product_id'], $product->get_id(), false ) . '>' . esc_html( $product->get_name() . ' (#' . $product->get_id() . ')' ) . '</option>';
+	}
+	echo '</select><p class="description">Choose the exact WooCommerce product to open, or leave this unlinked to use the menu destination.</p></td></tr>';
 	$assigned = wp_get_object_terms( $post->ID, 'ek_deal_category', array( 'fields' => 'ids' ) );
 	echo '<tr><th><label for="ek-category">Deal Category</label></th><td><select id="ek-category" name="ek_category"><option value="0">None</option>';
 	$terms = get_terms( array( 'taxonomy' => 'ek_deal_category', 'hide_empty' => false ) );
@@ -55,6 +62,7 @@ add_action( 'save_post_ek_deal', function ( $id ) {
 	foreach ( array( 'start', 'end' ) as $key ) $data[ $key ] = ek_deals_date( $raw[ $key ] ?? '' );
 	$data['location'] = array_key_exists( $raw['location'] ?? '', ek_deals_locations() ) ? $raw['location'] : 'both';
 	$data['destination'] = array_key_exists( $raw['destination'] ?? '', ek_deals_destinations() ) ? ( $raw['destination'] ?? '' ) : '';
+	$data['product_id'] = ek_deals_product_id( $raw['product_id'] ?? 0 );
 	$data['order'] = (int) ( $raw['order'] ?? 0 );
 	if ( $data['featured'] ) {
 		$others = get_posts( array( 'post_type' => 'ek_deal', 'post_status' => array( 'publish', 'draft', 'pending', 'private', 'future', 'trash' ), 'numberposts' => -1, 'fields' => 'ids', 'exclude' => array( $id ) ) );
