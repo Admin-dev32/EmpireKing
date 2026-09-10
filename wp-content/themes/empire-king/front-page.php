@@ -62,14 +62,14 @@ $home_menu_glimpse        = empire_king_get_home_menu_glimpse();
 <?php endif; ?>
 
 <?php $featured_categories = empire_king_get_featured_favorites(); ?>
-<section id="favorites" class="featured-favorites" aria-labelledby="favorites-title" aria-describedby="favorites-note">
+<?php if ( $featured_categories ) : ?>
+<section id="favorites" class="featured-favorites" aria-labelledby="favorites-title">
 	<h2 id="favorites-title">Featured Favorites</h2>
-	<p id="favorites-note" class="featured-favorites__note">Development preview &middot; Sample items and imagery placeholders</p>
 	<div class="featured-favorites__categories" role="group" aria-label="Featured categories">
 		<?php foreach ( $featured_categories as $key => $category ) : ?>
 			<button class="featured-favorites__category" type="button" data-featured-category="<?php echo esc_attr( $key ); ?>" aria-pressed="<?php echo array_key_first( $featured_categories ) === $key ? 'true' : 'false'; ?>" aria-controls="favorites-products">
 				<span class="featured-favorites__thumbnail" aria-hidden="true">
-					<?php if ( $category['image'] ) : ?><img src="<?php echo esc_url( $category['image'] ); ?>" alt=""><?php else : ?><span class="featured-favorites__thumbnail-placeholder"></span><?php endif; ?>
+					<?php echo $category['image_id'] ? wp_get_attachment_image( $category['image_id'], 'woocommerce_thumbnail', false, array( 'alt' => '', 'loading' => 'lazy', 'decoding' => 'async' ) ) : wc_placeholder_img( 'woocommerce_thumbnail', array( 'alt' => '', 'loading' => 'lazy', 'decoding' => 'async' ) ); ?>
 				</span>
 				<span><?php echo esc_html( $category['label'] ); ?></span>
 			</button>
@@ -82,17 +82,13 @@ $home_menu_glimpse        = empire_king_get_home_menu_glimpse();
 				<?php foreach ( $category['items'] as $index => $item ) : ?>
 					<article class="featured-favorites__product" data-featured-item="<?php echo esc_attr( $key ); ?>" data-slot="<?php echo esc_attr( $index ); ?>" <?php echo array_key_first( $featured_categories ) !== $key || $index > 1 ? 'hidden' : ''; ?>>
 						<div class="featured-favorites__image">
-							<?php if ( $item['image'] ) : ?>
-								<img src="<?php echo esc_url( $item['image'] ); ?>" alt="<?php echo esc_attr( $item['alt'] ); ?>" loading="lazy" decoding="async">
-							<?php else : ?>
-								<div class="featured-favorites__placeholder" aria-hidden="true"><span>Product image pending</span></div>
-							<?php endif; ?>
+							<?php echo $item['image_id'] ? wp_get_attachment_image( $item['image_id'], 'woocommerce_thumbnail', false, array( 'alt' => $item['name'], 'loading' => 'lazy', 'decoding' => 'async' ) ) : wc_placeholder_img( 'woocommerce_thumbnail', array( 'alt' => $item['name'], 'loading' => 'lazy', 'decoding' => 'async' ) ); ?>
 						</div>
-						<?php if ( ! empty( $item['tag'] ) ) : ?>
-							<span class="featured-favorites__tag"><?php echo esc_html( $item['tag'] ); ?></span>
+						<?php if ( $item['featured'] ) : ?>
+							<span class="featured-favorites__tag">Featured</span>
 						<?php endif; ?>
 						<h3><?php echo esc_html( $item['name'] ); ?></h3>
-						<a class="featured-favorites__order" href="<?php echo esc_url( home_url( '/order-now/' ) ); ?>">Order Now</a>
+						<a class="featured-favorites__order" href="<?php echo esc_url( add_query_arg( 'product_id', $item['id'], home_url( '/order-now/' ) ) ); ?>">Order Now</a>
 					</article>
 				<?php endforeach; ?>
 			<?php endforeach; ?>
@@ -101,6 +97,7 @@ $home_menu_glimpse        = empire_king_get_home_menu_glimpse();
 	</div>
 	<p class="screen-reader-text" data-featured-status role="status" aria-atomic="true"></p>
 </section>
+<?php endif; ?>
 
 <?php
 $home_stories = empire_king_get_home_stories();

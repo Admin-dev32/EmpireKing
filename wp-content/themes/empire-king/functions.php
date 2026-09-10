@@ -285,31 +285,80 @@ function empire_king_get_home_stories() {
 }
 
 /**
- * Development-only Featured Favorites provider; these are not confirmed menu items.
- * Replace this provider with an approved data adapter later. Keep the category
- * key/label/image and item name/image/alt shape; presentation owns the #order CTA.
- * No transactional catalog, store choice, or remote request belongs here.
+ * Gets homepage favorites from the same WooCommerce catalog as Order Now.
  *
- * @return array Prototype categories containing display-only items.
+ * @return array Product categories containing published catalog products.
  */
 function empire_king_get_featured_favorites() {
-	$categories = array(
-		'burgers'      => array( 'label' => 'Burgers', 'names' => array( 'Burger Favorite', 'Double Burger Favorite' ) ),
-		'chicken'      => array( 'label' => 'Chicken', 'names' => array( 'Chicken Favorite' ) ),
-		'meals'        => array( 'label' => 'Meals', 'names' => array( 'Meal Favorite' ) ),
-		'family-packs' => array( 'label' => 'Family Packs', 'names' => array( 'Family Pack Favorite' ) ),
-	);
-	foreach ( $categories as &$category ) {
-		$category['image'] = '';
-		$category['items'] = array_map(
-			static function ( $name ) {
-				return array( 'name' => $name, 'tag' => 'FEATURED', 'image' => '', 'alt' => '' );
-			},
-			$category['names']
-		);
-		unset( $category['names'] );
+	if ( ! function_exists( 'wc_get_products' ) ) {
+		return array();
 	}
-	unset( $category );
+
+	$default_category_id = (int) get_option( 'default_product_cat' );
+	$terms               = get_terms(
+		array(
+			'taxonomy'   => 'product_cat',
+			'hide_empty' => true,
+			'exclude'    => $default_category_id ? array( $default_category_id ) : array(),
+		)
+	);
+	if ( is_wp_error( $terms ) || ! $terms ) {
+		return array();
+	}
+
+	usort(
+		$terms,
+		static function ( $a, $b ) {
+			if ( 'burger' === $a->slug ) return -1;
+			if ( 'burger' === $b->slug ) return 1;
+			return strnatcasecmp( $a->name, $b->name );
+		}
+	);
+
+	$products = wc_get_products(
+		array(
+			'status'  => 'publish',
+			'limit'   => -1,
+			'type'    => array( 'simple', 'variable', 'grouped', 'external' ),
+			'orderby' => 'menu_order',
+			'order'   => 'ASC',
+		)
+	);
+	$categories = array();
+	foreach ( $terms as $term ) {
+		$items = array();
+		foreach ( $products as $product ) {
+			$product_categories = wp_get_post_terms( $product->get_id(), 'product_cat', array( 'fields' => 'ids' ) );
+			if ( is_wp_error( $product_categories ) || ! in_array( $term->term_id, $product_categories, true ) ) {
+				continue;
+			}
+			$items[] = array(
+				'id'       => $product->get_id(),
+				'name'     => $product->get_name(),
+				'image_id' => $product->get_image_id(),
+				'featured' => $product->is_featured(),
+			);
+		}
+
+		if ( ! $items ) {
+			continue;
+		}
+		$category_image_id = (int) get_term_meta( $term->term_id, 'thumbnail_id', true );
+		if ( ! $category_image_id ) {
+			foreach ( $items as $item ) {
+				if ( $item['image_id'] ) {
+					$category_image_id = $item['image_id'];
+					break;
+				}
+			}
+		}
+		$categories[ $term->slug ] = array(
+			'label'    => $term->name,
+			'image_id' => $category_image_id,
+			'items'    => $items,
+		);
+	}
+
 	return $categories;
 }
 
