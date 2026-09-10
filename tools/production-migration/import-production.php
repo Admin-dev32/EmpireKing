@@ -149,7 +149,7 @@ final class EKM_Menu_Package {
                 $vs = self::normalized( $v['props']['sku'] );
                 if ( $vs && array_diff( $sku_owners[$vs] ?? array(), array( $vp['keep'][$index] ) ) ) { $plan['errors'][] = 'Variation SKU collision: ' . $vs; }
             }
-            foreach ( $current as $post ) { if ( ! in_array( $post->ID, $vp['keep'], true ) && $post->post_status !== 'private' ) { $vp['retire'][] = $post->ID; } }
+            foreach ( $current as $post ) { if ( ! in_array( $post->ID, $vp['keep'], true ) && in_array( $post->post_status, array( 'publish', 'private', 'future' ), true ) ) { $vp['retire'][] = $post->ID; } }
             $plan['variations'][$p['key']] = $vp;
             if ( $sku && array_diff( $sku_owners[$sku] ?? array(), array( $id ) ) ) { $plan['errors'][] = 'Product SKU collision: ' . $sku; }
         }
@@ -275,8 +275,8 @@ final class EKM_Menu_Package {
         foreach ( $data['products'] as $p ) {
             $id = $products[$p['key']]; $vp = $plan['variations'][$p['key']];
             foreach ( $vp['retire'] as $obsolete ) {
-                // Private, unlike draft, is excluded from Woo variable price/stock child queries.
-                $result = wp_update_post( array( 'ID' => $obsolete, 'post_status' => 'private' ), true );
+                // Woo's child query includes publish/private, but excludes draft.
+                $result = wp_update_post( array( 'ID' => $obsolete, 'post_status' => 'draft' ), true );
                 self::check( ! is_wp_error( $result ), 'Could not retire variation ' . $obsolete );
             }
             foreach ( $p['variations'] as $index => $v ) { self::save_product( $v, $vp['keep'][$index], $media, $terms, $id ); }
