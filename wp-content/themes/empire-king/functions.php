@@ -324,14 +324,25 @@ function empire_king_get_featured_favorites() {
 			'order'   => 'ASC',
 		)
 	);
+	$catalog_products = array();
+	foreach ( $products as $product ) {
+		$product_categories = wp_get_post_terms( $product->get_id(), 'product_cat', array( 'fields' => 'ids' ) );
+		if ( ! is_wp_error( $product_categories ) ) {
+			$catalog_products[] = array(
+				'product'    => $product,
+				'categories' => $product_categories,
+			);
+		}
+	}
+
 	$categories = array();
 	foreach ( $terms as $term ) {
 		$items = array();
-		foreach ( $products as $product ) {
-			$product_categories = wp_get_post_terms( $product->get_id(), 'product_cat', array( 'fields' => 'ids' ) );
-			if ( is_wp_error( $product_categories ) || ! in_array( $term->term_id, $product_categories, true ) ) {
+		foreach ( $catalog_products as $catalog_product ) {
+			if ( ! in_array( $term->term_id, $catalog_product['categories'], true ) ) {
 				continue;
 			}
+			$product = $catalog_product['product'];
 			$items[] = array(
 				'id'       => $product->get_id(),
 				'name'     => $product->get_name(),
