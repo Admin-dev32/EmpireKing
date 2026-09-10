@@ -116,10 +116,6 @@ function empire_king_enqueue_styles() {
 	if ( function_exists( 'is_order_received_page' ) && is_order_received_page() ) {
 		wp_enqueue_style( 'empire-king-order-received', get_theme_file_uri( 'assets/css/order-received.css' ), array( 'empire-king-style', 'empire-king-header' ), wp_get_theme()->get( 'Version' ) );
 	}
-	if ( is_singular( 'post' ) || is_page( 'deals' ) ) {
-		empire_king_enqueue_order_gateway_assets( array( 'empire-king-style' ) );
-	}
-
 	if ( is_front_page() ) {
 		wp_enqueue_style( 'empire-king-home-locations', get_theme_file_uri( 'assets/css/home-locations.css' ), array( 'empire-king-home' ), wp_get_theme()->get( 'Version' ) );
 		if ( empire_king_get_home_stories() ) {
@@ -137,7 +133,8 @@ function empire_king_enqueue_styles() {
 		wp_enqueue_style( 'empire-king-home-menu-glimpse', get_theme_file_uri( 'assets/css/home-menu-glimpse.css' ), array( 'empire-king-home' ), wp_get_theme()->get( 'Version' ) );
 		wp_enqueue_script( 'empire-king-home-menu-glimpse', get_theme_file_uri( 'assets/js/home-menu-glimpse.js' ), array(), wp_get_theme()->get( 'Version' ), array( 'in_footer' => true, 'strategy' => 'defer' ) );
 
-		empire_king_enqueue_order_gateway_assets( array( 'empire-king-home' ) );
+		wp_enqueue_style( 'empire-king-order-gateway', get_theme_file_uri( 'assets/css/order-gateway.css' ), array( 'empire-king-home' ), wp_get_theme()->get( 'Version' ) );
+		empire_king_enqueue_google_maps_api();
 		wp_enqueue_script(
 			'empire-king-home-locations',
 			get_theme_file_uri( 'assets/js/home-locations.js' ),
@@ -190,31 +187,37 @@ add_filter( 'pre_get_document_title', function ( $title ) {
 	return is_page( 'deals' ) ? 'Deals & Specials in Lancaster, CA | Empire King Burger' : $title;
 } );
 add_action( 'wp_head', function () {
-	if ( is_page( 'deals' ) ) echo '<meta name="description" content="Current Empire King Burger deals and specials in Lancaster, California. Browse current offers and choose your restaurant to order online.">' . "\n";
+	if ( is_page( 'deals' ) ) echo '<meta name="description" content="Current Empire King Burger deals and specials at Avenue H in Lancaster, California. Browse current offers and order online.">' . "\n";
 } );
 
-/** Pickup routes are shared by the Home gateway and Blog direct-order flow. */
-function empire_king_get_order_gateway_routes() {
-	return array(
-		'Avenue H' => array( 'pickup' => home_url( '/order-now/' ) ),
-		'Avenue I' => array( 'pickup' => 'https://empireking2avei.com/order-now/' ),
-	);
-}
-
-/** Enqueues the reusable location selector only on pages that render it. */
-function empire_king_enqueue_order_gateway_assets( $style_dependencies ) {
-	wp_enqueue_style( 'empire-king-order-gateway', get_theme_file_uri( 'assets/css/order-gateway.css' ), $style_dependencies, wp_get_theme()->get( 'Version' ) );
+/** Enqueues Google Maps independently for the Avenue H homepage map. */
+function empire_king_enqueue_google_maps_api() {
 	$maps_api_key = empire_king_get_google_maps_api_key();
 	if ( $maps_api_key ) {
 		wp_enqueue_script( 'empire-king-google-maps-api', add_query_arg( array( 'key' => $maps_api_key, 'v' => 'weekly' ), 'https://maps.googleapis.com/maps/api/js' ), array(), null, array( 'in_footer' => true, 'strategy' => 'defer' ) );
 	}
-	wp_enqueue_script( 'empire-king-order-gateway', get_theme_file_uri( 'assets/js/order-gateway.js' ), $maps_api_key ? array( 'empire-king-google-maps-api' ) : array(), wp_get_theme()->get( 'Version' ), array( 'in_footer' => true, 'strategy' => 'defer' ) );
-	wp_localize_script( 'empire-king-order-gateway', 'empireKingOrderGateway', array( 'routes' => empire_king_get_order_gateway_routes() ) );
 }
 
-/** Prints the one shared location selector for Home and native Blog posts. */
-function empire_king_render_order_location_selector() {
-	get_template_part( 'template-parts/order-location-selector', null, array( 'maps_key' => empire_king_get_google_maps_api_key() ) );
+/** Builds a local Avenue H order URL with optional category and campaign context. */
+function empire_king_get_local_order_url( $category = '', $preserve_campaign = false ) {
+	$query_args = array();
+	if ( $category ) {
+		$query_args['ekb_cat'] = sanitize_title( $category );
+	}
+
+	if ( $preserve_campaign ) {
+		$campaign_keys = array( 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'gclid', 'gbraid', 'wbraid', 'fbclid' );
+		foreach ( $campaign_keys as $key ) {
+			if ( isset( $_GET[ $key ] ) && is_scalar( $_GET[ $key ] ) ) {
+				$value = sanitize_text_field( wp_unslash( $_GET[ $key ] ) );
+				if ( '' !== $value ) {
+					$query_args[ $key ] = $value;
+				}
+			}
+		}
+	}
+
+	return $query_args ? add_query_arg( $query_args, home_url( '/order-now/' ) ) : home_url( '/order-now/' );
 }
 
 /** Gets the optional, repository-owned decorative stories background. */

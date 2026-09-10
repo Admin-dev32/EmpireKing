@@ -11,7 +11,6 @@
 get_header();
 $order_gateway_background = empire_king_get_order_gateway_background_url();
 $order_gateway_combo      = empire_king_get_order_gateway_combo_url();
-$order_gateway_maps_key   = empire_king_get_google_maps_api_key();
 $home_slides              = empire_king_get_home_slideshow_images();
 $home_menu_glimpse        = empire_king_get_home_menu_glimpse();
 ?>
@@ -29,19 +28,8 @@ $home_menu_glimpse        = empire_king_get_home_menu_glimpse();
 				<p class="order-gateway__accent">Start here</p>
 			</div>
 			<div class="order-gateway__card">
-				<div class="order-tabs" role="tablist" aria-label="Order method">
-					<button id="pickup-tab" class="order-tab" type="button" role="tab" aria-selected="true" aria-controls="pickup-panel" data-order-mode="pickup">Pickup</button>
-					<button id="delivery-tab" class="order-tab" type="button" role="tab" aria-selected="false" aria-controls="delivery-panel" data-order-mode="delivery" tabindex="-1">Delivery</button>
-				</div>
-				<div id="pickup-panel" class="order-tab-panel" role="tabpanel" aria-labelledby="pickup-tab">
-					<button class="order-location-control" type="button" data-open-location-selector="pickup"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12Z" /><circle cx="12" cy="9" r="2.25" /></svg><span class="order-location-control__unselected">Select Your Restaurant</span><span class="order-location-control__selected" hidden><span class="order-location-control__mode">Pickup From</span><strong></strong><span class="order-location-control__address"></span></span><span class="order-location-control__change" hidden>Change</span><span class="order-location-control__arrow" aria-hidden="true">›</span></button>
-					<button class="order-gateway__button" type="button" data-order-submit="pickup">Order Now</button>
-				</div>
-				<div id="delivery-panel" class="order-tab-panel" role="tabpanel" aria-labelledby="delivery-tab" hidden>
-					<button class="order-location-control" type="button" data-open-location-selector="delivery"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12Z" /><circle cx="12" cy="9" r="2.25" /></svg><span class="order-location-control__unselected">Select Your Restaurant</span><span class="order-location-control__selected" hidden><span class="order-location-control__mode">Delivery From</span><strong></strong><span class="order-location-control__address"></span></span><span class="order-location-control__change" hidden>Change</span><span class="order-location-control__arrow" aria-hidden="true">›</span></button>
-					<button class="order-gateway__button" type="button" data-order-submit="delivery">Order Now</button>
-				</div>
-				<p class="order-gateway__status" role="status" aria-live="polite"></p>
+				<p class="order-gateway__location">Avenue H &middot; Lancaster, California</p>
+				<a class="order-gateway__button" href="<?php echo esc_url( home_url( '/order-now/' ) ); ?>">Order Now</a>
 			</div>
 		</div>
 	</div>
@@ -72,8 +60,6 @@ $home_menu_glimpse        = empire_king_get_home_menu_glimpse();
 		<?php endif; ?>
 	</section>
 <?php endif; ?>
-
-<?php empire_king_render_order_location_selector(); ?>
 
 <?php $featured_categories = empire_king_get_featured_favorites(); ?>
 <section id="favorites" class="featured-favorites" aria-labelledby="favorites-title" aria-describedby="favorites-note">
@@ -164,53 +150,24 @@ $stories_blog_url = empire_king_get_blog_url();
 </section>
 <?php endif; ?>
 
-<?php $location_routes = empire_king_get_order_gateway_routes(); ?>
 <section id="locations" class="home-locations" aria-labelledby="locations-title">
 	<div class="home-locations__intro">
-		<p>Our Locations</p>
-		<h2 id="locations-title">Find Your Empire King</h2>
-		<p>Two Lancaster locations. Pick the one that works for you.</p>
+		<p>Our Location</p>
+		<h2 id="locations-title">Visit Avenue H</h2>
+		<p>Find Empire King Burger on Avenue H in Lancaster.</p>
 	</div>
-	<div class="home-locations__track" data-locations-track>
-	<div class="home-locations__stage" data-locations-stage>
-		<div id="home-locations-map" class="home-locations__map" aria-label="Map showing Empire King Avenue H and Avenue I locations" role="region">
-			<p class="home-locations__map-fallback">Interactive map unavailable. Choose a location below.</p>
+	<div class="home-locations__stage">
+		<div id="home-locations-map" class="home-locations__map" aria-label="Map showing the Empire King Avenue H location" role="region">
+			<p class="home-locations__map-fallback">Interactive map unavailable. Avenue H location details are shown below.</p>
 		</div>
-		<div class="home-locations__dock" data-locations-dock aria-label="Choose an Empire King location">
-			<div class="home-locations__choices" data-locations-choices>
-				<button class="home-locations__choice" type="button" data-location-key="avenue-h" aria-controls="home-location-avenue-h" aria-expanded="false" aria-pressed="false">
-					<span class="home-locations__choice-inner">
-					<span class="home-locations__badge" aria-hidden="true">H</span>
-					<span class="home-locations__choice-copy"><span class="home-locations__choice-name">Avenue H</span><span class="home-locations__choice-address">1036 W Avenue H<br>Lancaster, CA 93534</span></span>
-				</span>
-				</button>
-				<button class="home-locations__choice" type="button" data-location-key="avenue-i" aria-controls="home-location-avenue-i" aria-expanded="false" aria-pressed="false">
-					<span class="home-locations__choice-inner">
-					<span class="home-locations__badge" aria-hidden="true">I</span>
-					<span class="home-locations__choice-copy"><span class="home-locations__choice-name">Avenue I</span><span class="home-locations__choice-address">810 W Ave I<br>Lancaster, CA</span></span>
-				</span>
-				</button>
-			</div>
-			<article id="home-location-avenue-h" class="home-locations__detail home-locations__detail--avenue-h" data-location-panel="avenue-h" hidden>
+		<article class="home-locations__detail">
 				<div class="home-locations__detail-heading"><span class="home-locations__badge" aria-hidden="true">H</span><div><h3>Avenue H</h3><address>1036 W Avenue H<br>Lancaster, CA 93534</address></div></div>
 				<div class="home-locations__actions">
-					<a class="home-locations__order" href="<?php echo esc_url( $location_routes['Avenue H']['pickup'] ); ?>">Order from Avenue H</a>
+					<a class="home-locations__order" href="<?php echo esc_url( home_url( '/order-now/' ) ); ?>">Order from Avenue H</a>
 					<a class="home-locations__directions" href="https://www.google.com/maps/search/?api=1&amp;query=1036%20W%20Avenue%20H%2C%20Lancaster%2C%20CA%2093534" target="_blank" rel="noopener noreferrer">Get Directions <span aria-hidden="true">&#8599;</span></a>
-					<button class="home-locations__reset" type="button" data-locations-reset>Show Both Locations</button>
 				</div>
-			</article>
-			<article id="home-location-avenue-i" class="home-locations__detail home-locations__detail--avenue-i" data-location-panel="avenue-i" hidden>
-				<div class="home-locations__detail-heading"><span class="home-locations__badge" aria-hidden="true">I</span><div><h3>Avenue I</h3><address>810 W Ave I<br>Lancaster, CA</address></div></div>
-				<div class="home-locations__actions">
-					<a class="home-locations__order" href="<?php echo esc_url( $location_routes['Avenue I']['pickup'] ); ?>">Order from Avenue I</a>
-					<a class="home-locations__directions" href="https://www.google.com/maps/search/?api=1&amp;query=810%20W%20Ave%20I%2C%20Lancaster%2C%20CA" target="_blank" rel="noopener noreferrer">Get Directions <span aria-hidden="true">&#8599;</span></a>
-					<button class="home-locations__reset" type="button" data-locations-reset>Show Both Locations</button>
-				</div>
-			</article>
-		</div>
+		</article>
 	</div>
-	</div>
-	<div class="home-locations__handoff" data-locations-handoff aria-hidden="true"></div>
 </section>
 
 <section id="about" class="home-menu-glimpse" aria-labelledby="menu-glimpse-title">
@@ -235,15 +192,15 @@ $stories_blog_url = empire_king_get_blog_url();
 						</figure>
 					<?php endforeach; ?>
 					<div class="home-menu-glimpse__frame home-menu-glimpse__frame--cta" data-menu-glimpse-frame>
-						<p>Ready to Order?</p><h3>Craving <?php echo esc_html( $category['name'] ); ?>?</h3><span>Choose your restaurant to start your order.</span><button type="button" data-direct-order data-order-category="<?php echo esc_attr( $category['order_category'] ); ?>">Order Now</button>
+						<p>Ready to Order?</p><h3>Craving <?php echo esc_html( $category['name'] ); ?>?</h3><span>Start your Avenue H order.</span><a href="<?php echo esc_url( empire_king_get_local_order_url( $category['order_category'] ) ); ?>">Order Now</a>
 					</div>
-					<button class="home-menu-glimpse__fallback-order" type="button" data-direct-order data-order-category="<?php echo esc_attr( $category['order_category'] ); ?>">Order Now</button>
+					<a class="home-menu-glimpse__fallback-order" href="<?php echo esc_url( empire_king_get_local_order_url( $category['order_category'] ) ); ?>">Order Now</a>
 				</section>
 			<?php endforeach; ?>
 		</div>
 		<p class="screen-reader-text" data-menu-glimpse-status role="status" aria-atomic="true"></p>
 	<?php else : ?>
-		<div class="home-menu-glimpse__empty"><p>Menu imagery is being prepared.</p><button type="button" data-direct-order>Order Now</button></div>
+		<div class="home-menu-glimpse__empty"><p>Menu imagery is being prepared.</p><a href="<?php echo esc_url( home_url( '/order-now/' ) ); ?>">Order Now</a></div>
 	<?php endif; ?>
 </section>
 
