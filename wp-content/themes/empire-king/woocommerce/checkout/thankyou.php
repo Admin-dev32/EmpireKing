@@ -4,19 +4,26 @@
  *
  * Overrides woocommerce/templates/checkout/thankyou.php (v8.1.0).
  *
- * Hooks preserved in the order the native template fires them:
- *   woocommerce_before_thankyou               (inside if $order)
- *   woocommerce_thankyou_{payment_method}      (successful orders only)
- *   woocommerce_thankyou                       (successful orders only)
+ * Hook firing order (matches native WooCommerce exactly):
  *
- * The default woocommerce_order_details_table callback is detached only
- * for the duration of this template to prevent it duplicating the custom
- * receipt below. Every other woocommerce_thankyou callback is untouched.
- * The callback is restored immediately after do_action() returns.
+ *   woocommerce_before_thankyou               always, inside if $order
+ *   woocommerce_thankyou_{payment_method}      always (failed + successful)
+ *   woocommerce_thankyou                       always (failed + successful)
  *
- * Failed orders render the native Pay / My Account actions. "Order
- * Confirmed" is never shown for failed orders (also guarded in the
- * functions.php filter empire_king_order_received_hero_text).
+ * For successful orders:
+ *   - woocommerce_thankyou_{payment_method} output is captured via ob_start()
+ *     and placed inside .ek-receipt__payment-instructions when non-empty.
+ *     It is NOT called a second time anywhere.
+ *   - woocommerce_order_details_table (the default woocommerce_thankyou
+ *     callback at priority 10) is detached before woocommerce_thankyou
+ *     fires and restored immediately after. All other callbacks are intact.
+ *
+ * For failed orders:
+ *   - Native failed-order UI (message + Pay + My Account) is rendered.
+ *   - Both hooks fire normally after the UI (no capture, no suppression).
+ *   - "Order Confirmed" is never shown (also guarded in functions.php).
+ *
+ * No manual gateway lookup. No reading $gw->instructions / $gw->description.
  *
  * @package Empire_King
  * @see     WC_Shortcode_Checkout::order_received()
@@ -51,43 +58,55 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<?php endif; ?>
 			</p>
 
+			<?php
+			/*
+			 * ── FAILED ORDER: fire both native hooks ─────────────────────
+			 * Native WooCommerce fires these for ALL orders regardless of
+			 * status. Preserve that compatibility. No capture, no suppression.
+			 */
+			do_action( 'woocommerce_thankyou_' . $order->get_payment_method(), $order->get_id() );
+			do_action( 'woocommerce_thankyou', $order->get_id() );
+			?>
+
 		<?php else : ?>
 
 			<?php
 			/*
-			 * ── SUCCESS NOTICE ───────────────────────────────────────────
-			 * Renders: <p class="woocommerce-notice woocommerce-notice--success
-			 *              woocommerce-thankyou-order-received">…</p>
-			 * The text is filtered by empire_king_order_received_hero_text()
-			 * to inject eyebrow / title / subcopy spans.
+			 * ── SUCCESS NOTICE ────────────────────────────────────────────
+			 * Renders the standard Woo success <p> notice. Text is filtered
+			 * by empire_king_order_received_hero_text() in functions.php to
+			 * inject the eyebrow / title / subcopy spans.
 			 */
 			wc_get_template( 'checkout/order-received.php', array( 'order' => $order ) );
 
 			/*
-			 * ── SUPPRESS DEFAULT ORDER-DETAILS TABLE CALLBACK ────────────
-			 * woocommerce_order_details_table is the default callback on
-			 * woocommerce_thankyou (priority 10). Detach it for this render
-			 * so it does not duplicate the custom receipt below. Restore it
-			 * immediately after do_action() so no other context is affected.
+			 * ── CAPTURE PAYMENT-SPECIFIC HOOK OUTPUT (once) ──────────────
+			 * WC_Gateway_COD::thankyou_page() (and equivalents for other
+			 * gateways) are hooked to woocommerce_thankyou_{method}.
+			 * Capture its output here to place it inside the receipt's
+			 * .ek-receipt__payment-instructions container.
+			 * This is the ONE and ONLY invocation of this hook.
 			 */
-			remove_action( 'woocommerce_thankyou', 'woocommerce_order_details_table', 10 );
+			ob_start();
+			do_action( 'woocommerce_thankyou_' . $order->get_payment_method(), $order->get_id() );
+			$ek_payment_hook_output = trim( ob_get_clean() );
 
 			/*
-			 * ── PAYMENT-GATEWAY AND THANKYOU HOOKS ───────────────────────
-			 * All other callbacks on woocommerce_thankyou (e.g. from Stripe,
-			 * PayPal, other plugins) fire as usual.
+			 * ── GENERIC THANKYOU HOOK (suppress only the default table) ──
+			 * Remove the default woocommerce_order_details_table callback
+			 * (priority 10) so the native Woo order-details table does not
+			 * duplicate the custom receipt below. Every other callback on
+			 * woocommerce_thankyou remains intact. Restore immediately after.
 			 */
-			do_action( 'woocommerce_thankyou_' . $order->get_payment_method(), $order->get_id() );
+			remove_action( 'woocommerce_thankyou', 'woocommerce_order_details_table', 10 );
 			do_action( 'woocommerce_thankyou', $order->get_id() );
-
 			add_action( 'woocommerce_thankyou', 'woocommerce_order_details_table', 10 );
 
-			// ── LOCAL VARIABLES ──────────────────────────────────────────
-			$order_date     = $order->get_date_created();
-			$order_email    = $order->get_billing_email();
-			$order_total    = $order->get_formatted_order_total();
-			$payment_method = $order->get_payment_method();
-			$payment_title  = $order->get_payment_method_title();
+			// ── LOCAL VARIABLES FOR THE RECEIPT ──────────────────────────
+			$order_date    = $order->get_date_created();
+			$order_email   = $order->get_billing_email();
+			$order_total   = $order->get_formatted_order_total();
+			$payment_title = $order->get_payment_method_title();
 			?>
 
 			<div class="ek-receipt">
@@ -123,26 +142,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 				<?php
 				/*
-				 * ── PAYMENT GATEWAY INSTRUCTIONS ────────────────────────
-				 * COD: "Pay with cash upon delivery."
-				 * WC stores this in gateway->instructions or ->description.
+				 * ── PAYMENT INSTRUCTIONS ─────────────────────────────────
+				 * Emit the captured woocommerce_thankyou_{method} output
+				 * inside the styled container when the hook produced content.
+				 * This is the only place this output appears. No second call.
 				 */
-				$gateway_description = '';
-				if ( $payment_method ) {
-					$gateways = WC()->payment_gateways()->get_available_payment_gateways();
-					if ( isset( $gateways[ $payment_method ] ) ) {
-						$gw = $gateways[ $payment_method ];
-						if ( ! empty( $gw->instructions ) ) {
-							$gateway_description = $gw->instructions;
-						} elseif ( ! empty( $gw->description ) ) {
-							$gateway_description = $gw->description;
-						}
-					}
-				}
-				if ( $gateway_description ) :
+				if ( $ek_payment_hook_output ) :
 					?>
 					<div class="ek-receipt__payment-instructions">
-						<?php echo wp_kses_post( wpautop( wptexturize( $gateway_description ) ) ); ?>
+						<?php
+						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+						echo $ek_payment_hook_output;
+						?>
 					</div>
 				<?php endif; ?>
 
@@ -186,8 +197,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 				<?php
 				// ── TOTALS ───────────────────────────────────────────────
-				// $order->get_order_item_totals() returns authoritative Woo data.
-				// No manual money calculation.
+				// Authoritative Woo data. No manual money calculation.
 				$totals = $order->get_order_item_totals();
 				if ( $totals ) :
 					?>
