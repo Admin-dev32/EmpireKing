@@ -68,4 +68,4 @@ jobs:
             hostinger-production:/home/u172551721/domains/empireking3aveh.com/public_html/wp-content/plugins/empire-king-deals/
 
       - name: Confirm production deployment
-        run: echo 'DRY RUN ONLY — PRODUCTION WAS NOT MODIFIED'
+        run: echo 'PRODUCTION DEPLOYMENT COMPLETED SUCCESSFULLY'
