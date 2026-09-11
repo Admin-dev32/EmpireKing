@@ -10,7 +10,7 @@ on:
 
 jobs:
   deploy-preview:
-    name: Production deployment preview
+    name: Production deployment
     runs-on: ubuntu-latest
 
     steps:
@@ -49,23 +49,23 @@ jobs:
           ssh hostinger-production 'test -d /home/u172551721/domains/empireking3aveh.com/public_html/wp-content/themes/empire-king'
           ssh hostinger-production 'test -d /home/u172551721/domains/empireking3aveh.com/public_html/wp-content/plugins/empire-king-deals'
 
-      - name: Preview theme synchronization
+      - name: Deploy theme to production
         shell: bash
         run: |
           set -euo pipefail
-          rsync --archive --compress --dry-run --checksum --no-times --omit-dir-times --itemize-changes --human-readable --verbose \
+          rsync --archive --compress --checksum --no-times --omit-dir-times --itemize-changes --human-readable --verbose \
             -e ssh \
             wp-content/themes/empire-king/ \
             hostinger-production:/home/u172551721/domains/empireking3aveh.com/public_html/wp-content/themes/empire-king/
 
-      - name: Preview deals plugin synchronization
+      - name: Deploy deals plugin to production
         shell: bash
         run: |
           set -euo pipefail
-          rsync --archive --compress --dry-run --checksum --no-times --omit-dir-times --itemize-changes --human-readable --verbose \
+          rsync --archive --compress --checksum --no-times --omit-dir-times --itemize-changes --human-readable --verbose \
             -e ssh \
             wp-content/plugins/empire-king-deals/ \
             hostinger-production:/home/u172551721/domains/empireking3aveh.com/public_html/wp-content/plugins/empire-king-deals/
 
-      - name: Confirm dry run completion
+      - name: Confirm production deployment
         run: echo 'DRY RUN ONLY — PRODUCTION WAS NOT MODIFIED'
