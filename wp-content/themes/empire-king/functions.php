@@ -159,7 +159,8 @@ function empire_king_enqueue_styles() {
 			array( 'empire-king-style' ),
 			wp_get_theme()->get( 'Version' )
 		);
-		wp_enqueue_style( 'empire-king-home-menu-glimpse', get_theme_file_uri( 'assets/css/home-menu-glimpse.css' ), array( 'empire-king-home' ), wp_get_theme()->get( 'Version' ) );
+		$home_menu_glimpse_css_path = get_theme_file_path( 'assets/css/home-menu-glimpse.css' );
+		wp_enqueue_style( 'empire-king-home-menu-glimpse', get_theme_file_uri( 'assets/css/home-menu-glimpse.css' ), array( 'empire-king-home' ), file_exists( $home_menu_glimpse_css_path ) ? filemtime( $home_menu_glimpse_css_path ) : null );
 		wp_enqueue_script( 'empire-king-home-menu-glimpse', get_theme_file_uri( 'assets/js/home-menu-glimpse.js' ), array(), wp_get_theme()->get( 'Version' ), array( 'in_footer' => true, 'strategy' => 'defer' ) );
 
 		wp_enqueue_style( 'empire-king-order-gateway', get_theme_file_uri( 'assets/css/order-gateway.css' ), array( 'empire-king-home' ), wp_get_theme()->get( 'Version' ) );
