@@ -1,0 +1,71 @@
+name: Empire King Production Deploy
+
+on:
+  push:
+    branches: [dev/jorge]
+    paths:
+      - wp-content/themes/empire-king/**
+      - wp-content/plugins/empire-king-deals/**
+      - .github/workflows/deploy-production.yml
+
+jobs:
+  deploy-preview:
+    name: Production deployment preview
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout triggering commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Configure SSH for Hostinger
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -p ~/.ssh
+          printf '%s\n' '${{ secrets.HOSTINGER_SSH_KEY }}' > ~/.ssh/hostinger_deploy
+          printf '%s\n' '${{ secrets.HOSTINGER_KNOWN_HOSTS }}' > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/hostinger_deploy ~/.ssh/known_hosts
+          cat > ~/.ssh/config <<'EOF'
+          Host hostinger-production
+            HostName ${{ secrets.HOSTINGER_HOST }}
+            Port ${{ secrets.HOSTINGER_PORT }}
+            User ${{ secrets.HOSTINGER_USER }}
+            IdentityFile ~/.ssh/hostinger_deploy
+            IdentitiesOnly yes
+            StrictHostKeyChecking yes
+            UserKnownHostsFile ~/.ssh/known_hosts
+            GlobalKnownHostsFile /dev/null
+          EOF
+          chmod 600 ~/.ssh/config
+
+      - name: Verify Hostinger connectivity and deployment directories
+        shell: bash
+        run: |
+          set -euo pipefail
+          ssh hostinger-production 'pwd'
+          ssh hostinger-production 'test -d /home/u172551721/domains/empireking3aveh.com/public_html/wp-content/themes/empire-king'
+          ssh hostinger-production 'test -d /home/u172551721/domains/empireking3aveh.com/public_html/wp-content/plugins/empire-king-deals'
+
+      - name: Preview theme synchronization
+        shell: bash
+        run: |
+          set -euo pipefail
+          rsync --archive --compress --dry-run --itemize-changes --human-readable --verbose \
+            -e ssh \
+            wp-content/themes/empire-king/ \
+            hostinger-production:/home/u172551721/domains/empireking3aveh.com/public_html/wp-content/themes/empire-king/
+
+      - name: Preview deals plugin synchronization
+        shell: bash
+        run: |
+          set -euo pipefail
+          rsync --archive --compress --dry-run --itemize-changes --human-readable --verbose \
+            -e ssh \
+            wp-content/plugins/empire-king-deals/ \
+            hostinger-production:/home/u172551721/domains/empireking3aveh.com/public_html/wp-content/plugins/empire-king-deals/
+
+      - name: Confirm dry run completion
+        run: echo 'DRY RUN ONLY — PRODUCTION WAS NOT MODIFIED'
