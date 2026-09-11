@@ -14,6 +14,7 @@ $order_gateway_combo      = empire_king_get_order_gateway_combo_url();
 $home_location_marker_logo = empire_king_get_footer_logo_url();
 $home_slides              = empire_king_get_home_slideshow_images();
 $home_menu_glimpse        = empire_king_get_home_menu_glimpse();
+$home_menu_glimpse_background = empire_king_get_home_menu_glimpse_background_url();
 ?>
 <section id="order" class="order-gateway<?php echo $order_gateway_background ? ' order-gateway--has-background' : ''; ?><?php echo $order_gateway_combo ? ' order-gateway--has-combo' : ''; ?>" aria-labelledby="home-title">
 	<?php if ( $order_gateway_background ) : ?>
@@ -177,7 +178,7 @@ $stories_blog_url = empire_king_get_blog_url();
 		</div>
 		<div class="home-menu-glimpse__stage">
 			<?php foreach ( $home_menu_glimpse['categories'] as $category_index => $category ) : ?>
-				<section id="menu-glimpse-<?php echo esc_attr( $category['key'] ); ?>" class="home-menu-glimpse__panel" data-menu-glimpse-panel="<?php echo esc_attr( $category['key'] ); ?>" data-accent="<?php echo esc_attr( $category_index % 3 ); ?>" role="tabpanel" <?php echo $category['key'] !== $default_menu_category['key'] ? 'hidden' : ''; ?>>
+				<section id="menu-glimpse-<?php echo esc_attr( $category['key'] ); ?>" class="home-menu-glimpse__panel<?php echo $home_menu_glimpse_background ? ' home-menu-glimpse__panel--has-background' : ''; ?>" data-menu-glimpse-panel="<?php echo esc_attr( $category['key'] ); ?>" data-accent="<?php echo esc_attr( $category_index % 3 ); ?>" role="tabpanel"<?php echo $home_menu_glimpse_background ? ' style="--ek-home-menu-glimpse-background: url(\'' . esc_url( $home_menu_glimpse_background ) . '\');"' : ''; ?> <?php echo $category['key'] !== $default_menu_category['key'] ? 'hidden' : ''; ?>>
 					<?php foreach ( $category['products'] as $image_index => $product ) : ?>
 						<figure class="home-menu-glimpse__frame home-menu-glimpse__frame--food<?php echo 0 === $image_index ? ' is-current' : ''; ?>" data-menu-glimpse-frame>
 							<?php echo wp_get_attachment_image( $product['image_id'], 'woocommerce_single', false, array( 'alt' => $product['name'], 'loading' => 'lazy', 'decoding' => 'async' ) ); ?>
