@@ -2,7 +2,7 @@ name: Empire King Production Deploy
 
 on:
   push:
-    branches: [dev/jorge]
+    branches: [main]
     paths:
       - wp-content/themes/empire-king/**
       - wp-content/plugins/empire-king-deals/**
