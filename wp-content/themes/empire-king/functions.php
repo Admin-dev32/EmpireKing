@@ -44,7 +44,7 @@ function empire_king_customize_register( $wp_customize ) {
 	$wp_customize->add_setting(
 		'empire_king_home_menu_glimpse_background_image',
 		array(
-			'sanitize_callback' => 'absint',
+			'sanitize_callback' => 'esc_url_raw',
 		)
 	);
 
@@ -561,9 +561,9 @@ function empire_king_get_home_slideshow_images() {
 
 /** Gets the Customizer-selected Home Menu Glimpse background image URL. */
 function empire_king_get_home_menu_glimpse_background_url() {
-	$image_id = absint( get_theme_mod( 'empire_king_home_menu_glimpse_background_image' ) );
+	$background_url = esc_url_raw( get_theme_mod( 'empire_king_home_menu_glimpse_background_image' ) );
 
-	return $image_id ? wp_get_attachment_image_url( $image_id, 'full' ) : false;
+	return $background_url ? $background_url : false;
 }
 
 /** Gets Home Menu Glimpse categories and product imagery from WooCommerce. */
