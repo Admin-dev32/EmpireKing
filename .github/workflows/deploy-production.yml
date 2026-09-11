@@ -53,7 +53,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          rsync --archive --compress --dry-run --checksum --itemize-changes --human-readable --verbose \
+          rsync --archive --compress --dry-run --checksum --no-times --omit-dir-times --itemize-changes --human-readable --verbose \
             -e ssh \
             wp-content/themes/empire-king/ \
             hostinger-production:/home/u172551721/domains/empireking3aveh.com/public_html/wp-content/themes/empire-king/
@@ -62,7 +62,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          rsync --archive --compress --dry-run --checksum --itemize-changes --human-readable --verbose \
+          rsync --archive --compress --dry-run --checksum --no-times --omit-dir-times --itemize-changes --human-readable --verbose \
             -e ssh \
             wp-content/plugins/empire-king-deals/ \
             hostinger-production:/home/u172551721/domains/empireking3aveh.com/public_html/wp-content/plugins/empire-king-deals/
