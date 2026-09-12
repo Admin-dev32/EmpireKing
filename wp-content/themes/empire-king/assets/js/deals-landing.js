@@ -1,4 +1,55 @@
 document.addEventListener('DOMContentLoaded', () => {
+	const pills = document.querySelector('.ek-deals__pills');
+	if (pills) {
+		const links = Array.from(pills.querySelectorAll('a[href^="#"]'));
+		const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+		const linkForHash = (hash) => links.find((link) => link.hash === hash);
+
+		const bringActivePillIntoView = (link) => {
+			const pillStart = link.offsetLeft;
+			const pillEnd = pillStart + link.offsetWidth;
+			const railStart = pills.scrollLeft;
+			const railEnd = railStart + pills.clientWidth;
+
+			if (pillStart >= railStart && pillEnd <= railEnd) return;
+
+			pills.scrollTo({
+				left: Math.max( 0, pillStart - ( pills.clientWidth - link.offsetWidth ) / 2 ),
+				behavior: reducedMotion.matches ? 'auto' : 'smooth',
+			});
+		};
+
+		const setActivePill = (link) => {
+			links.forEach((pill) => {
+				const isActive = pill === link;
+				pill.classList.toggle('is-active', isActive);
+				if (isActive) pill.setAttribute('aria-current', 'location');
+				else pill.removeAttribute('aria-current');
+			});
+			if (link) bringActivePillIntoView(link);
+		};
+
+		const syncActivePill = () => setActivePill(linkForHash(window.location.hash) || links[0]);
+
+		links.forEach((link) => {
+			link.addEventListener('click', (event) => {
+				if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+				const target = document.getElementById(link.hash.slice(1));
+				if (!target) return;
+
+				event.preventDefault();
+				setActivePill(link);
+				target.scrollIntoView({ behavior: reducedMotion.matches ? 'auto' : 'smooth', block: 'start' });
+				if (window.location.hash !== link.hash) window.history.pushState(null, '', link.hash);
+			});
+		});
+
+		window.addEventListener('hashchange', syncActivePill);
+		window.addEventListener('popstate', syncActivePill);
+		syncActivePill();
+	}
+
 	const welcome = document.querySelector('.ek-deals-welcome');
 	const target = document.querySelector('#deals-start');
 	if (!welcome || !target) return;
