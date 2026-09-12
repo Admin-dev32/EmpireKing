@@ -11,6 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 require_once get_theme_file_path( 'inc/order-now.php' );
 require_once get_theme_file_path( 'inc/order-upsell.php' );
+require_once get_theme_file_path( 'inc/seo.php' );
 
 function empire_king_setup() {
 	add_theme_support( 'title-tag' );
@@ -399,13 +400,6 @@ add_action( 'wp_enqueue_scripts', static function () {
 		) );
 	}
 }, 20 );
-
-add_filter( 'pre_get_document_title', function ( $title ) {
-	return is_page( 'deals' ) ? sprintf( 'Deals & Specials in %s | Empire King Burger', empire_king_get_location_locality_label() ) : $title;
-} );
-add_action( 'wp_head', function () {
-	if ( is_page( 'deals' ) ) echo '<meta name="description" content="' . esc_attr( sprintf( 'Current Empire King Burger deals and specials at %s in %s. Browse current offers and order online.', empire_king_get_location_setting( 'display_name' ), empire_king_get_location_locality_label( true ) ) ) . '">' . "\n";
-} );
 
 /** Enqueues Google Maps independently for the configured homepage map. */
 function empire_king_enqueue_google_maps_api() {

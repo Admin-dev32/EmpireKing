@@ -22,8 +22,14 @@
   },
   "seo": {
     "architectureGate": "completed",
-    "home": "Avenue H brand, ordering, and local-business Home",
-    "deals": "/deals/ is the sole permanent indexable Deals landing page; no public Deal singles, category archives, or sitemap entries"
+    "phase1TechnicalSeo": "implemented in the shared theme",
+    "strategicDestinations": "Home, /deals/, and /order-now/ are indexable, location-specific landing pages",
+    "orderNowCanonical": "/order-now/ filter and product state parameters consolidate canonically to the clean /order-now/ URL",
+    "woocommerceExclusions": "Woo product singles and product_cat archives are noindex/follow and excluded from WordPress XML sitemaps; a separate Shop page is noindex/follow",
+    "transactionalPages": "Cart, checkout, account, and order-received destinations are noindex/follow",
+    "restaurantSchema": "Home emits location-specific Restaurant structured data from each installation's configured location values",
+    "locationOwnership": "Avenue H and Avenue I remain independent and never use cross-domain canonicals",
+    "deals": "/deals/ is the sole permanent indexable Deals landing page; private Deal singles, category archives, and sitemap entries remain disabled"
   },
   "localRuntime": {
     "siteUrl": "http://localhost:8888",
