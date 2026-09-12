@@ -186,7 +186,7 @@ add_action( 'wc_ajax_empire_king_edit_cart_item', 'empire_king_ajax_edit_cart_it
  * interactive transactional menu on /order-now/, preserving the product ID so the
  * menu sheet can automatically open that item for customization.
  *
- * Uses a temporary 302 redirect for development. Avoids admin product editing,
+ * Uses a permanent 301 redirect for SEO consolidation. Avoids admin product editing,
  * AJAX requests, REST API, cron, and redirect loops.
  */
 function empire_king_redirect_single_product_pages() {
@@ -199,7 +199,7 @@ function empire_king_redirect_single_product_pages() {
 		if ( $product_id ) {
 			$target_url = add_query_arg( 'product_id', $product_id, $target_url );
 		}
-		wp_safe_redirect( $target_url, 302 );
+		wp_safe_redirect( $target_url, 301 );
 		exit;
 	}
 }
