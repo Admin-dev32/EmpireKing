@@ -279,11 +279,12 @@ function empire_king_enqueue_styles() {
 
 		wp_enqueue_style( 'empire-king-order-gateway', get_theme_file_uri( 'assets/css/order-gateway.css' ), array( 'empire-king-home' ), wp_get_theme()->get( 'Version' ) );
 		empire_king_enqueue_google_maps_api();
+		$home_locations_script_path = get_theme_file_path( 'assets/js/home-locations.js' );
 		wp_enqueue_script(
 			'empire-king-home-locations',
 			get_theme_file_uri( 'assets/js/home-locations.js' ),
 			empire_king_get_google_maps_api_key() ? array( 'empire-king-google-maps-api' ) : array(),
-			wp_get_theme()->get( 'Version' ),
+			file_exists( $home_locations_script_path ) ? filemtime( $home_locations_script_path ) : null,
 			array(
 				'in_footer' => true,
 				'strategy'  => 'defer',
