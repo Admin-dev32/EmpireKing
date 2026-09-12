@@ -64,6 +64,7 @@ html.ek-deals-welcome-open, body.ek-deals-welcome-open { overflow: hidden; }
 .ek-deals__empty { padding: clamp(1.5rem, 5vw, 3rem); background: #fff0c8; border-radius: 1rem; border: 1px solid #ead5a2; }
 .ek-deals__empty h2 { font-size: clamp(1.8rem, 4vw, 2.8rem); margin: 0; }
 .ek-deals__travel { display: grid; min-height: clamp(22rem, 60svh, 40rem); place-content: center; justify-items: start; gap: 1.5rem; margin-top: 3rem; padding: clamp(2rem, 8vw, 4.5rem); border-radius: 1rem; color: white; background: radial-gradient(ellipse at 100% 100%, #ad273b, transparent 70%), linear-gradient(135deg, #241318, #67131f); }
+.ek-deals__travel--has-background { background-image: radial-gradient(ellipse at 100% 100%, rgb(173 39 59 / 58%), transparent 70%), linear-gradient(135deg, rgb(36 19 24 / 88%), rgb(103 19 31 / 78%)), var(--ek-deals-travel-background); background-position: center; background-size: cover; background-repeat: no-repeat; }
 .ek-deals__travel > div { max-width: 42rem; }
 .ek-deals__travel svg { width: clamp(4rem, 16vw, 6rem); fill: none; stroke: var(--ek-color-yellow); stroke-width: 2; }
 .ek-deals__travel h2 { margin: 0; font-size: clamp(2.35rem, 9vw, 5rem); }
