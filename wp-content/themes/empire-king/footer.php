@@ -28,7 +28,7 @@ $terms_url       = $terms_page && 'publish' === get_post_status( $terms_page ) ?
 					<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13m-5-5 5 5-5 5" /></svg>
 				</a>
 				<a class="site-footer__locations" href="<?php echo esc_url( home_url( '/#locations' ) ); ?>">
-					<span><?php esc_html_e( 'Visit Avenue H', 'empire-king' ); ?></span>
+					<span><?php echo esc_html( sprintf( 'Visit %s', empire_king_get_location_setting( 'display_name' ) ) ); ?></span>
 					<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13m-5-5 5 5-5 5" /></svg>
 				</a>
 			</div>

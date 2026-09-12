@@ -159,7 +159,7 @@ $stories_blog_url = empire_king_get_blog_url();
 			<p class="home-locations__map-fallback"><?php echo esc_html( sprintf( 'Interactive map unavailable. %s location details are shown below.', $location_name ) ); ?></p>
 		</div>
 		<article class="home-locations__detail">
-				<div class="home-locations__detail-heading"><span class="home-locations__badge" aria-hidden="true"><?php echo esc_html( $location_badge ); ?></span><div><h3><?php echo esc_html( $location_name ); ?></h3><address><?php echo esc_html( implode( "\n", $location_address_lines ) ); ?></address></div></div>
+				<div class="home-locations__detail-heading"><span class="home-locations__badge" aria-hidden="true"><?php echo esc_html( $location_badge ); ?></span><div><h3><?php echo esc_html( $location_name ); ?></h3><address><?php echo wp_kses_post( implode( '<br>', array_map( 'esc_html', $location_address_lines ) ) ); ?></address></div></div>
 				<div class="home-locations__actions">
 					<a class="home-locations__order" href="<?php echo esc_url( home_url( '/order-now/' ) ); ?>"><?php echo esc_html( sprintf( 'Order from %s', $location_name ) ); ?></a>
 					<a class="home-locations__directions" href="<?php echo esc_url( empire_king_get_location_directions_url() ); ?>" target="_blank" rel="noopener noreferrer">Get Directions <span aria-hidden="true">&#8599;</span></a>

@@ -30,7 +30,7 @@ $blog_url = empire_king_get_blog_url();
 		<nav class="ek-blog__next-step" aria-label="Explore Empire King">
 			<?php if ( $blog_url ) : ?><a href="<?php echo esc_url( $blog_url ); ?>">Back to Blog</a><?php endif; ?>
 			<a href="<?php echo esc_url( home_url( '/order-now/' ) ); ?>">Order Online</a>
-			<a href="<?php echo esc_url( home_url( '/#locations' ) ); ?>">Visit Avenue H</a>
+			<a href="<?php echo esc_url( home_url( '/#locations' ) ); ?>"><?php echo esc_html( sprintf( 'Visit %s', empire_king_get_location_setting( 'display_name' ) ) ); ?></a>
 		</nav>
 	</div>
 <?php endwhile; ?>

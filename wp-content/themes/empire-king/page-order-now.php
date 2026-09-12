@@ -1,5 +1,5 @@
 <?php
-/** Avenue H transactional menu with a reusable WooCommerce product sheet. */
+/** Local transactional menu with a reusable WooCommerce product sheet. */
 $default_category_id = (int) get_option( 'default_product_cat' );
 $categories = get_terms( array( 'taxonomy' => 'product_cat', 'hide_empty' => true, 'exclude' => $default_category_id ? array( $default_category_id ) : array() ) );
 $categories = is_wp_error( $categories ) ? array() : $categories;
@@ -13,7 +13,7 @@ get_header();
 ?>
 <div class="ek-order-now"<?php if ( $product_background ) : ?> style="--ek-product-background: url('<?php echo esc_url( $product_background ); ?>')"<?php endif; ?>>
 	<section class="ek-order-now__hero" aria-labelledby="order-now-title">
-		<div class="ek-order-now__location"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12Z" /><circle cx="12" cy="9" r="2.25" /></svg><span>Avenue H</span></div>
+		<div class="ek-order-now__location"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12Z" /><circle cx="12" cy="9" r="2.25" /></svg><span><?php echo esc_html( empire_king_get_location_setting( 'display_name' ) ); ?></span></div>
 		<div class="ek-order-now__hero-copy"><h1 id="order-now-title"><span>Order</span> <strong>Online</strong></h1><p>Fresh made to order.</p></div>
 		<div class="ek-order-now__hero-media" aria-hidden="true"></div>
 	</section>
