@@ -15,6 +15,10 @@ $home_location_marker_logo = empire_king_get_footer_logo_url();
 $home_slides              = empire_king_get_home_slideshow_images();
 $home_menu_glimpse        = empire_king_get_home_menu_glimpse();
 $home_menu_glimpse_background = empire_king_get_home_menu_glimpse_background_url();
+$location_name             = empire_king_get_location_setting( 'display_name' );
+$location_badge            = empire_king_get_location_setting( 'badge' );
+$location_locality_long    = empire_king_get_location_locality_label( true );
+$location_address_lines    = empire_king_get_location_address_lines();
 ?>
 <section id="order" class="order-gateway<?php echo $order_gateway_background ? ' order-gateway--has-background' : ''; ?><?php echo $order_gateway_combo ? ' order-gateway--has-combo' : ''; ?>" aria-labelledby="home-title">
 	<?php if ( $order_gateway_background ) : ?>
@@ -30,7 +34,7 @@ $home_menu_glimpse_background = empire_king_get_home_menu_glimpse_background_url
 				<p class="order-gateway__accent">Start here</p>
 			</div>
 			<div class="order-gateway__card">
-				<p class="order-gateway__location">Avenue H &middot; Lancaster, California</p>
+				<p class="order-gateway__location"><?php echo esc_html( $location_name . ' · ' . $location_locality_long ); ?></p>
 				<a class="order-gateway__button" href="<?php echo esc_url( home_url( '/order-now/' ) ); ?>">Order Now</a>
 			</div>
 		</div>
@@ -147,18 +151,18 @@ $stories_blog_url = empire_king_get_blog_url();
 <section id="locations" class="home-locations" aria-labelledby="locations-title">
 	<div class="home-locations__intro">
 		<p>Our Location</p>
-		<h2 id="locations-title">Visit Avenue H</h2>
-		<p>Find Empire King Burger on Avenue H in Lancaster.</p>
+		<h2 id="locations-title"><?php echo esc_html( sprintf( 'Visit %s', $location_name ) ); ?></h2>
+		<p><?php echo esc_html( sprintf( 'Find Empire King Burger on %s in %s.', $location_name, empire_king_get_location_setting( 'city' ) ) ); ?></p>
 	</div>
 	<div class="home-locations__stage">
-		<div id="home-locations-map" class="home-locations__map" aria-label="Map showing the Empire King Avenue H location" role="region"<?php if ( $home_location_marker_logo ) : ?> data-marker-logo-url="<?php echo esc_url( $home_location_marker_logo ); ?>"<?php endif; ?>>
-			<p class="home-locations__map-fallback">Interactive map unavailable. Avenue H location details are shown below.</p>
+		<div id="home-locations-map" class="home-locations__map" aria-label="<?php echo esc_attr( sprintf( 'Map showing the Empire King %s location', $location_name ) ); ?>" role="region"<?php if ( $home_location_marker_logo ) : ?> data-marker-logo-url="<?php echo esc_url( $home_location_marker_logo ); ?>"<?php endif; ?>>
+			<p class="home-locations__map-fallback"><?php echo esc_html( sprintf( 'Interactive map unavailable. %s location details are shown below.', $location_name ) ); ?></p>
 		</div>
 		<article class="home-locations__detail">
-				<div class="home-locations__detail-heading"><span class="home-locations__badge" aria-hidden="true">H</span><div><h3>Avenue H</h3><address>1036 W Avenue H<br>Lancaster, CA 93534</address></div></div>
+				<div class="home-locations__detail-heading"><span class="home-locations__badge" aria-hidden="true"><?php echo esc_html( $location_badge ); ?></span><div><h3><?php echo esc_html( $location_name ); ?></h3><address><?php echo esc_html( implode( "\n", $location_address_lines ) ); ?></address></div></div>
 				<div class="home-locations__actions">
-					<a class="home-locations__order" href="<?php echo esc_url( home_url( '/order-now/' ) ); ?>">Order from Avenue H</a>
-					<a class="home-locations__directions" href="https://www.google.com/maps/search/?api=1&amp;query=1036%20W%20Avenue%20H%2C%20Lancaster%2C%20CA%2093534" target="_blank" rel="noopener noreferrer">Get Directions <span aria-hidden="true">&#8599;</span></a>
+					<a class="home-locations__order" href="<?php echo esc_url( home_url( '/order-now/' ) ); ?>"><?php echo esc_html( sprintf( 'Order from %s', $location_name ) ); ?></a>
+					<a class="home-locations__directions" href="<?php echo esc_url( empire_king_get_location_directions_url() ); ?>" target="_blank" rel="noopener noreferrer">Get Directions <span aria-hidden="true">&#8599;</span></a>
 				</div>
 		</article>
 	</div>
@@ -185,7 +189,7 @@ $stories_blog_url = empire_king_get_blog_url();
 						</figure>
 					<?php endforeach; ?>
 					<div class="home-menu-glimpse__frame home-menu-glimpse__frame--cta" data-menu-glimpse-frame>
-						<p>Ready to Order?</p><h3>Craving <?php echo esc_html( $category['name'] ); ?>?</h3><span>Start your Avenue H order.</span><a href="<?php echo esc_url( empire_king_get_local_order_url( $category['key'] ) ); ?>">Order Now</a>
+						<p>Ready to Order?</p><h3>Craving <?php echo esc_html( $category['name'] ); ?>?</h3><span><?php echo esc_html( sprintf( 'Start your %s order.', $location_name ) ); ?></span><a href="<?php echo esc_url( empire_king_get_local_order_url( $category['key'] ) ); ?>">Order Now</a>
 					</div>
 					<a class="home-menu-glimpse__fallback-order" href="<?php echo esc_url( empire_king_get_local_order_url( $category['key'] ) ); ?>">Order Now</a>
 				</section>
