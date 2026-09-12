@@ -40,6 +40,25 @@
         "reveal": "always",
         "panel": "dedicated"
       }
+    },
+    {
+      "label": "Empire King: Publish to Production",
+      "type": "shell",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\tools\\publish-production.ps1"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true,
+        "clear": false
+      }
     }
   ]
 }
