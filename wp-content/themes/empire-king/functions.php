@@ -32,8 +32,98 @@ function empire_king_setup() {
 }
 add_action( 'after_setup_theme', 'empire_king_setup' );
 
+/** Returns the per-installation location configuration, with Avenue H defaults. */
+function empire_king_get_location_settings() {
+	$defaults = array(
+		'display_name'   => 'Avenue H',
+		'badge'          => 'H',
+		'street_address' => '1036 W Avenue H',
+		'city'           => 'Lancaster',
+		'state'          => 'CA',
+		'zip'            => '93534',
+		'phone'          => '',
+		'directions_url' => '',
+	);
+
+	foreach ( $defaults as $key => $default ) {
+		$value = get_theme_mod( 'empire_king_location_' . $key, $default );
+		$defaults[ $key ] = is_string( $value ) ? trim( $value ) : $default;
+	}
+
+	return $defaults;
+}
+
+/** Returns one configured location value. */
+function empire_king_get_location_setting( $key ) {
+	$settings = empire_king_get_location_settings();
+	return isset( $settings[ $key ] ) ? $settings[ $key ] : '';
+}
+
+/** Returns the configured address on one line. */
+function empire_king_get_location_address( $include_name = false ) {
+	$settings = empire_king_get_location_settings();
+	$parts    = array_filter( array( $settings['street_address'], $settings['city'], $settings['state'], $settings['zip'] ) );
+	$city_line = trim( implode( ', ', array_filter( array( $settings['city'], trim( $settings['state'] . ( $settings['zip'] ? ' ' . $settings['zip'] : '' ) ) ) ) ) );
+	$address = array_filter( array( $settings['street_address'], $city_line ) );
+	if ( $include_name && $settings['display_name'] ) {
+		array_unshift( $address, $settings['display_name'] );
+	}
+	return implode( ', ', $address );
+}
+
+/** Returns the configured address as safe HTML lines for an address element. */
+function empire_king_get_location_address_lines() {
+	$settings  = empire_king_get_location_settings();
+	$city_line = trim( implode( ', ', array_filter( array( $settings['city'], trim( $settings['state'] . ( $settings['zip'] ? ' ' . $settings['zip'] : '' ) ) ) ) ) );
+	return array_filter( array( $settings['street_address'], $city_line ) );
+}
+
+/** Returns the city and region label used in location presentation. */
+function empire_king_get_location_locality_label( $spell_out_state = false ) {
+	$settings = empire_king_get_location_settings();
+	$state    = $settings['state'];
+	if ( $spell_out_state && 'CA' === strtoupper( $state ) ) {
+		$state = 'California';
+	}
+	return implode( ', ', array_filter( array( $settings['city'], $state ) ) );
+}
+
+/** Returns a Google Maps search URL, or an explicitly configured directions URL. */
+function empire_king_get_location_directions_url() {
+	$settings = empire_king_get_location_settings();
+	if ( $settings['directions_url'] ) {
+		return $settings['directions_url'];
+	}
+	return add_query_arg( array( 'api' => '1', 'query' => empire_king_get_location_address( true ) ), 'https://www.google.com/maps/search/' );
+}
+
+/** Sanitizes optional phone storage without inventing a presentation format. */
+function empire_king_sanitize_location_phone( $value ) {
+	return preg_replace( '/[^0-9+().\-\s]/', '', (string) $value );
+}
+
 /** Registers Home Menu Glimpse appearance settings. */
 function empire_king_customize_register( $wp_customize ) {
+	$wp_customize->add_section(
+		'empire_king_location',
+		array( 'title' => esc_html__( 'Empire King Location', 'empire-king' ) )
+	);
+	$location_fields = array(
+		'display_name'   => array( 'label' => 'Location Display Name', 'sanitize' => 'sanitize_text_field' ),
+		'badge'          => array( 'label' => 'Short Location Badge / Letter', 'sanitize' => 'sanitize_text_field' ),
+		'street_address' => array( 'label' => 'Street Address', 'sanitize' => 'sanitize_text_field' ),
+		'city'           => array( 'label' => 'City', 'sanitize' => 'sanitize_text_field' ),
+		'state'          => array( 'label' => 'State', 'sanitize' => 'sanitize_text_field' ),
+		'zip'            => array( 'label' => 'ZIP Code', 'sanitize' => 'sanitize_text_field' ),
+		'phone'          => array( 'label' => 'Phone Number', 'sanitize' => 'empire_king_sanitize_location_phone' ),
+		'directions_url' => array( 'label' => 'Directions / Google Maps URL (optional)', 'sanitize' => 'esc_url_raw' ),
+	);
+	foreach ( $location_fields as $key => $field ) {
+		$setting = 'empire_king_location_' . $key;
+		$wp_customize->add_setting( $setting, array( 'sanitize_callback' => $field['sanitize'] ) );
+		$wp_customize->add_control( $setting, array( 'label' => esc_html__( $field['label'], 'empire-king' ), 'section' => 'empire_king_location', 'type' => 'text' ) );
+	}
+
 	$wp_customize->add_section(
 		'empire_king_home_menu_glimpse',
 		array(
@@ -175,6 +265,14 @@ function empire_king_enqueue_styles() {
 				'strategy'  => 'defer',
 			)
 		);
+		wp_localize_script(
+			'empire-king-home-locations',
+			'empireKingLocation',
+			array(
+				'address' => empire_king_get_location_address( true ),
+				'label'   => sprintf( 'Empire King Burger — %s', empire_king_get_location_setting( 'display_name' ) ),
+			)
+		);
 
 		$home_slides = empire_king_get_home_slideshow_images();
 		if ( $home_slides ) {
@@ -214,10 +312,10 @@ add_action( 'wp_enqueue_scripts', static function () {
 }, 20 );
 
 add_filter( 'pre_get_document_title', function ( $title ) {
-	return is_page( 'deals' ) ? 'Deals & Specials in Lancaster, CA | Empire King Burger' : $title;
+	return is_page( 'deals' ) ? sprintf( 'Deals & Specials in %s | Empire King Burger', empire_king_get_location_locality_label() ) : $title;
 } );
 add_action( 'wp_head', function () {
-	if ( is_page( 'deals' ) ) echo '<meta name="description" content="Current Empire King Burger deals and specials at Avenue H in Lancaster, California. Browse current offers and order online.">' . "\n";
+	if ( is_page( 'deals' ) ) echo '<meta name="description" content="' . esc_attr( sprintf( 'Current Empire King Burger deals and specials at %s in %s. Browse current offers and order online.', empire_king_get_location_setting( 'display_name' ), empire_king_get_location_locality_label( true ) ) ) . '">' . "\n";
 } );
 
 /** Enqueues Google Maps independently for the Avenue H homepage map. */
