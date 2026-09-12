@@ -34,11 +34,11 @@ html.ek-deals-welcome-open, body.ek-deals-welcome-open { overflow: hidden; }
 .ek-deals__intro > p:last-child { max-width: 43rem; margin: 0.35rem 0 0; color: #5d4b3e; font-size: clamp(0.94rem, 2.3vw, 1.06rem); }
 .ek-deals p { line-height: 1.55; }
 .ek-deals__pills { display: flex; max-width: 100%; gap: 0.35rem; overflow-x: auto; overscroll-behavior-x: contain; padding: 0.45rem 0 0.05rem; scrollbar-width: thin; scrollbar-color: #9e7a55 transparent; }
-.ek-deals__pills a { flex: 0 0 auto; display: inline-flex; align-items: center; min-height: 44px; padding: 0.5rem 0.85rem; color: #63131d; font-weight: 850; text-decoration: none; border: 1px solid transparent; border-radius: 999px; background: transparent; transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, color 160ms ease, transform 160ms ease; }
-.ek-deals__pills a:first-child { padding-inline: 1rem; color: var(--ek-color-black); background: var(--ek-color-yellow); box-shadow: inset 0 -1px 0 rgb(91 56 11 / 18%); }
-.ek-deals__pills:has(a.is-active) a:first-child:not(.is-active) { color: #63131d; background: transparent; border-color: transparent; box-shadow: none; }
+.ek-deals__pills a { flex: 0 0 auto; display: inline-flex; align-items: center; min-height: 44px; padding: 0.5rem 0.85rem; color: #63131d; font-weight: 850; text-decoration: none; border: 1px solid transparent; border-radius: 999px; background: transparent; transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease; }
+.ek-deals__pills a:first-child { padding-inline: 1rem; color: var(--ek-color-black); background: var(--ek-color-yellow); }
+.ek-deals__pills:has(a.is-active) a:first-child:not(.is-active) { color: #63131d; background: transparent; border-color: transparent; }
 .ek-deals__pills a:not(:first-child):hover { color: #381016; background: rgb(255 227 75 / 16%); }
-.ek-deals__pills a.is-active { color: var(--ek-color-black); background: var(--ek-color-yellow); box-shadow: inset 0 -1px 0 rgb(91 56 11 / 18%); transform: translateY(-1px); }
+.ek-deals__pills a.is-active { color: var(--ek-color-black); background: var(--ek-color-yellow); transform: translateY(-1px); }
 .ek-deals__card { min-width: 0; overflow: hidden; border: 1px solid #e5d8c6; border-radius: 1.15rem; background: #fffdf8; box-shadow: 0 0.65rem 1.6rem rgb(73 39 22 / 10%); scroll-margin-top: var(--ek-deals-scroll-offset); }
 .ek-deals__card:not(.ek-deals__card--lead) { display: flex; flex-direction: column; }
 .ek-deals__art { aspect-ratio: 1 / 1; overflow: hidden; background: #f1e6d5; }
