@@ -3,6 +3,7 @@
 get_header();
 $deals_landing_media = empire_king_get_deals_landing_media();
 $welcome_logo_url    = empire_king_get_footer_logo_url();
+$travel_background_url = empire_king_get_deals_travel_background_url();
 $deals = function_exists( 'ek_deals_live' ) ? ek_deals_live() : array();
 $location_name = empire_king_get_location_setting( 'display_name' );
 $location_city = empire_king_get_location_setting( 'city' );

@@ -172,6 +172,31 @@ function empire_king_customize_register( $wp_customize ) {
 			)
 		)
 	);
+
+	$wp_customize->add_section(
+		'empire_king_deals_page',
+		array(
+			'title' => esc_html__( 'Deals Page', 'empire-king' ),
+		)
+	);
+
+	$wp_customize->add_setting(
+		'empire_king_deals_travel_background_image',
+		array(
+			'sanitize_callback' => 'esc_url_raw',
+		)
+	);
+
+	$wp_customize->add_control(
+		new WP_Customize_Image_Control(
+			$wp_customize,
+			'empire_king_deals_travel_background_image',
+			array(
+				'label'   => esc_html__( 'Passing Through Background Image', 'empire-king' ),
+				'section' => 'empire_king_deals_page',
+			)
+		)
+	);
 }
 add_action( 'customize_register', 'empire_king_customize_register' );
 
@@ -688,6 +713,13 @@ function empire_king_get_home_slideshow_images() {
 /** Gets the Customizer-selected Home Menu Glimpse background image URL. */
 function empire_king_get_home_menu_glimpse_background_url() {
 	$background_url = esc_url_raw( get_theme_mod( 'empire_king_home_menu_glimpse_background_image' ) );
+
+	return $background_url ? $background_url : false;
+}
+
+/** Gets the Customizer-selected Passing Through background image URL. */
+function empire_king_get_deals_travel_background_url() {
+	$background_url = esc_url_raw( get_theme_mod( 'empire_king_deals_travel_background_image' ) );
 
 	return $background_url ? $background_url : false;
 }
