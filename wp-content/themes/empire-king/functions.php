@@ -62,7 +62,6 @@ function empire_king_get_location_setting( $key ) {
 /** Returns the configured address on one line. */
 function empire_king_get_location_address( $include_name = false ) {
 	$settings = empire_king_get_location_settings();
-	$parts    = array_filter( array( $settings['street_address'], $settings['city'], $settings['state'], $settings['zip'] ) );
 	$city_line = trim( implode( ', ', array_filter( array( $settings['city'], trim( $settings['state'] . ( $settings['zip'] ? ' ' . $settings['zip'] : '' ) ) ) ) ) );
 	$address = array_filter( array( $settings['street_address'], $city_line ) );
 	if ( $include_name && $settings['display_name'] ) {
@@ -318,7 +317,7 @@ add_action( 'wp_head', function () {
 	if ( is_page( 'deals' ) ) echo '<meta name="description" content="' . esc_attr( sprintf( 'Current Empire King Burger deals and specials at %s in %s. Browse current offers and order online.', empire_king_get_location_setting( 'display_name' ), empire_king_get_location_locality_label( true ) ) ) . '">' . "\n";
 } );
 
-/** Enqueues Google Maps independently for the Avenue H homepage map. */
+/** Enqueues Google Maps independently for the configured homepage map. */
 function empire_king_enqueue_google_maps_api() {
 	$maps_api_key = empire_king_get_google_maps_api_key();
 	if ( $maps_api_key ) {
@@ -326,7 +325,7 @@ function empire_king_enqueue_google_maps_api() {
 	}
 }
 
-/** Builds a local Avenue H order URL with optional category and campaign context. */
+/** Builds a local order URL with optional category and campaign context. */
 function empire_king_get_local_order_url( $category = '', $preserve_campaign = false ) {
 	$query_args = array();
 	if ( $category ) {

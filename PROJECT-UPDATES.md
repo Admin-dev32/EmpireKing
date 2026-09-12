@@ -13,6 +13,8 @@
 ## WordPress/WooCommerce theme foundation
 
 - Added the minimal reusable `empire-king` classic theme with standard WordPress and WooCommerce support.
+- The shared theme supports independent Avenue H and Avenue I installations; each installation supplies its own location identity through WordPress configuration and retains separate WooCommerce operational data.
+- Production deployment now promotes shared theme and Deals plugin code from `main` to both Avenue H and Avenue I while leaving each installation's database, uploads, configuration, and WooCommerce operational data independent.
 - Added repository operating guidance, technical manifest, local theme mapping, and inexpensive branch-targeted CI validation.
 
 ## Corporate Home visual-direction prototype

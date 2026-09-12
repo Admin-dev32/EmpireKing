@@ -41,15 +41,17 @@ jobs:
           EOF
           chmod 600 ~/.ssh/config
 
-      - name: Verify Hostinger connectivity and deployment directories
+      - name: Verify Avenue H + Avenue I deployment directories
         shell: bash
         run: |
           set -euo pipefail
           ssh hostinger-production 'pwd'
           ssh hostinger-production 'test -d /home/u172551721/domains/empireking3aveh.com/public_html/wp-content/themes/empire-king'
           ssh hostinger-production 'test -d /home/u172551721/domains/empireking3aveh.com/public_html/wp-content/plugins/empire-king-deals'
+          ssh hostinger-production 'test -d /home/u172551721/domains/empireking2avei.com/public_html/wp-content/themes/empire-king'
+          ssh hostinger-production 'test -d /home/u172551721/domains/empireking2avei.com/public_html/wp-content/plugins/empire-king-deals'
 
-      - name: Deploy theme to production
+      - name: Deploy Avenue H theme
         shell: bash
         run: |
           set -euo pipefail
@@ -58,7 +60,7 @@ jobs:
             wp-content/themes/empire-king/ \
             hostinger-production:/home/u172551721/domains/empireking3aveh.com/public_html/wp-content/themes/empire-king/
 
-      - name: Deploy deals plugin to production
+      - name: Deploy Avenue H Deals plugin
         shell: bash
         run: |
           set -euo pipefail
@@ -67,5 +69,23 @@ jobs:
             wp-content/plugins/empire-king-deals/ \
             hostinger-production:/home/u172551721/domains/empireking3aveh.com/public_html/wp-content/plugins/empire-king-deals/
 
+      - name: Deploy Avenue I theme
+        shell: bash
+        run: |
+          set -euo pipefail
+          rsync --archive --compress --checksum --no-times --omit-dir-times --itemize-changes --human-readable --verbose \
+            -e ssh \
+            wp-content/themes/empire-king/ \
+            hostinger-production:/home/u172551721/domains/empireking2avei.com/public_html/wp-content/themes/empire-king/
+
+      - name: Deploy Avenue I Deals plugin
+        shell: bash
+        run: |
+          set -euo pipefail
+          rsync --archive --compress --checksum --no-times --omit-dir-times --itemize-changes --human-readable --verbose \
+            -e ssh \
+            wp-content/plugins/empire-king-deals/ \
+            hostinger-production:/home/u172551721/domains/empireking2avei.com/public_html/wp-content/plugins/empire-king-deals/
+
       - name: Confirm production deployment
-        run: echo 'PRODUCTION DEPLOYMENT COMPLETED SUCCESSFULLY'
+        run: echo 'AVENUE H + AVENUE I PRODUCTION DEPLOYMENT COMPLETED SUCCESSFULLY'
