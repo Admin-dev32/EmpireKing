@@ -9,13 +9,14 @@ $requested_category = isset( $_GET['ekb_cat'] ) && is_scalar( $_GET['ekb_cat'] )
 $active_category = $requested_category && in_array( $requested_category, $category_slugs, true ) ? $requested_category : ( $categories ? $categories[0]->slug : '' );
 $products = function_exists( 'wc_get_products' ) ? wc_get_products( array( 'status' => 'publish', 'limit' => -1, 'type' => array( 'simple', 'variable', 'grouped', 'external' ), 'orderby' => 'menu_order', 'order' => 'ASC' ) ) : array();
 $product_background = empire_king_order_now_background();
+$hero_side_image = empire_king_get_order_now_hero_side_image_url();
 get_header();
 ?>
 <div class="ek-order-now"<?php if ( $product_background ) : ?> style="--ek-product-background: url('<?php echo esc_url( $product_background ); ?>')"<?php endif; ?>>
 	<section class="ek-order-now__hero" aria-labelledby="order-now-title">
 		<div class="ek-order-now__location"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12Z" /><circle cx="12" cy="9" r="2.25" /></svg><span><?php echo esc_html( empire_king_get_location_setting( 'display_name' ) ); ?></span></div>
 		<div class="ek-order-now__hero-copy"><h1 id="order-now-title"><span>Order</span> <strong>Online</strong></h1><p>Fresh made to order.</p></div>
-		<div class="ek-order-now__hero-media" aria-hidden="true"></div>
+		<div class="ek-order-now__hero-media<?php echo $hero_side_image ? ' ek-order-now__hero-media--has-image' : ''; ?>" aria-hidden="true"><?php if ( $hero_side_image ) : ?><img class="ek-order-now__hero-side-image" src="<?php echo esc_url( $hero_side_image ); ?>" alt="" decoding="async"><?php endif; ?></div>
 	</section>
 	<section class="ek-order-now__menu-surface" aria-label="Order menu categories">
 		<?php if ( $categories ) : ?><nav class="ek-order-now__categories" aria-label="Product categories" data-order-now-categories><?php foreach ( $categories as $category ) : $category_url = get_term_link( $category ); if ( ! is_wp_error( $category_url ) ) : ?><a class="ek-order-now__category<?php echo $active_category === $category->slug ? ' is-active' : ''; ?>" href="<?php echo esc_url( $category_url ); ?>" data-order-now-category="<?php echo esc_attr( $category->slug ); ?>"><?php echo esc_html( $category->name ); ?></a><?php endif; endforeach; ?></nav><?php endif; ?>

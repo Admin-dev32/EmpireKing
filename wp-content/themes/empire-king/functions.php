@@ -197,6 +197,31 @@ function empire_king_customize_register( $wp_customize ) {
 			)
 		)
 	);
+
+	$wp_customize->add_section(
+		'empire_king_order_now_page',
+		array(
+			'title' => esc_html__( 'Order Now Page', 'empire-king' ),
+		)
+	);
+
+	$wp_customize->add_setting(
+		'empire_king_order_now_hero_side_image',
+		array(
+			'sanitize_callback' => 'esc_url_raw',
+		)
+	);
+
+	$wp_customize->add_control(
+		new WP_Customize_Image_Control(
+			$wp_customize,
+			'empire_king_order_now_hero_side_image',
+			array(
+				'label'   => esc_html__( 'Hero Side Image', 'empire-king' ),
+				'section' => 'empire_king_order_now_page',
+			)
+		)
+	);
 }
 add_action( 'customize_register', 'empire_king_customize_register' );
 
@@ -722,6 +747,13 @@ function empire_king_get_deals_travel_background_url() {
 	$background_url = esc_url_raw( get_theme_mod( 'empire_king_deals_travel_background_image' ) );
 
 	return $background_url ? $background_url : false;
+}
+
+/** Gets the Customizer-selected Order Now hero side image URL. */
+function empire_king_get_order_now_hero_side_image_url() {
+	$image_url = esc_url_raw( get_theme_mod( 'empire_king_order_now_hero_side_image' ) );
+
+	return $image_url ? $image_url : false;
 }
 
 /** Gets Home Menu Glimpse categories and product imagery from WooCommerce. */
