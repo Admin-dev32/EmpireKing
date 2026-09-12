@@ -43,6 +43,8 @@ function empire_king_get_location_settings() {
 		'zip'            => '93534',
 		'phone'          => '',
 		'directions_url' => '',
+		'latitude'       => '',
+		'longitude'      => '',
 	);
 
 	foreach ( $defaults as $key => $default ) {
@@ -101,6 +103,27 @@ function empire_king_sanitize_location_phone( $value ) {
 	return preg_replace( '/[^0-9+().\-\s]/', '', (string) $value );
 }
 
+/** Sanitizes an optional geographic coordinate within its allowed range. */
+function empire_king_sanitize_location_coordinate( $value, $minimum, $maximum ) {
+	$value = trim( (string) $value );
+	if ( '' === $value || ! is_numeric( $value ) ) {
+		return '';
+	}
+
+	$coordinate = (float) $value;
+	return is_finite( $coordinate ) && $coordinate >= $minimum && $coordinate <= $maximum ? $value : '';
+}
+
+/** Sanitizes an optional map latitude. */
+function empire_king_sanitize_location_latitude( $value ) {
+	return empire_king_sanitize_location_coordinate( $value, -90, 90 );
+}
+
+/** Sanitizes an optional map longitude. */
+function empire_king_sanitize_location_longitude( $value ) {
+	return empire_king_sanitize_location_coordinate( $value, -180, 180 );
+}
+
 /** Registers Home Menu Glimpse appearance settings. */
 function empire_king_customize_register( $wp_customize ) {
 	$wp_customize->add_section(
@@ -116,6 +139,8 @@ function empire_king_customize_register( $wp_customize ) {
 		'zip'            => array( 'label' => 'ZIP Code', 'sanitize' => 'sanitize_text_field' ),
 		'phone'          => array( 'label' => 'Phone Number', 'sanitize' => 'empire_king_sanitize_location_phone' ),
 		'directions_url' => array( 'label' => 'Directions / Google Maps URL (optional)', 'sanitize' => 'esc_url_raw' ),
+		'latitude'       => array( 'label' => 'Map Latitude (optional)', 'sanitize' => 'empire_king_sanitize_location_latitude' ),
+		'longitude'      => array( 'label' => 'Map Longitude (optional)', 'sanitize' => 'empire_king_sanitize_location_longitude' ),
 	);
 	foreach ( $location_fields as $key => $field ) {
 		$setting = 'empire_king_location_' . $key;
@@ -268,8 +293,10 @@ function empire_king_enqueue_styles() {
 			'empire-king-home-locations',
 			'empireKingLocation',
 			array(
-				'address' => empire_king_get_location_address( true ),
-				'label'   => sprintf( 'Empire King Burger — %s', empire_king_get_location_setting( 'display_name' ) ),
+				'address'   => empire_king_get_location_address( true ),
+				'label'     => sprintf( 'Empire King Burger — %s', empire_king_get_location_setting( 'display_name' ) ),
+				'latitude'  => empire_king_get_location_setting( 'latitude' ),
+				'longitude' => empire_king_get_location_setting( 'longitude' ),
 			)
 		);
 
