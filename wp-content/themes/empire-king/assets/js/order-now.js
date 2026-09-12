@@ -30,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			void products.offsetWidth;
 			products.classList.add('is-category-transitioning');
 		}
+		if (window.location.href !== category.href) window.history.replaceState(null, '', category.href);
 		if (status) status.textContent = `${count} ${count === 1 ? 'item' : 'items'} in ${category.textContent.trim()}.`;
 	});
 
